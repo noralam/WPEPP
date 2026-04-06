@@ -1,0 +1,24 @@
+{
+  "name": "wp-edit-password-protected",
+  "version": "2.0.0",
+  "description": "Create member only page and change the message displayed of default WP Password Protected.",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "lint:js": "wp-scripts lint-js",
+    "lint:css": "wp-scripts lint-style"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^31.6.0"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^7.41.0",
+    "@wordpress/components": "^32.3.0",
+    "@wordpress/data": "^10.41.0",
+    "@wordpress/element": "^6.41.0",
+    "@wordpress/i18n": "^6.14.0",
+    "@wordpress/icons": "^11.8.0",
+    "@wordpress/notices": "^5.41.0",
+    "react-router-dom": "^7.13.1"
+  }
+}

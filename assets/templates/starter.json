@@ -1,0 +1,106 @@
+{
+	"login": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#f0f0f1"
+		},
+		"logo": {
+			"type": "default"
+		},
+		"form": {
+			"background_color": "#ffffff",
+			"border_radius": 8,
+			"width": 320
+		},
+		"heading": {
+			"show": false
+		},
+		"fields": {
+			"border_color": "#8c8f94",
+			"border_radius": 4
+		},
+		"button": {
+			"background_color": "#2271b1",
+			"text_color": "#ffffff",
+			"border_radius": 4
+		},
+		"links": {
+			"color": "#50575e",
+			"show_lost_password": true
+		}
+	},
+	"register": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#f0f0f1"
+		},
+		"logo": {
+			"type": "default"
+		},
+		"form": {
+			"background_color": "#ffffff",
+			"border_radius": 8,
+			"width": 320
+		},
+		"heading": {
+			"show": false
+		},
+		"fields": {
+			"border_color": "#8c8f94",
+			"border_radius": 4
+		},
+		"button": {
+			"background_color": "#2271b1",
+			"text_color": "#ffffff",
+			"border_radius": 4
+		},
+		"links": {
+			"color": "#50575e",
+			"show_lost_password": true
+		}
+	},
+	"lostpassword": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#f0f0f1"
+		},
+		"logo": {
+			"type": "default"
+		},
+		"form": {
+			"background_color": "#ffffff",
+			"border_radius": 8,
+			"width": 320
+		},
+		"heading": {
+			"show": false
+		},
+		"fields": {
+			"border_color": "#8c8f94",
+			"border_radius": 4
+		},
+		"button": {
+			"background_color": "#2271b1",
+			"text_color": "#ffffff",
+			"border_radius": 4
+		},
+		"links": {
+			"color": "#50575e",
+			"show_lost_password": true
+		}
+	},
+	"password": {
+		"active_style": "one",
+		"show_top_text": "on",
+		"top_header": "Protected Content",
+		"top_content": "Enter the password to view this content.",
+		"top_text_align": "center",
+		"form_label": "Password",
+		"form_btn_text": "Submit",
+		"form_background": "#ffffff",
+		"form_border_radius": 8,
+		"button_color": "#2271b1",
+		"show_social": "off",
+		"show_bottom_text": "off"
+	}
+}

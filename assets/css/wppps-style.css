@@ -1,0 +1,452 @@
+/*
+*
+*click to top style goes here.
+*
+*/
+
+.wpepa-wrap-standard {
+  max-width: 1170px;
+  margin: 30px auto;
+}
+.wpepa-wrap-full {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+.wpppass-social-top {
+  padding: 0 0 20px;
+}
+.wpppass-top-text {
+  margin-bottom: 30px;
+}
+div#wpppass input {
+    border: 1px solid #ccc;
+    min-height: 30px;
+}
+div#wpppass {
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 50px 20px;
+  background: #fff;
+  border: 1px solid #ccc;
+  margin: 40px auto;
+}
+.wpppass-text-left,
+.wpppass-text-left p{
+  text-align: left;
+}
+.wpppass-text-center,
+.wpppass-text-center p{
+  text-align: center;
+}
+.wpppass-text-right,
+.wpppass-text-right p{
+  text-align: right;
+}
+#wpppass i.icon-wpass-url {
+  background: #25ACE3;
+  color: #fff;
+}
+
+#wpppass .wpp-social i {
+  text-align: center;
+  background: #fff;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 2px;
+}
+#wpppass.circle i,
+#wpppass.circle svg.wpp-xicon{
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  display: flex;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+}
+#wpppass.circle svg.wpp-xicon {
+  padding: 10px;
+}
+#wpppass.wppass-style-three a i,
+#wpppass.wppass-style-three a svg {
+  background: transparent !important;
+  font-size: 18px;
+}
+#wpppass.quarter i {
+    border-radius: 30%;
+}
+#wpppass i.icon-wpass-facebook{ 
+  background:#4862A3;
+  color:#fff;
+}
+#wpppass i.icon-wpass-facebook:hover{ 
+  background:#375192;
+}
+#wpppass i.icon-wpass-twitter{ 
+  background:#55ACEE;
+  color:#fff;
+}
+#wpppass i.icon-wpass-twitter:hover{ 
+  background:#49a2e5;
+}
+#wpppass svg.wpp-xicon {
+  background: #000;
+  padding: 5px;
+  width: 30px;
+  height: 30px;
+}
+#wpppass svg.wpp-xicon:hover {
+  background: #2a2a2a;
+}
+#wpppass i.icon-wpass-tumblr{ 
+  background:#001935;
+  color:#fff;
+}
+#wpppass i.icon-wpass-tumblr:hover{ 
+  background:#021428;
+}
+#wpppass i.icon-wpass-linkedin{ 
+  background:#007BB5;
+  color:#fff;
+}
+#wpppass i.icon-wpass-linkedin:hover{ 
+  background:#0671a4;
+}
+#wpppass i.icon-wpass-pinterest{ 
+  background:#B31217;
+  color:#fff;
+}
+#wpppass i.icon-wpass-pinterest:hover{ 
+  background:#a91015;
+}
+#wpppass i.icon-wpass-instagram{ 
+  background:#000;
+  color:#fff;
+}
+#wpppass i.icon-wpass-instagram:hover{ 
+  background:#312a2a;
+}
+#wpppass i.icon-wpass-youtube{ 
+  background:#E02F2F;
+  color:#fff;
+}
+#wpppass i.icon-wpass-youtube:hover{ 
+  background:#c52323;
+}
+#wpppass i.icon-wpass-url{ 
+  background:#25ACE3;
+  color:#fff;
+}
+#wpppass i.icon-wpass-url:hover{ 
+  background:#229bcc;
+}
+p.wppass-error-text {
+  color: #bb0000;
+  font-weight: 700;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+#wpppass form {
+  margin-bottom: 15px;
+}
+#wpppass form input[type="password"] {
+    width: 350px;
+    height: 40px;
+}
+#wpppass form input {
+    display: block;
+    margin: 10px 0;
+}
+#wpppass form label {
+    display: block;
+}
+div#wpppass.wppass-style-one form.wppass-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 15px auto;
+  flex-flow: row wrap;
+}
+
+div#wpppass form.wppass-form input {
+  height: inherit;
+  min-height: inherit;
+  padding: 15px 10px;
+  margin-left: 5px;
+  min-width: 120px;
+  font-size: inherit;
+}
+div#wpppass p.wppass-error-text {
+  text-align: center;
+  color: #ff0000 !important;
+}
+div#wpppass.wppass-style-two form.wppass-form {
+  display: flex;
+}
+div#wpppass.wppass-style-two form.wppass-form input {
+  flex: auto;
+}
+div#wpppass.wppass-style-two form.wppass-form input[type="submit"] {
+  flex: 0 0 200px;
+}
+div#wpppass.wppass-style-two {
+  background: #ededed;
+  border: inherit;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  border-radius: 5px;
+}
+div#wpppass.wppass-style-three form.wppass-form,
+div#wpppass.wppass-style-four form.wppass-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
+  margin: 20px auto;
+  padding: 50px;
+  background: #ededed;
+}
+div#wpppass.wppass-style-three form.wppass-form input,
+div#wpppass.wppass-style-four form.wppass-form input{
+  width: 100%;
+}
+
+div#wpppass.wppass-style-three{
+  background: #42276A;
+  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+  color: #fff;
+}
+div#wpppass.wppass-style-three h1,
+div#wpppass.wppass-style-three h2,
+div#wpppass.wppass-style-three h3,
+div#wpppass.wppass-style-three span,
+div#wpppass.wppass-style-three h4,
+div#wpppass.wppass-style-three p{
+  color: #fff;
+}
+div#wpppass.wppass-style-three form.wppass-form {
+  background: transparent;
+  box-shadow: rgb(0 0 0 / 6%) 0px 54px 55px, rgb(0 0 0 / 12%) 0px -12px 30px, rgb(0 0 0 / 12%) 0px 4px 6px, rgb(0 0 0 / 17%) 0px 12px 13px, rgb(0 0 0 / 9%) 0px -3px 5px;
+}
+
+#wpppass form.three {
+  display: flex;
+  align-items: center;
+  flex-flow: row nowrap;
+}
+#wpppass form.three label {
+    display: inline-block;
+    margin-right: 10px;
+}
+#wpppass form.two input,
+#wpppass form.three input {
+    display: inline-block;
+    margin: 10px 0;
+    margin-right: 0px;
+    min-height: 40px;
+}
+#wpppass form.two input[type="password"] ,
+#wpppass form.three input[type="password"] {
+    width: 300px;
+    height: 40px;
+    margin-right: 10px;
+}
+#wpppass form.four input,
+#wpppass form.four input[type="password"],
+#wpppass form.four label{ 
+    display:block;
+    width:100%;
+} 
+
+
+#wpppass .wppp-center{ 
+    text-align:center;
+    justify-content: center;
+} 
+#wpppass .wppp-right {
+  text-align: right;
+  justify-content: flex-end;
+}
+#wpppass .wpppass-social-middle {
+    margin: 5px 0;
+}
+
+.text-center,
+.text-center p{
+	text-align:center !important; 
+}
+.text-left,
+.text-left p{
+	text-align:left !important; 
+}
+.text-right,
+.text-right p{
+	text-align:right !important; 
+}
+div#wpppass .button {
+    border: 1px solid #ededed;
+    padding: 8px 20px;
+    margin: 10px 0 0 0;
+    display: inline-block;
+}
+div#wpppass .btn.button:hover {
+    background-color: #ededed;
+	  color:#000;
+}
+.feature-img {
+    margin-bottom: 40px;
+}
+
+.wpp-not-login{
+    margin-top: 10%;
+    min-height: 400px;
+}
+#wpppass .wpp-social {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+#wpppass .wpp-social a {
+  margin-right: 10px;
+  transition: 0.5s;
+}
+#wpppass .wpp-social a:last-child {
+  margin-right: 0;
+}
+.wpp-social a{
+  margin:0 5px;
+  text-decoration: none;
+}
+.wpp-social a:hover{
+  text-decoration: none;
+}
+
+/*Admin login info template*/
+.wpp-not-login {
+  background: #e7e7e7;
+  padding: 120px 40px;
+  border-radius: 5px;
+  max-width: 1000px;
+  margin: 50px auto;
+}
+
+.wpp-not-login.wpp-loginpage-s1 p,
+.wpp-not-login.wpp-loginpage-s1 h1,
+.wpp-not-login.wpp-loginpage-s1 h2,
+.wpp-not-login.wpp-loginpage-s1 h3,
+.wpp-not-login.wpp-loginpage-s1 h4 {
+  color: #000;
+}
+
+.wpp-not-login h2 {
+  font-size: 45px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.wpp-not-login p {
+  font-size: 18px;
+}
+
+a.wepp-btn.btn {
+  background: #000000;
+  color: #fff;
+  padding: 18px 80px;
+}
+a.wepp-btn.btn:hover {
+  opacity: 0.9;
+}
+
+a.wepp-btn {
+  margin-top: 30px;
+}
+
+.wpp-not-login.wpp-loginpage-s2 {
+  background: #42276A;
+  color: #fff;
+}
+.wpp-not-login.wpp-loginpage-s2 p,
+.wpp-not-login.wpp-loginpage-s2 h1,
+.wpp-not-login.wpp-loginpage-s2 h2,
+.wpp-not-login.wpp-loginpage-s2 h3,
+.wpp-not-login.wpp-loginpage-s2 h4 {
+  color: #fff;
+}
+.wpp-loginpage-s2 a.wepp-btn.btn {
+  background: #FF6200;
+  color: #fff;
+}
+/*Login Form style*/
+.wepp-loginform {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 20px auto;
+  background: #FFFFFF;
+  max-width: 360px;
+  padding: 45px;
+  text-align: center;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+
+.wepp-loginform form {
+  flex: 1;
+  flex-direction: column;
+}
+
+.wepp-loginform form input:not([type='checkbox']) {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  margin: 0 0 15px;
+}
+.wepp-loginform form input:focus {
+  color: #212529;
+  background-color: #fefefe;
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+}
+.wepp-loginform h2 {
+  font-size: 24px;
+  color: #000 !important;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ededed;
+  padding-bottom: 15px;
+}
+p.wepp-chebox-wrap {
+  text-align: left;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+.wepp-loginform form input[type="submit"]{
+  background: #0671a4;
+  color: #fff;
+}
+p.wepp-chebox-wrap span {
+  font-size: 14px;
+  margin-left: 5px;
+  color: #888;
+}
+p.wepp-chebox-wrap {
+  margin: 10px 0;
+}
+.wepp-loginform form input[type="submit"]:hover {
+  background: #065276;
+}
+.wepp-loginform-error p {
+  color: red !important;
+  font-size: 14px;
+}

@@ -1,0 +1,124 @@
+{
+	"login": {
+		"page": {
+			"background_type": "gradient",
+			"background_gradient": "linear-gradient(135deg, #ff9a56 0%, #ff6f61 50%, #d32f2f 100%)"
+		},
+		"logo": {
+			"type": "text",
+			"text": "Sunset",
+			"text_color": "#ffffff",
+			"text_font_size": 28
+		},
+		"form": {
+			"background_color": "rgba(255,255,255,0.9)",
+			"border_radius": 12,
+			"width": 380
+		},
+		"heading": {
+			"show": true,
+			"text": "Sign In",
+			"color": "#d32f2f"
+		},
+		"fields": {
+			"border_color": "#ffccbc",
+			"border_radius": 6
+		},
+		"button": {
+			"background_color": "#e64a19",
+			"text_color": "#ffffff",
+			"border_radius": 25
+		},
+		"links": {
+			"color": "#bf360c",
+			"show_lost_password": true
+		}
+	},
+	"register": {
+		"page": {
+			"background_type": "gradient",
+			"background_gradient": "linear-gradient(135deg, #ff9a56 0%, #ff6f61 50%, #d32f2f 100%)"
+		},
+		"logo": {
+			"type": "text",
+			"text": "Sunset",
+			"text_color": "#ffffff",
+			"text_font_size": 28
+		},
+		"form": {
+			"background_color": "rgba(255,255,255,0.9)",
+			"border_radius": 12,
+			"width": 380
+		},
+		"heading": {
+			"show": true,
+			"text": "Sign In",
+			"color": "#d32f2f"
+		},
+		"fields": {
+			"border_color": "#ffccbc",
+			"border_radius": 6
+		},
+		"button": {
+			"background_color": "#e64a19",
+			"text_color": "#ffffff",
+			"border_radius": 25
+		},
+		"links": {
+			"color": "#bf360c",
+			"show_lost_password": true
+		}
+	},
+	"lostpassword": {
+		"page": {
+			"background_type": "gradient",
+			"background_gradient": "linear-gradient(135deg, #ff9a56 0%, #ff6f61 50%, #d32f2f 100%)"
+		},
+		"logo": {
+			"type": "text",
+			"text": "Sunset",
+			"text_color": "#ffffff",
+			"text_font_size": 28
+		},
+		"form": {
+			"background_color": "rgba(255,255,255,0.9)",
+			"border_radius": 12,
+			"width": 380
+		},
+		"heading": {
+			"show": true,
+			"text": "Sign In",
+			"color": "#d32f2f"
+		},
+		"fields": {
+			"border_color": "#ffccbc",
+			"border_radius": 6
+		},
+		"button": {
+			"background_color": "#e64a19",
+			"text_color": "#ffffff",
+			"border_radius": 25
+		},
+		"links": {
+			"color": "#bf360c",
+			"show_lost_password": true
+		}
+	},
+	"password": {
+		"active_style": "one",
+		"show_top_text": "on",
+		"top_header": "Private Content",
+		"top_content": "This area is password protected.",
+		"top_text_align": "center",
+		"form_label": "Password",
+		"form_btn_text": "Enter",
+		"form_background": "rgba(255,255,255,0.9)",
+		"form_border_radius": 12,
+		"button_color": "#e64a19",
+		"show_social": "on",
+		"link_facebook": "",
+		"link_twitter": "",
+		"link_youtube": "",
+		"show_bottom_text": "off"
+	}
+}

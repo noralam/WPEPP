@@ -1,0 +1,1973 @@
+/**
+ * WPEPP — Admin SPA styles
+ * Dark modern theme inspired by premium dashboard UIs.
+ */
+
+/* ==========================================
+   Variables — Dark Theme
+   ========================================== */
+$sidebar-width: 240px;
+$header-height: 60px;
+
+// Dark palette
+$bg-body:       #0a0e27;
+$bg-sidebar:    #0d1137;
+$bg-surface:    #111640;
+$bg-card:       #151a47;
+$bg-card-hover: #1a2050;
+$bg-input:      #0d1137;
+
+$border-color:  rgba(255, 255, 255, 0.06);
+$border-active: rgba(99, 132, 255, 0.4);
+
+$primary:       #6366f1;
+$primary-light: #818cf8;
+$primary-glow:  rgba(99, 102, 241, 0.25);
+$accent-green:  #22c55e;
+$accent-cyan:   #06b6d4;
+$accent-orange: #f59e0b;
+$accent-red:    #ef4444;
+$pro-gradient:  linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+
+$text-primary:   rgba(255, 255, 255, 0.92);
+$text-secondary: rgba(255, 255, 255, 0.5);
+$text-muted:     rgba(255, 255, 255, 0.3);
+
+$radius:        12px;
+$radius-sm:     8px;
+$shadow-card:   0 2px 12px rgba(0, 0, 0, 0.25);
+$shadow-glow:   0 0 20px rgba(99, 102, 241, 0.15);
+$transition:    0.2s ease;
+
+/* ==========================================
+   WP Admin Overrides — force dark bg on our page
+   ========================================== */
+body.toplevel_page_wpepp-settings {
+	background: $bg-body !important;
+
+	#wpwrap,
+	#wpcontent,
+	#wpbody,
+	#wpbody-content {
+		background: $bg-body !important;
+	}
+}
+
+#wpbody-content:has(#wpepp-admin-root) {
+	padding: 0 !important;
+	background: $bg-body;
+
+	.notice:not(.wpepp-notices *) {
+		margin: 0 20px;
+	}
+}
+
+/* ==========================================
+   Reset & Base
+   ========================================== */
+#wpepp-admin-root {
+	display: block;
+	min-height: calc(100vh - 32px);
+	font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-size: 14px;
+	line-height: 1.6;
+	color: $text-primary;
+	background: $bg-body;
+	-webkit-font-smoothing: antialiased;
+
+	*, *::before, *::after {
+		box-sizing: border-box;
+	}
+
+	// All headings
+	h1, h2, h3, h4, h5, h6 {
+		color: #fff;
+	}
+
+	// Paragraphs / descriptions
+	p {
+		color: $text-secondary;
+	}
+
+	// Links
+	a {
+		color: $primary-light;
+
+		&:hover {
+			color: #fff;
+		}
+	}
+
+	// Labels not inside components
+	label {
+		color: $text-secondary;
+	}
+
+	// ----------------------------------------
+	// WP @wordpress/components — full dark override
+	// ----------------------------------------
+
+	// Cards
+	.components-card {
+		background: $bg-card;
+		border: 1px solid $border-color;
+		border-radius: $radius;
+		color: $text-primary;
+		box-shadow: $shadow-card;
+	}
+
+	.components-card__header {
+		border-bottom-color: $border-color;
+		background: transparent;
+
+		h3 {
+			color: #fff;
+			font-size: 15px;
+			font-weight: 600;
+			margin: 0;
+		}
+	}
+
+	.components-card__body {
+		color: $text-primary;
+	}
+
+	// Panels (used heavily in Form Style / Security / Settings)
+	.components-panel__body {
+		background: $bg-card;
+		border-color: $border-color;
+		color: $text-primary;
+
+		.components-panel__body-title {
+			background: transparent !important;
+			margin: 0;
+
+			button,
+			button.components-button,
+			button.components-panel__body-toggle {
+				color: $text-primary;
+				font-weight: 600;
+				background: $bg-card !important;
+				box-shadow: none !important;
+				outline: none !important;
+
+				&:hover,
+				&:hover:not(:disabled) {
+					color: #fff;
+					background: rgba(255, 255, 255, 0.06) !important;
+				}
+
+				&:focus,
+				&:focus:not(:disabled),
+				&:focus-visible,
+				&:active {
+					background: $bg-card !important;
+					box-shadow: none !important;
+					outline: none !important;
+				}
+
+				// Chevron icon
+				svg {
+					fill: $text-secondary;
+				}
+			}
+		}
+
+		&.is-opened {
+			> .components-panel__body-title {
+				background: transparent !important;
+			}
+
+			> .components-panel__body-title button,
+			> .components-panel__body-title button.components-button,
+			> .components-panel__body-title button.components-panel__body-toggle {
+				color: #fff;
+				background: rgba(99, 102, 241, 0.12) !important;
+
+				&:hover,
+				&:hover:not(:disabled) {
+					background: rgba(99, 102, 241, 0.18) !important;
+				}
+
+				&:focus,
+				&:focus:not(:disabled),
+				&:focus-visible,
+				&:active {
+					background: rgba(99, 102, 241, 0.12) !important;
+					box-shadow: none !important;
+					outline: none !important;
+				}
+			}
+		}
+	}
+
+	.components-panel__row {
+		border-bottom-color: $border-color;
+		margin-top: 20px;
+	}
+
+	// Base Controls (labels, help text)
+	.components-base-control {
+		.components-base-control__label {
+			color: $text-secondary;
+			font-size: 12px;
+			font-weight: 500;
+		}
+
+		.components-base-control__help {
+			color: $text-muted;
+			font-size: 12px;
+		}
+	}
+
+	// Textarea full width
+	.components-base-control:has(.components-textarea-control__input) {
+		width: 100% !important;
+	}
+
+	// Text / Number / URL / Email inputs
+	.components-text-control__input,
+	.components-select-control__input,
+	.components-textarea-control__input,
+	input[type="text"],
+	input[type="number"],
+	input[type="url"],
+	input[type="email"],
+	input[type="password"],
+	textarea,
+	select {
+		background: $bg-input !important;
+		border: 1px solid $border-color !important;
+		color: $text-primary !important;
+		border-radius: $radius-sm !important;
+		padding: 8px 12px !important;
+		width: 100% !important;
+
+		&::placeholder {
+			color: $text-muted !important;
+		}
+
+		&:focus {
+			border-color: $primary !important;
+			box-shadow: 0 0 0 1px $primary !important;
+			outline: none !important;
+		}
+	}
+
+	// Range slider
+	.components-range-control {
+		width: 100% !important;
+
+		.components-range-control__root {
+			flex-wrap: nowrap !important;
+		}
+
+		.components-range-control__wrapper {
+			flex: 1 1 0% !important;
+			min-width: 0 !important;
+			margin-right: 8px !important;
+		}
+
+		.components-range-control__slider {
+			color: $primary;
+			width: 100% !important;
+
+			&::-webkit-slider-runnable-track {
+				background: $border-color;
+			}
+
+			&::-webkit-slider-thumb {
+				background: $primary;
+			}
+		}
+
+		.components-range-control__number {
+			flex: 0 0 60px !important;
+			width: 60px !important;
+			min-width: 60px !important;
+			max-width: 60px !important;
+
+			.components-input-control__container {
+				min-width: 0 !important;
+				width: 60px !important;
+			}
+
+			input[type="number"] {
+				min-width: 0 !important;
+				width: 100% !important;
+				padding: 4px 6px !important;
+				text-align: center;
+			}
+
+			background: $bg-input !important;
+			border-color: $border-color !important;
+			color: $text-primary !important;
+		}
+	}
+
+	// Toggle controls
+	.components-form-toggle {
+		.components-form-toggle__track {
+			border-color: rgba(255, 255, 255, 0.15);
+			background: rgba(255, 255, 255, 0.08);
+		}
+
+		.components-form-toggle__thumb {
+			background: $text-secondary;
+		}
+
+		&.is-checked {
+			.components-form-toggle__track {
+				background: $primary;
+				border-color: $primary;
+			}
+
+			.components-form-toggle__thumb {
+				background: #fff;
+			}
+		}
+	}
+
+	.components-toggle-control {
+		.components-toggle-control__label {
+			color: $text-primary;
+		}
+	}
+
+	// Select controls
+	.components-select-control {
+		select {
+			background: $bg-input !important;
+			border-color: $border-color !important;
+			color: $text-primary !important;
+			padding: 4px 28px 4px 8px !important;
+			min-width: 150px !important;
+			min-height: 36px !important;
+			-webkit-appearance: none !important;
+			-moz-appearance: none !important;
+			appearance: none !important;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0aec0' d='M3 5l3 3 3-3'/%3E%3C/svg%3E") !important;
+			background-repeat: no-repeat !important;
+			background-position: right 8px center !important;
+			background-size: 12px !important;
+		}
+	}
+
+	// Color picker
+	.components-color-picker {
+		background: $bg-card;
+	}
+
+	// Color Control (swatch + popover)
+	.wpepp-color-control {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		width: 100%;
+
+		.wpepp-color-control__label {
+			color: $text-secondary;
+			font-size: 12px;
+			font-weight: 500;
+			flex: 1;
+		}
+
+		.wpepp-color-control__swatch {
+			width: 32px;
+			height: 32px;
+			border-radius: 6px;
+			border: 2px solid $border-color;
+			cursor: pointer;
+			flex-shrink: 0;
+			transition: border-color $transition;
+			padding: 0;
+
+			&:hover {
+				border-color: $primary;
+			}
+		}
+
+		.wpepp-color-control__popover {
+			padding: 8px;
+
+			.components-color-picker {
+				min-width: 260px;
+			}
+		}
+	}
+
+	// Media Upload (logo image picker)
+	.wpepp-media-upload {
+		width: 100%;
+
+		.wpepp-media-upload__preview {
+			display: block;
+			max-width: 100%;
+			max-height: 120px;
+			border-radius: $radius-sm;
+			border: 1px solid $border-color;
+			margin-bottom: 10px;
+			object-fit: contain;
+			background: $bg-input;
+		}
+
+		.wpepp-media-upload__buttons {
+			display: flex;
+			gap: 8px;
+		}
+	}
+
+	// Dimension Control (Elementor-style T/R/B/L)
+	.wpepp-dimension-control {
+		width: 100%;
+
+		.wpepp-dimension-control__label {
+			display: block;
+			color: $text-secondary;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			margin-bottom: 6px;
+		}
+
+		.wpepp-dimension-control__row {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+		.wpepp-dimension-control__field {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			flex: 1;
+			min-width: 0;
+
+			input[type="number"] {
+				width: 100% !important;
+				min-width: 0 !important;
+				text-align: center;
+				padding: 6px 2px !important;
+				font-size: 12px !important;
+				background: $bg-input !important;
+				border: 1px solid $border-color !important;
+				color: $text-primary !important;
+				border-radius: 6px !important;
+				-moz-appearance: textfield;
+
+				&::-webkit-inner-spin-button,
+				&::-webkit-outer-spin-button {
+					-webkit-appearance: none;
+					margin: 0;
+				}
+
+				&:focus {
+					border-color: $primary !important;
+					box-shadow: 0 0 0 1px $primary !important;
+				}
+			}
+
+			.wpepp-dimension-control__side {
+				font-size: 9px;
+				color: $text-muted;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				margin-top: 2px;
+				user-select: none;
+			}
+		}
+
+		.wpepp-dimension-control__link {
+			flex-shrink: 0;
+			width: 28px !important;
+			height: 28px !important;
+			min-width: 28px !important;
+			padding: 0 !important;
+			border-radius: 4px !important;
+			border: 1px solid $border-color !important;
+			background: $bg-input !important;
+			color: $text-muted !important;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			svg {
+				width: 16px;
+				height: 16px;
+				fill: currentColor;
+			}
+
+			&.is-linked {
+				color: $primary !important;
+				border-color: rgba(99, 102, 241, 0.3) !important;
+				background: rgba(99, 102, 241, 0.08) !important;
+			}
+
+			&:hover {
+				color: $primary-light !important;
+				border-color: $primary !important;
+			}
+		}
+
+		.wpepp-dimension-control__unit {
+			font-size: 10px;
+			color: $text-muted;
+			margin-left: 4px;
+			user-select: none;
+		}
+	}
+
+	// Buttons
+	.components-button {
+		&.is-primary {
+			background: $primary;
+			border: 0;
+			border-radius: $radius-sm;
+			font-weight: 600;
+			color: #fff;
+			box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+			padding: 8px 20px;
+
+			&:hover:not(:disabled) {
+				background: $primary-light;
+				box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
+				color: #fff;
+			}
+
+			&:disabled {
+				opacity: 0.5;
+			}
+		}
+
+		&.is-secondary {
+			background: transparent;
+			border: 1px solid $border-color;
+			color: $text-primary;
+			border-radius: $radius-sm;
+			padding: 8px 16px;
+
+			&:hover:not(:disabled) {
+				border-color: $primary;
+				color: $primary-light;
+				background: rgba(99, 102, 241, 0.08);
+			}
+
+			&.is-destructive {
+				border-color: rgba(239, 68, 68, 0.3);
+				color: $accent-red;
+
+				&:hover:not(:disabled) {
+					background: rgba(239, 68, 68, 0.08);
+					border-color: $accent-red;
+				}
+			}
+		}
+
+		&.is-tertiary,
+		&.is-link {
+			color: $primary-light;
+			background: transparent;
+
+			&:hover {
+				color: #fff;
+			}
+		}
+	}
+
+	// Spinner
+	.components-spinner {
+		border-color: $border-color;
+		border-top-color: $primary;
+	}
+
+	// Snackbar notices
+	.components-snackbar-list {
+		.components-snackbar {
+			background: $bg-card;
+			border: 1px solid $border-color;
+			color: $text-primary;
+			box-shadow: $shadow-card;
+		}
+	}
+
+	// WP widefat table override (used with .wpepp-table)
+	table.widefat {
+		background: $bg-card;
+		border-color: $border-color;
+
+		thead th {
+			background: $bg-surface;
+			color: $text-secondary;
+			border-bottom-color: $border-color;
+		}
+
+		td, th {
+			color: $text-primary;
+			border-color: $border-color;
+		}
+
+		tbody tr:hover td {
+			background: rgba(255, 255, 255, 0.02);
+		}
+
+		&.striped tbody tr:nth-child(odd) {
+			background: rgba(255, 255, 255, 0.01);
+		}
+	}
+}
+
+/* ==========================================
+   Layout
+   ========================================== */
+.wpepp-admin-wrap {
+	display: flex;
+	min-height: calc(100vh - 32px);
+}
+
+.wpepp-admin-main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	background: $bg-body;
+}
+
+.wpepp-admin-content {
+	flex: 1;
+	padding: 28px;
+}
+
+/* ==========================================
+   Sidebar
+   ========================================== */
+.wpepp-sidebar {
+	width: $sidebar-width;
+	min-height: 100%;
+	background: $bg-sidebar;
+	border-right: 1px solid $border-color;
+	padding: 20px 0;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+
+	.wpepp-sidebar__logo {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 0 20px 20px;
+		border-bottom: 1px solid $border-color;
+		margin-bottom: 12px;
+		font-size: 15px;
+		font-weight: 700;
+		color: #fff;
+		letter-spacing: -0.2px;
+
+		svg {
+			fill: $primary-light;
+		}
+	}
+
+	.wpepp-sidebar__menu {
+		list-style: none;
+		margin: 0;
+		padding: 0 12px;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		flex: 1;
+	}
+
+	.wpepp-sidebar__link {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 10px 14px;
+		border-radius: $radius-sm;
+		color: $text-secondary;
+		text-decoration: none;
+		font-size: 13.5px;
+		font-weight: 500;
+		transition: all $transition;
+		position: relative;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.04);
+			color: $text-primary;
+		}
+
+		&.is-active {
+			background: rgba(99, 102, 241, 0.12);
+			color: #fff;
+			box-shadow: inset 3px 0 0 $primary;
+
+			svg {
+				fill: $primary-light;
+			}
+		}
+
+		svg {
+			width: 20px;
+			height: 20px;
+			fill: currentColor;
+			flex-shrink: 0;
+			opacity: 0.7;
+		}
+	}
+
+	.wpepp-sidebar__footer {
+		padding: 16px 20px 0;
+		border-top: 1px solid $border-color;
+		margin-top: 12px;
+		font-size: 11px;
+		color: $text-muted;
+	}
+}
+
+/* ==========================================
+   Header
+   ========================================== */
+.wpepp-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: $header-height;
+	padding: 0 28px;
+	background: $bg-sidebar;
+	border-bottom: 1px solid $border-color;
+
+	.wpepp-header__title {
+		font-size: 18px;
+		font-weight: 700;
+		margin: 0;
+		color: #fff;
+	}
+
+	.wpepp-header__actions {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+
+	.wpepp-header__unsaved {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 12px;
+		color: $accent-orange;
+		font-weight: 600;
+
+		&::before {
+			content: "";
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: $accent-orange;
+		}
+	}
+
+	.wpepp-header__upgrade {
+		background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+		color: #fff !important;
+		border: none !important;
+		border-radius: 6px !important;
+		padding: 6px 16px !important;
+		font-size: 12px !important;
+		font-weight: 600 !important;
+		text-decoration: none !important;
+		transition: opacity 0.2s ease !important;
+
+		&:hover {
+			opacity: 0.85 !important;
+		}
+	}
+
+	.wpepp-header__docs {
+		color: $text-secondary !important;
+
+		&:hover {
+			color: $primary-light !important;
+		}
+	}
+}
+
+/* ==========================================
+   Inner Tabs Navigation
+   ========================================== */
+.wpepp-inner-tabs,
+.wpepp-sub-tabs {
+	display: flex;
+	gap: 0;
+	padding: 0 28px;
+	background: $bg-sidebar;
+	border-bottom: 1px solid $border-color;
+	margin-bottom: 2rem;
+
+	@media (max-width: 782px) {
+		margin-bottom: 1.25rem;
+	}
+
+	a {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 14px 18px;
+		color: $text-secondary;
+		text-decoration: none;
+		font-size: 13px;
+		font-weight: 500;
+		border-bottom: 2px solid transparent;
+		transition: all $transition;
+
+		&:hover {
+			color: $text-primary;
+			background: rgba(255, 255, 255, 0.02);
+		}
+
+		&.is-active,
+		&.active {
+			color: $primary-light;
+			border-bottom-color: $primary;
+		}
+
+		&.is-locked {
+			opacity: 0.4;
+		}
+	}
+}
+
+.wpepp-sub-tabs {
+	background: transparent;
+}
+
+/* ==========================================
+   Dashboard
+   ========================================== */
+.wpepp-dashboard {
+	max-width: 1100px;
+
+	h2 {
+		font-size: 22px;
+		font-weight: 700;
+		color: #fff;
+		margin: 0 0 4px;
+	}
+
+	h3 {
+		font-size: 16px;
+		font-weight: 700;
+		color: #fff;
+		margin: 0 0 16px;
+	}
+
+	.wpepp-dashboard__header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		margin-bottom: 24px;
+		gap: 16px;
+	}
+
+	.wpepp-dashboard__subtitle {
+		font-size: 14px;
+		color: $text-secondary;
+		margin: 4px 0 0;
+	}
+
+	/* Plan badge */
+	.wpepp-plan-badge {
+		display: inline-block;
+		padding: 4px 14px;
+		border-radius: 20px;
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+		text-transform: uppercase;
+
+		&.is-pro {
+			background: $pro-gradient;
+			color: #fff;
+		}
+
+		&.is-free {
+			background: rgba(255, 255, 255, 0.08);
+			color: $text-secondary;
+			border: 1px solid $border-color;
+		}
+	}
+
+	/* Stats row */
+	.wpepp-dashboard__stats {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 16px;
+		margin-bottom: 32px;
+
+		@media (max-width: 1100px) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@media (max-width: 600px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	/* Section wrapper */
+	.wpepp-dashboard__section {
+		margin-bottom: 32px;
+	}
+
+	/* Pro upgrade card */
+	.wpepp-dashboard__pro-card {
+		background: $pro-gradient;
+		border-radius: $radius;
+		padding: 28px 32px;
+
+		h3 {
+			color: #fff;
+			font-size: 18px;
+			margin: 0 0 8px;
+		}
+
+		p {
+			color: rgba(255, 255, 255, 0.85);
+			font-size: 14px;
+			margin: 0 0 18px;
+			line-height: 1.6;
+			max-width: 640px;
+		}
+
+		.wpepp-dashboard__pro-btn {
+			display: inline-block;
+			padding: 10px 24px;
+			border-radius: $radius-sm;
+			background: #fff;
+			color: $primary;
+			font-weight: 700;
+			font-size: 13px;
+			text-decoration: none;
+			transition: all $transition;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.9);
+				transform: translateY(-1px);
+			}
+		}
+	}
+}
+
+/* ==========================================
+   Stat Cards
+   ========================================== */
+.wpepp-stat-card {
+	background: $bg-card;
+	border: 1px solid $border-color;
+	border-radius: $radius;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 18px 20px;
+	transition: all $transition;
+	cursor: pointer;
+
+	&:hover {
+		border-color: $border-active;
+		box-shadow: $shadow-glow;
+		transform: translateY(-1px);
+	}
+
+	.wpepp-stat-card__icon-wrap {
+		width: 44px;
+		height: 44px;
+		border-radius: 10px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		background: rgba(99, 102, 241, 0.12);
+		font-size: 20px;
+		line-height: 1;
+	}
+
+	.wpepp-stat-card__info {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.wpepp-stat-card__value {
+		font-size: 20px;
+		font-weight: 700;
+		color: #fff;
+		min-height: 24px;
+		display: flex;
+		align-items: center;
+	}
+
+	.wpepp-stat-card__label {
+		font-size: 12px;
+		color: $text-secondary;
+		font-weight: 500;
+	}
+
+	.wpepp-stat-card__loader {
+		width: 18px;
+		height: 18px;
+		border: 2px solid rgba(255, 255, 255, 0.2);
+		border-top-color: #fff;
+		border-radius: 50%;
+		animation: wpepp-spin 0.6s linear infinite;
+	}
+
+	@keyframes wpepp-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	&.is-active {
+		.wpepp-stat-card__icon-wrap {
+			background: rgba(34, 197, 94, 0.12);
+		}
+
+		.wpepp-stat-card__value {
+			color: $accent-green;
+		}
+	}
+
+	&.is-crawler {
+		.wpepp-stat-card__icon-wrap {
+			background: rgba(239, 68, 68, 0.12);
+		}
+
+		.wpepp-stat-card__value {
+			color: #ef4444;
+		}
+	}
+
+	&.is-success {
+		.wpepp-stat-card__icon-wrap {
+			background: rgba(59, 130, 246, 0.12);
+		}
+
+		.wpepp-stat-card__value {
+			color: #3b82f6;
+		}
+	}
+
+	&.is-failed {
+		.wpepp-stat-card__icon-wrap {
+			background: rgba(245, 158, 11, 0.12);
+		}
+
+		.wpepp-stat-card__value {
+			color: #f59e0b;
+		}
+	}
+}
+
+/* ==========================================
+   Feature Status Grid
+   ========================================== */
+.wpepp-feature-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+	gap: 12px;
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.wpepp-feature-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	background: $bg-card;
+	border: 1px solid $border-color;
+	border-radius: $radius-sm;
+	cursor: pointer;
+	transition: all $transition;
+	text-align: left;
+	color: $text-primary;
+	width: 100%;
+
+	&:hover {
+		border-color: $border-active;
+		background: $bg-card-hover;
+	}
+
+	&__icon {
+		font-size: 22px;
+		line-height: 1;
+		flex-shrink: 0;
+		width: 36px;
+		text-align: center;
+	}
+
+	&__body {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	&__name {
+		font-size: 13px;
+		font-weight: 600;
+		color: #fff;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	&__pro {
+		display: inline-block;
+		font-size: 9px;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+		padding: 1px 6px;
+		border-radius: 3px;
+		background: $pro-gradient;
+		color: #fff;
+		text-transform: uppercase;
+		line-height: 1.5;
+	}
+
+	&__desc {
+		font-size: 11.5px;
+		color: $text-secondary;
+		line-height: 1.4;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	&__status {
+		flex-shrink: 0;
+		font-size: 11px;
+		font-weight: 600;
+		padding: 3px 10px;
+		border-radius: 20px;
+
+		&.is-on {
+			background: rgba(34, 197, 94, 0.12);
+			color: $accent-green;
+		}
+
+		&.is-off {
+			background: rgba(255, 255, 255, 0.06);
+			color: $text-muted;
+		}
+	}
+
+	&.is-on {
+		border-left: 3px solid $accent-green;
+	}
+
+	&.is-locked {
+		opacity: 0.6;
+	}
+}
+
+/* ==========================================
+   Quick Navigation Grid
+   ========================================== */
+.wpepp-quick-nav {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 14px;
+
+	@media (max-width: 900px) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+
+	&__item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		padding: 24px 16px;
+		background: $bg-card;
+		border: 1px solid $border-color;
+		border-radius: $radius;
+		cursor: pointer;
+		transition: all $transition;
+		color: $text-primary;
+		width: 100%;
+
+		&:hover {
+			border-color: $primary;
+			background: $bg-card-hover;
+			transform: translateY(-2px);
+			box-shadow: $shadow-glow;
+		}
+	}
+
+	&__icon {
+		font-size: 28px;
+		line-height: 1;
+		margin-bottom: 10px;
+	}
+
+	&__title {
+		font-size: 14px;
+		font-weight: 600;
+		color: #fff;
+		margin-bottom: 4px;
+	}
+
+	&__desc {
+		font-size: 12px;
+		color: $text-secondary;
+		line-height: 1.4;
+	}
+}
+
+/* ==========================================
+   Editor Layout (Controls + Preview side-by-side)
+   ========================================== */
+.wpepp-editor-layout {
+	display: grid;
+	grid-template-columns: 400px 1fr;
+	gap: 24px;
+	align-items: start;
+
+	@media (max-width: 1200px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.wpepp-editor-controls {
+	display: flex;
+	flex-direction: column;
+	background: $bg-card;
+	border: 1px solid $border-color;
+	border-radius: $radius;
+	overflow: hidden;
+
+	.components-panel__body {
+		border-bottom: 1px solid $border-color;
+		background: transparent;
+
+		&:last-of-type {
+			border-bottom: 0;
+		}
+	}
+}
+
+.wpepp-editor-actions {
+	padding: 16px;
+	border-top: 1px solid $border-color;
+}
+
+/* ==========================================
+   Live Preview
+   ========================================== */
+.wpepp-live-preview {
+	position: sticky;
+	top: 100px;
+	max-height: calc(100vh - 132px);
+	overflow-y: auto;
+	border: 1px solid $border-color;
+	border-radius: $radius;
+	overflow: hidden;
+	background: $bg-card;
+
+	.wpepp-live-preview__loading {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 300px;
+	}
+
+	.wpepp-live-preview__iframe,
+	iframe {
+		display: block;
+		width: 100%;
+		min-height: 600px;
+		border: 0;
+	}
+}
+
+/* ==========================================
+   Cards (generic)
+   ========================================== */
+.wpepp-cards-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 16px;
+}
+
+.wpepp-card {
+	background: $bg-card;
+	border: 1px solid $border-color;
+	border-radius: $radius;
+	padding: 20px;
+	box-shadow: $shadow-card;
+
+	h3 {
+		font-size: 14px;
+		font-weight: 600;
+		margin: 0 0 8px;
+		color: #fff;
+	}
+
+	p {
+		font-size: 13px;
+		color: $text-secondary;
+		margin: 0;
+	}
+}
+
+/* ==========================================
+   Pro Badge
+   ========================================== */
+.wpepp-pro-badge {
+	display: inline-block;
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	padding: 2px 6px;
+	border-radius: 4px;
+	background: $pro-gradient;
+	color: #fff;
+	vertical-align: middle;
+	margin-left: 6px;
+	line-height: 1.5;
+}
+
+/* ==========================================
+   Pro Lock Overlay
+   ========================================== */
+.wpepp-pro-lock-wrapper {
+	position: relative;
+	min-height: 300px;
+}
+
+.wpepp-pro-lock-content {
+	filter: blur(2px);
+	pointer-events: none;
+	user-select: none;
+	opacity: 0.4;
+}
+
+.wpepp-pro-lock-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	background: rgba(10, 14, 39, 0.7);
+	backdrop-filter: blur(4px);
+	z-index: 10;
+	border-radius: $radius;
+
+	svg {
+		width: 32px;
+		height: 32px;
+		fill: $text-secondary;
+	}
+
+	h3 {
+		color: #fff;
+		margin: 0;
+		font-size: 18px;
+	}
+
+	p {
+		color: $text-secondary;
+		margin: 0;
+		text-align: center;
+		max-width: 320px;
+	}
+
+	span {
+		font-size: 14px;
+		font-weight: 600;
+		color: $text-primary;
+	}
+}
+
+/* ==========================================
+   Save Bar (sticky bottom)
+   ========================================== */
+.wpepp-save-bar {
+	position: sticky;
+	bottom: 0;
+	z-index: 100;
+	background: $bg-sidebar;
+	border-top: 1px solid $border-color;
+	padding: 0 28px;
+	animation: wpepp-slide-up 0.25s ease;
+
+	.wpepp-save-bar__inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 12px 0;
+		gap: 16px;
+	}
+
+	.wpepp-save-bar__message {
+		color: $text-secondary;
+		font-size: 13px;
+		font-weight: 500;
+	}
+
+	.wpepp-save-bar__actions {
+		display: flex;
+		gap: 10px;
+		flex-shrink: 0;
+	}
+}
+
+@keyframes wpepp-slide-up {
+	from {
+		transform: translateY(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+/* ==========================================
+   Template Gallery
+   ========================================== */
+.wpepp-templates {
+	.wpepp-templates__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 24px;
+
+		h2 {
+			margin: 0;
+			color: #fff;
+			font-weight: 700;
+		}
+	}
+
+	.wpepp-templates__actions {
+		display: flex;
+		gap: 10px;
+		align-items: center;
+
+		.wpepp-templates__pro-note {
+			font-size: 13px;
+			color: $text-secondary;
+			white-space: nowrap;
+		}
+	}
+
+	> .wpepp-inner-tabs {
+		margin: 0 -28px 24px;
+		padding: 0 28px;
+	}
+}
+
+.wpepp-templates__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 20px;
+}
+
+.wpepp-template-card {
+	background: $bg-card;
+	border: 1px solid $border-color;
+	border-radius: $radius;
+	overflow: hidden;
+	transition: all $transition;
+
+	&:hover {
+		border-color: $border-active;
+		box-shadow: $shadow-glow;
+		transform: translateY(-2px);
+	}
+
+	&.wpepp-template-locked {
+		opacity: 0.6;
+	}
+
+	.wpepp-template-card__preview {
+		position: relative;
+		height: 160px;
+		background: $bg-surface;
+		overflow: hidden;
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.wpepp-template-pro-overlay {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+		}
+	}
+
+	h4 {
+		padding: 14px 14px 6px;
+		margin: 0;
+		font-size: 14px;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.components-button {
+		margin: 6px 14px 14px;
+	}
+}
+
+/* ==========================================
+   Template Loading Overlay (Glassdoor)
+   ========================================== */
+.wpepp-template-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(10, 14, 39, 0.6);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	animation: wpepp-overlay-fade-in 0.2s ease;
+
+	.wpepp-template-overlay__content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 16px;
+		padding: 40px 60px;
+		background: rgba(21, 26, 71, 0.85);
+		border: 1px solid $border-color;
+		border-radius: $radius;
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+		.components-spinner {
+			width: 36px;
+			height: 36px;
+		}
+
+		p {
+			margin: 0;
+			color: $text-primary;
+			font-size: 15px;
+			font-weight: 500;
+		}
+	}
+}
+
+@keyframes wpepp-overlay-fade-in {
+	0% { opacity: 0; }
+	100% { opacity: 1; }
+}
+
+/* ==========================================
+   Tables
+   ========================================== */
+.wpepp-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: $bg-card;
+	border: 1px solid $border-color;
+	border-radius: $radius;
+	overflow: hidden;
+
+	th, td {
+		padding: 12px 18px;
+		text-align: left;
+		font-size: 13px;
+		border-bottom: 1px solid $border-color;
+	}
+
+	th {
+		background: $bg-surface;
+		font-weight: 600;
+		color: $text-secondary;
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	td {
+		color: $text-primary;
+	}
+
+	tr:last-child td {
+		border-bottom: 0;
+	}
+
+	tr:hover td {
+		background: rgba(255, 255, 255, 0.02);
+	}
+
+	.wpepp-status {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 3px 10px;
+		border-radius: 20px;
+		font-size: 11px;
+		font-weight: 600;
+
+		&--success {
+			background: rgba(34, 197, 94, 0.12);
+			color: $accent-green;
+		}
+
+		&--failed,
+		&--error {
+			background: rgba(239, 68, 68, 0.12);
+			color: $accent-red;
+		}
+
+		&--blocked {
+			background: rgba(245, 158, 11, 0.12);
+			color: $accent-orange;
+		}
+	}
+}
+
+/* ==========================================
+   Role Checkboxes (2FA, etc.)
+   ========================================== */
+.wpepp-role-checkboxes {
+	width: 100%;
+	border: 1px solid $border-color;
+	border-radius: $radius-sm;
+	background: rgba(255, 255, 255, 0.02);
+	padding: 16px 20px;
+	margin: 0;
+
+	&__legend {
+		font-weight: 600;
+		font-size: 13px;
+		color: $text-primary;
+		padding: 0 6px;
+	}
+
+	&__list {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		gap: 4px 24px;
+		margin-top: 10px;
+
+		.components-checkbox-control__input-container {
+			margin-right: 6px;
+		}
+
+		.components-base-control {
+			margin-bottom: 0;
+		}
+
+		.components-checkbox-control__label {
+			font-size: 13px;
+			color: $text-primary;
+			cursor: pointer;
+		}
+
+		.components-checkbox-control__input[type="checkbox"] {
+			width: 18px;
+			height: 18px;
+			border: 1.5px solid rgba(255, 255, 255, 0.2);
+			border-radius: 4px;
+			background: $bg-input;
+			cursor: pointer;
+			transition: border-color $transition, background $transition;
+
+			&:hover {
+				border-color: $primary-light;
+			}
+
+			&:checked {
+				background: $primary;
+				border-color: $primary;
+			}
+
+			&:focus {
+				box-shadow: 0 0 0 2px $primary-glow;
+				outline: none;
+			}
+		}
+	}
+
+	@media (max-width: 600px) {
+		padding: 12px 14px;
+
+		&__list {
+			grid-template-columns: 1fr;
+			gap: 2px;
+		}
+	}
+}
+
+/* ==========================================
+   Custom CSS Editor
+   ========================================== */
+.wpepp-custom-css {
+	.description {
+		color: $text-secondary;
+		margin-bottom: 16px;
+	}
+
+	.wpepp-css-editor {
+		width: 100%;
+		font-family: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+		font-size: 13px;
+		line-height: 1.6;
+		padding: 16px;
+		border: 1px solid $border-color;
+		border-radius: $radius;
+		background: $bg-input;
+		color: $text-primary;
+		resize: vertical;
+		tab-size: 2;
+
+		&::placeholder {
+			color: $text-muted;
+		}
+
+		&:focus {
+			border-color: $primary;
+			outline: none;
+			box-shadow: 0 0 0 1px $primary;
+		}
+	}
+}
+
+/* ==========================================
+   Password Form sub-tabs & editor pages
+   ========================================== */
+.wpepp-password-form {
+	h2, h3 {
+		color: #fff;
+		font-weight: 700;
+	}
+}
+
+.wpepp-form-style,
+.wpepp-content-page,
+.wpepp-security-page,
+.wpepp-settings-page {
+	// Ensure inner tabs stack correctly inside content
+	> .wpepp-inner-tabs {
+		margin: -28px -28px 24px;
+	}
+}
+
+/* ==========================================
+   Editor Layout — content padding inside panels
+   ========================================== */
+.wpepp-editor-layout {
+	margin-top: 24px;
+}
+
+/* ==========================================
+   Toolbar & Actions
+   ========================================== */
+.wpepp-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+}
+
+/* ==========================================
+   Empty States
+   ========================================== */
+.wpepp-empty-state {
+	text-align: center;
+	padding: 48px 24px;
+	color: $text-secondary;
+
+	svg {
+		width: 48px;
+		height: 48px;
+		fill: $text-muted;
+		margin-bottom: 12px;
+	}
+
+	p {
+		font-size: 14px;
+	}
+}
+
+/* ==========================================
+   Notices
+   ========================================== */
+.wpepp-notices {
+	padding: 0 28px;
+}
+
+#wpepp-admin-root .components-notice {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: $border-color;
+	color: $text-secondary;
+	border-radius: $radius;
+	margin: 0 0 16px;
+
+	.components-notice__content {
+		color: $text-secondary;
+	}
+
+	.components-notice__action.components-button {
+		color: $primary-light;
+	}
+
+	&.is-info {
+		background: rgba(99, 102, 241, 0.08);
+		border-left-color: $primary;
+	}
+
+	&.is-warning {
+		background: rgba(245, 158, 11, 0.1);
+		border-left-color: #f59e0b;
+	}
+
+	&.is-success {
+		background: rgba(16, 185, 129, 0.1);
+		border-left-color: #10b981;
+	}
+
+	&.is-error {
+		background: rgba(239, 68, 68, 0.1);
+		border-left-color: #ef4444;
+	}
+}
+
+/* ==========================================
+   Settings / Feature Pages — shared dark styles
+   ========================================== */
+.wpepp-general-settings,
+.wpepp-member-template,
+.wpepp-login-protection,
+.wpepp-registration-protection,
+.wpepp-custom-login-url,
+.wpepp-content-lock,
+.wpepp-conditional-display,
+.wpepp-login-log,
+.wpepp-custom-css,
+.wpepp-admin-only-settings,
+.wpepp-site-password-settings,
+.wpepp-ai-crawler-blocker {
+	max-width: 800px;
+
+	h2, h3 {
+		color: #fff;
+		font-weight: 700;
+		margin-top: 0;
+	}
+
+	> p {
+		color: $text-secondary;
+		margin: 0 0 20px;
+	}
+
+	.components-panel__body {
+		background: $bg-card;
+		border: 1px solid $border-color;
+		border-radius: $radius;
+		margin-bottom: 16px;
+
+		.components-panel__row {
+			border-bottom-color: $border-color;
+		}
+	}
+
+	// Links inside tables
+	a {
+		color: $primary-light;
+
+		&:hover {
+			color: #fff;
+		}
+	}
+}
+
+// Full-width pages need no max-width
+.wpepp-content-lock,
+.wpepp-conditional-display,
+.wpepp-login-log {
+	max-width: 100%;
+
+	> .components-toggle-control {
+		margin-bottom: 24px;
+	}
+}
+
+.wpepp-login-log__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
+
+	h2 {
+		margin: 0;
+	}
+
+	> div {
+		display: flex;
+		gap: 10px;
+	}
+}
+
+.wpepp-conditional-display__controls {
+	display: flex;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+@media (max-width: 782px) {
+	.wpepp-admin-wrap {
+		flex-direction: column;
+	}
+
+	.wpepp-sidebar {
+		width: 100%;
+		min-height: auto;
+		border-right: 0;
+		border-bottom: 1px solid $border-color;
+		padding: 12px 0;
+
+		.wpepp-sidebar__menu {
+			flex-direction: row;
+			flex-wrap: wrap;
+			padding: 0 8px;
+		}
+
+		.wpepp-sidebar__link {
+			padding: 8px 10px;
+			font-size: 12px;
+		}
+
+		.wpepp-sidebar__footer {
+			display: none;
+		}
+	}
+
+	.wpepp-admin-content {
+		padding: 16px;
+	}
+}

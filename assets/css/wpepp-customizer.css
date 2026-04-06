@@ -1,0 +1,5 @@
+li#accordion-panel-wppass_protected_panel h3,
+li#accordion-panel-wppass_adminpage_panel h3 {
+    background: bisque !important;
+    border-top: 1px solid #ccc;
+}

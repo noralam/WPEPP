@@ -1,0 +1,38 @@
+# WordPress plugin — ignore build artifacts and local env files
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm/
+.yarn/
+
+# Build output (keep build/ if you want compiled assets tracked)
+# build/
+
+# Composer
+vendor/
+composer.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# WordPress
+wp-config.php
+*.log
+
+# Zip files
+*.zip

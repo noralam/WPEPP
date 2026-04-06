@@ -1,0 +1,74 @@
+/**
+ * Admin CSS for Conditional Meta
+ *
+ * @package WPEPP
+ */
+
+.wpepp-conditional-meta-box {
+    margin: 10px 0;
+}
+
+.wpepp-conditional-enable {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.wpepp-conditional-row {
+    margin-bottom: 12px;
+}
+
+.wpepp-conditional-row label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.wpepp-conditional-row select,
+.wpepp-conditional-row input[type="text"],
+.wpepp-conditional-row input[type="time"],
+.wpepp-conditional-row input[type="date"] {
+    width: 100%;
+}
+
+.wpepp-condition-fields {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+}
+
+.wpepp-action-row {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.description {
+    color: #666;
+    font-style: italic;
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+.wpepp-notice {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+    margin: 0 0 10px 0;
+}
+
+/* Select2 enhancements */
+.select2-container--default .select2-selection--multiple {
+    border-color: #ddd;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #007cba;
+}
+
+/* Sidebar specific styles */
+#side-sortables .wpepp-conditional-meta-box select {
+    max-width: 100%;
+}

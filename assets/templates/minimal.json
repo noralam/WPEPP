@@ -1,0 +1,112 @@
+{
+	"login": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#fafafa"
+		},
+		"logo": {
+			"type": "hide"
+		},
+		"form": {
+			"background_color": "#ffffff",
+			"border_radius": 0,
+			"width": 340
+		},
+		"heading": {
+			"show": true,
+			"text": "Login",
+			"color": "#222222"
+		},
+		"fields": {
+			"border_color": "#e0e0e0",
+			"border_radius": 0
+		},
+		"button": {
+			"background_color": "#222222",
+			"text_color": "#ffffff",
+			"border_radius": 0
+		},
+		"links": {
+			"color": "#888888",
+			"show_lost_password": false
+		}
+	},
+	"register": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#fafafa"
+		},
+		"logo": {
+			"type": "hide"
+		},
+		"form": {
+			"background_color": "#ffffff",
+			"border_radius": 0,
+			"width": 340
+		},
+		"heading": {
+			"show": true,
+			"text": "Login",
+			"color": "#222222"
+		},
+		"fields": {
+			"border_color": "#e0e0e0",
+			"border_radius": 0
+		},
+		"button": {
+			"background_color": "#222222",
+			"text_color": "#ffffff",
+			"border_radius": 0
+		},
+		"links": {
+			"color": "#888888",
+			"show_lost_password": false
+		}
+	},
+	"lostpassword": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#fafafa"
+		},
+		"logo": {
+			"type": "hide"
+		},
+		"form": {
+			"background_color": "#ffffff",
+			"border_radius": 0,
+			"width": 340
+		},
+		"heading": {
+			"show": true,
+			"text": "Login",
+			"color": "#222222"
+		},
+		"fields": {
+			"border_color": "#e0e0e0",
+			"border_radius": 0
+		},
+		"button": {
+			"background_color": "#222222",
+			"text_color": "#ffffff",
+			"border_radius": 0
+		},
+		"links": {
+			"color": "#888888",
+			"show_lost_password": false
+		}
+	},
+	"password": {
+		"active_style": "three",
+		"show_top_text": "on",
+		"top_header": "Protected",
+		"top_content": "",
+		"top_text_align": "center",
+		"form_label": "Password",
+		"form_btn_text": "Go",
+		"form_background": "transparent",
+		"form_border_radius": 0,
+		"button_color": "#222222",
+		"show_social": "off",
+		"show_bottom_text": "off"
+	}
+}

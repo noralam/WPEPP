@@ -1,0 +1,96 @@
+/**
+ * Meta box — admin styles for content lock + conditional meta boxes.
+ *
+ * @package wpepp
+ * @since   2.0.0
+ */
+
+.wpepp-meta-box {
+	padding: 12px;
+}
+
+.wpepp-meta-box label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+	font-size: 13px;
+}
+
+.wpepp-meta-box select,
+.wpepp-meta-box input[type="text"],
+.wpepp-meta-box input[type="password"],
+.wpepp-meta-box input[type="number"] {
+	width: 100%;
+	max-width: 100%;
+}
+
+.wpepp-meta-box .wpepp-field-group {
+	margin-bottom: 12px;
+}
+
+.wpepp-meta-box .wpepp-field-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.wpepp-meta-box .wpepp-field-row > * {
+	flex: 1;
+}
+
+.wpepp-meta-box .wpepp-help-text {
+	font-size: 12px;
+	color: #757575;
+	margin-top: 4px;
+}
+
+.wpepp-meta-box .wpepp-toggle-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 0;
+}
+
+.wpepp-meta-box .wpepp-conditions-list {
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	margin-bottom: 12px;
+}
+
+.wpepp-meta-box .wpepp-condition-item {
+	padding: 10px 12px;
+	border-bottom: 1px solid #e0e0e0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+}
+
+.wpepp-meta-box .wpepp-condition-item:last-child {
+	border-bottom: 0;
+}
+
+.wpepp-meta-box .wpepp-condition-remove {
+	color: #d63638;
+	cursor: pointer;
+	margin-left: auto;
+	background: none;
+	border: none;
+	font-size: 18px;
+	line-height: 1;
+}
+
+/* Pro badge in meta box */
+.wpepp-meta-box .wpepp-pro-badge-inline {
+	display: inline-block;
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	padding: 1px 5px;
+	border-radius: 3px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: #fff;
+	vertical-align: middle;
+	margin-left: 4px;
+}

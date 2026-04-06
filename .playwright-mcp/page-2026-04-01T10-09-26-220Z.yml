@@ -1,0 +1,21 @@
+- generic [ref=e1]:
+  - heading "Lost Password" [level=1] [ref=e2]
+  - generic [ref=e3]:
+    - link "Powered by WordPress" [ref=e4] [cursor=pointer]:
+      - /url: https://wordpress.org/
+    - paragraph [ref=e6]: Please enter your username or email address. You will receive an email message with instructions on how to reset your password.
+    - generic [ref=e7]:
+      - paragraph [ref=e8]:
+        - generic [ref=e9]: Username or Email Address
+        - textbox "Username or Email Address" [active] [ref=e10]
+      - paragraph:
+        - button "Get New Password" [ref=e11] [cursor=pointer]
+    - paragraph [ref=e12]:
+      - link "Log in" [ref=e13] [cursor=pointer]:
+        - /url: http://localhost/shop/wp-login.php
+      - text: "|"
+      - link "Register" [ref=e14] [cursor=pointer]:
+        - /url: http://localhost/shop/wp-login.php?action=register
+    - paragraph [ref=e15]:
+      - link "← Go to WOWMART LITE" [ref=e16] [cursor=pointer]:
+        - /url: http://localhost/shop/

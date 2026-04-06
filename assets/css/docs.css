@@ -1,0 +1,445 @@
+/**
+ * WPEPP — Documentation Page
+ *
+ * @package wpepp
+ * @since   2.0.0
+ */
+
+/* ── Layout ─────────────────────────────────── */
+
+.wpepp-docs-wrap {
+	max-width: 1200px;
+	margin: 20px 20px 20px 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* ── Header ─────────────────────────────────── */
+
+.wpepp-docs-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+	color: #fff;
+	padding: 28px 32px;
+	border-radius: 12px;
+	margin-bottom: 24px;
+	box-shadow: 0 4px 24px rgba(99, 102, 241, .25);
+}
+
+.wpepp-docs-title {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: #fff;
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0 0 4px;
+	padding: 0;
+}
+
+.wpepp-docs-title .dashicons {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+}
+
+.wpepp-docs-subtitle {
+	color: rgba(255, 255, 255, .85);
+	margin: 0;
+	font-size: 14px;
+}
+
+.wpepp-docs-header-actions .button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: rgba(255, 255, 255, .2);
+	color: #fff;
+	border: 1px solid rgba(255, 255, 255, .35);
+	border-radius: 8px;
+	padding: 6px 16px;
+	font-size: 13px;
+	text-decoration: none;
+	transition: background .2s;
+}
+
+.wpepp-docs-header-actions .button:hover,
+.wpepp-docs-header-actions .button:focus {
+	background: rgba(255, 255, 255, .35);
+	color: #fff;
+}
+
+.wpepp-docs-header-actions .button .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* ── Two-column Container ───────────────────── */
+
+.wpepp-docs-container {
+	display: grid;
+	grid-template-columns: 240px 1fr;
+	gap: 24px;
+	align-items: start;
+}
+
+@media (max-width: 860px) {
+	.wpepp-docs-container {
+		grid-template-columns: 1fr;
+	}
+
+	.wpepp-docs-sidebar {
+		position: static !important;
+	}
+}
+
+/* ── Sidebar ────────────────────────────────── */
+
+.wpepp-docs-sidebar {
+	position: sticky;
+	top: 46px;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+	overflow: hidden;
+}
+
+.wpepp-docs-sidebar ul {
+	list-style: none;
+	margin: 0;
+	padding: 8px 0;
+}
+
+.wpepp-docs-sidebar li {
+	margin: 0;
+}
+
+.wpepp-docs-sidebar li a {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 18px;
+	color: #374151;
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: 500;
+	border-left: 3px solid transparent;
+	transition: all .15s;
+}
+
+.wpepp-docs-sidebar li a:hover {
+	background: #f5f3ff;
+	color: #6366f1;
+}
+
+.wpepp-docs-sidebar li.active a {
+	background: #f5f3ff;
+	color: #6366f1;
+	border-left-color: #6366f1;
+	font-weight: 600;
+}
+
+.wpepp-docs-sidebar li a .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	opacity: .7;
+}
+
+.wpepp-docs-sidebar li.active a .dashicons {
+	opacity: 1;
+}
+
+/* ── Pro Tag ────────────────────────────────── */
+
+.wpepp-docs-pro-tag {
+	display: inline-block;
+	background: linear-gradient(135deg, #f59e0b, #ef4444);
+	color: #fff;
+	font-size: 9px;
+	font-weight: 700;
+	letter-spacing: .5px;
+	padding: 2px 6px;
+	border-radius: 4px;
+	margin-left: auto;
+	text-transform: uppercase;
+	line-height: 1.4;
+}
+
+/* ── Content Area ───────────────────────────── */
+
+.wpepp-docs-content {
+	min-width: 0;
+}
+
+/* ── Section Card ───────────────────────────── */
+
+.wpepp-docs-section {
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+	padding: 32px;
+	margin-bottom: 24px;
+}
+
+.wpepp-docs-section-header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 28px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.wpepp-docs-section-header .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+	color: #6366f1;
+	background: #f5f3ff;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+.wpepp-docs-section-header h2 {
+	margin: 0;
+	padding: 0;
+	font-size: 20px;
+	font-weight: 700;
+	color: #1f2937;
+}
+
+/* ── Step List ──────────────────────────────── */
+
+.wpepp-docs-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	counter-reset: none;
+}
+
+.wpepp-docs-steps li {
+	display: flex;
+	gap: 16px;
+	align-items: flex-start;
+	padding: 16px 0;
+	border-bottom: 1px solid #f3f4f6;
+}
+
+.wpepp-docs-steps li:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.wpepp-docs-step-number {
+	flex-shrink: 0;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #6366f1, #8b5cf6);
+	color: #fff;
+	font-size: 14px;
+	font-weight: 700;
+	border-radius: 50%;
+}
+
+.wpepp-docs-step-text {
+	font-size: 14px;
+	line-height: 1.65;
+	color: #374151;
+	padding-top: 4px;
+}
+
+.wpepp-docs-step-text strong {
+	color: #1f2937;
+}
+
+.wpepp-docs-step-text code {
+	background: #f3f4f6;
+	padding: 2px 7px;
+	border-radius: 4px;
+	font-size: 12.5px;
+	color: #6366f1;
+}
+
+.wpepp-docs-step-text em {
+	color: #6b7280;
+}
+
+/* Pro step highlight */
+.wpepp-docs-step-pro {
+	background: linear-gradient(90deg, #faf5ff 0%, #fff 100%);
+	border-radius: 8px;
+	padding-left: 12px !important;
+	padding-right: 12px !important;
+	border-bottom-color: #e9d5ff !important;
+}
+
+.wpepp-docs-step-pro .wpepp-docs-step-number {
+	background: linear-gradient(135deg, #a855f7, #7c3aed);
+}
+
+.wpepp-docs-step-text .wpepp-docs-pro-tag {
+	vertical-align: middle;
+	margin-left: 6px;
+}
+
+/* ── FAQ ────────────────────────────────────── */
+
+.wpepp-docs-faq {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.wpepp-docs-faq-item {
+	background: #fafafa;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	overflow: hidden;
+	transition: box-shadow .2s;
+}
+
+.wpepp-docs-faq-item[open] {
+	box-shadow: 0 2px 8px rgba(99, 102, 241, .1);
+	border-color: #c7d2fe;
+}
+
+.wpepp-docs-faq-item summary {
+	padding: 16px 20px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1f2937;
+	cursor: pointer;
+	list-style: none;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.wpepp-docs-faq-item summary::-webkit-details-marker {
+	display: none;
+}
+
+.wpepp-docs-faq-item summary::before {
+	content: "+";
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 24px;
+	height: 24px;
+	background: #6366f1;
+	color: #fff;
+	border-radius: 50%;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1;
+	transition: transform .2s;
+}
+
+.wpepp-docs-faq-item[open] summary::before {
+	content: "\2212";
+	background: #8b5cf6;
+}
+
+.wpepp-docs-faq-item summary:hover {
+	color: #6366f1;
+}
+
+.wpepp-docs-faq-answer {
+	padding: 0 20px 16px 54px;
+	font-size: 13.5px;
+	line-height: 1.7;
+	color: #4b5563;
+}
+
+.wpepp-docs-faq-answer strong {
+	color: #1f2937;
+}
+
+.wpepp-docs-faq-answer code {
+	background: #f3f4f6;
+	padding: 2px 7px;
+	border-radius: 4px;
+	font-size: 12px;
+	color: #6366f1;
+}
+
+/* ── Bottom Card ────────────────────────────── */
+
+.wpepp-docs-card {
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+	padding: 28px 32px;
+}
+
+.wpepp-docs-card h3 {
+	margin: 0 0 20px;
+	font-size: 16px;
+	font-weight: 700;
+	color: #1f2937;
+}
+
+.wpepp-docs-links-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 16px;
+}
+
+.wpepp-docs-link-card {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 20px;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	text-decoration: none;
+	color: #374151;
+	transition: all .2s;
+}
+
+.wpepp-docs-link-card:hover {
+	border-color: #c7d2fe;
+	box-shadow: 0 4px 12px rgba(99, 102, 241, .12);
+	transform: translateY(-2px);
+	color: #374151;
+}
+
+.wpepp-docs-link-card .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+	color: #6366f1;
+	margin-bottom: 4px;
+}
+
+.wpepp-docs-link-card strong {
+	font-size: 14px;
+	color: #1f2937;
+}
+
+.wpepp-docs-link-card span:last-child {
+	font-size: 12.5px;
+	color: #6b7280;
+}
+
+.wpepp-docs-link-pro {
+	background: linear-gradient(135deg, #fdf4ff, #faf5ff);
+	border-color: #e9d5ff;
+}
+
+.wpepp-docs-link-pro:hover {
+	border-color: #c084fc;
+	box-shadow: 0 4px 12px rgba(139, 92, 246, .15);
+}
+
+.wpepp-docs-link-pro .dashicons {
+	color: #8b5cf6;
+}

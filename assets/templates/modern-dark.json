@@ -1,0 +1,121 @@
+{
+	"login": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#1a1a2e"
+		},
+		"logo": {
+			"type": "text",
+			"text": "Login",
+			"text_color": "#e0e0e0",
+			"text_font_size": 28
+		},
+		"form": {
+			"background_color": "#16213e",
+			"border_radius": 12,
+			"width": 380
+		},
+		"heading": {
+			"show": true,
+			"text": "Welcome Back",
+			"color": "#e0e0e0"
+		},
+		"fields": {
+			"border_color": "#2a2a4a",
+			"border_radius": 6
+		},
+		"button": {
+			"background_color": "#0f3460",
+			"text_color": "#e0e0e0",
+			"border_radius": 6
+		},
+		"links": {
+			"color": "#7a7a9a",
+			"show_lost_password": true
+		}
+	},
+	"register": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#1a1a2e"
+		},
+		"logo": {
+			"type": "text",
+			"text": "Login",
+			"text_color": "#e0e0e0",
+			"text_font_size": 28
+		},
+		"form": {
+			"background_color": "#16213e",
+			"border_radius": 12,
+			"width": 380
+		},
+		"heading": {
+			"show": true,
+			"text": "Welcome Back",
+			"color": "#e0e0e0"
+		},
+		"fields": {
+			"border_color": "#2a2a4a",
+			"border_radius": 6
+		},
+		"button": {
+			"background_color": "#0f3460",
+			"text_color": "#e0e0e0",
+			"border_radius": 6
+		},
+		"links": {
+			"color": "#7a7a9a",
+			"show_lost_password": true
+		}
+	},
+	"lostpassword": {
+		"page": {
+			"background_type": "color",
+			"background_color": "#1a1a2e"
+		},
+		"logo": {
+			"type": "text",
+			"text": "Login",
+			"text_color": "#e0e0e0",
+			"text_font_size": 28
+		},
+		"form": {
+			"background_color": "#16213e",
+			"border_radius": 12,
+			"width": 380
+		},
+		"heading": {
+			"show": true,
+			"text": "Welcome Back",
+			"color": "#e0e0e0"
+		},
+		"fields": {
+			"border_color": "#2a2a4a",
+			"border_radius": 6
+		},
+		"button": {
+			"background_color": "#0f3460",
+			"text_color": "#e0e0e0",
+			"border_radius": 6
+		},
+		"links": {
+			"color": "#7a7a9a",
+			"show_lost_password": true
+		}
+	},
+	"password": {
+		"active_style": "one",
+		"show_top_text": "on",
+		"top_header": "Restricted Area",
+		"top_content": "This content is password protected.",
+		"top_text_align": "center",
+		"form_label": "Password",
+		"form_btn_text": "Unlock",
+		"form_background": "#16213e",
+		"form_border_radius": 12,
+		"button_color": "#0f3460",
+		"show_social": "off",
+		"show_bottom_text": "off"
+	}
+}
