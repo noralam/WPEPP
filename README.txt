@@ -9,7 +9,7 @@ Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Essential security, password protect, block AI crawlers, limit login attempts, CPU monitor & login customizer with live preview.
+Essential security, password protect content, block AI crawlers, limit login attempts, CPU monitor & login page customizer with live preview.
 
 == Description ==
 
