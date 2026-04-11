@@ -9,11 +9,11 @@ Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Best Essential security, password protected content, block AI crawlers, limit login attempts & login customizer with live preview. Total site protection!
+Best Essential security, password protected content, block AI crawlers, limit login attempts, CPU monitor & login customizer with live preview. Total site protection!
 
 == Description ==
 
-**WPEPP best for Best Essential security, password protected content, block AI crawlers, limit login attempts & login customizer with live preview. Total site protection! WPEPP is the all-in-one WordPress essential security and login page customizer plugin.** It combines everything you need to limit login attempts, block brute force attacks, hide the login page, password protect content, and customize the WordPress login page — all from a single, modern dashboard with real-time live preview.
+**WPEPP best for Best Essential security, password protected content, block AI crawlers, limit login attempts, CPU monitor & login customizer with live preview. Total site protection! WPEPP is the all-in-one WordPress essential security and login page customizer plugin.** It combines everything you need to limit login attempts, block brute force attacks, hide the login page, password protect content, and customize the WordPress login page — all from a single, modern dashboard with real-time live preview.
 
 Stop installing five separate plugins. WPEPP replaces your login limiter, login page customizer, password form styler, content restriction plugin, and AI crawler blocker with one lightweight solution that loads zero external scripts on the front end.
 
@@ -166,6 +166,23 @@ Reduce your WordPress attack surface with built-in hardening tools.
 * **Email Domain Whitelist/Blacklist (Pro)** — restrict or allow signups by email domain
 * **Admin Approval for Registrations (Pro)** — require manual admin approval before new users can log in
 
+### 📈 CPU Monitor & Site Health Dashboard
+
+Keep your WordPress site fast and healthy with a built-in performance monitoring dashboard.
+
+* **Real-Time CPU Usage** — see current CPU percentage, core count, and 1/5/15-minute load averages
+* **Memory Overview** — monitor PHP memory usage, peak usage, and configured limits
+* **System Health Score** — instant green/yellow/red health badge based on CPU, memory, and cron status
+* **Slow Query Logger** — automatically log database queries that exceed a configurable time threshold
+* **SAVEQUERIES Toggle** — enable or disable WordPress query logging directly from the dashboard
+* **Cron Jobs Manager** — view all scheduled WordPress cron events, run them manually, or delete stale entries
+* **Overdue Cron Detection** — identify cron jobs that are past due and may be stuck
+* **Plugin Performance** — see which plugins consume the most resources and deactivate sluggish ones
+* **Options Bloat Analyzer** — inspect database options table size, autoloaded data, and top autoloaded options
+* **Transient Cleanup** — clean expired transients with one click to reduce database bloat
+* **Error Log Viewer (Pro)** — parse and display PHP and WordPress error log entries by type
+* **WP Config Manager** — toggle WP_DEBUG, WP_DEBUG_LOG, and SAVEQUERIES without editing files
+
 ---
 
 ### ✅ Free vs Pro Comparison
@@ -224,6 +241,17 @@ Reduce your WordPress attack surface with built-in hardening tools.
 * Desktop Responsive Preview — Free & Pro
 * Tablet & Mobile Responsive Preview — Pro
 * React-Powered Admin Dashboard — Free & Pro
+
+**CPU Monitor & Site Health**
+
+* CPU Usage & Memory Stats — Free & Pro
+* Slow Query Logger — Free & Pro
+* Cron Jobs Manager — Free & Pro
+* Plugin Performance Monitor — Free & Pro
+* Options Bloat Analyzer — Free & Pro
+* Transient Cleanup — Free & Pro
+* Error Log Viewer — Pro
+* WP Config Manager — Free & Pro
 
 ---
 
