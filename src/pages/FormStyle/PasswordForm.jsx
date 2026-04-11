@@ -110,6 +110,94 @@ const PasswordForm = () => {
 						/>
 					</PanelRow>
 				</PanelBody>
+				<PanelBody title={ __( 'Logo', 'wp-edit-password-protected' ) } initialOpen={ false }>
+					<PanelRow>
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Logo Type', 'wp-edit-password-protected' ) }
+							value={ s.logo_type || 'none' }
+							options={ [
+								{ label: __( 'None', 'wp-edit-password-protected' ), value: 'none' },
+								{ label: __( 'Site Logo', 'wp-edit-password-protected' ), value: 'site' },
+								{ label: __( 'Custom Image', 'wp-edit-password-protected' ), value: 'custom' },
+								{ label: __( 'Text', 'wp-edit-password-protected' ), value: 'text' },
+							] }
+							onChange={ ( v ) => update( 'logo_type', v ) }
+						/>
+					</PanelRow>
+					{ s.logo_type === 'custom' && (
+						<>
+							<PanelRow>
+								<div className="wpepp-media-upload">
+									{ s.logo_image && (
+										<img src={ s.logo_image } alt="" className="wpepp-media-upload__preview" />
+									) }
+									<div className="wpepp-media-upload__buttons">
+										<Button variant="secondary" onClick={ () => openMediaUploader( 'logo_image' ) }>
+											{ s.logo_image ? __( 'Change Image', 'wp-edit-password-protected' ) : __( 'Upload Image', 'wp-edit-password-protected' ) }
+										</Button>
+										{ s.logo_image && (
+											<Button variant="tertiary" isDestructive onClick={ () => update( 'logo_image', '' ) }>
+												{ __( 'Remove', 'wp-edit-password-protected' ) }
+											</Button>
+										) }
+									</div>
+								</div>
+							</PanelRow>
+						</>
+					) }
+					{ ( s.logo_type === 'site' || s.logo_type === 'custom' ) && (
+						<>
+							<PanelRow>
+								<RangeControl
+									label={ __( 'Width (px)', 'wp-edit-password-protected' ) }
+									value={ s.logo_width || 120 }
+									onChange={ ( v ) => update( 'logo_width', v ) }
+									min={ 20 }
+									max={ 400 }
+								/>
+							</PanelRow>
+							<PanelRow>
+								<RangeControl
+									label={ __( 'Height (px)', 'wp-edit-password-protected' ) }
+									value={ s.logo_height || 60 }
+									onChange={ ( v ) => update( 'logo_height', v ) }
+									min={ 20 }
+									max={ 400 }
+								/>
+							</PanelRow>
+						</>
+					) }
+					{ s.logo_type === 'text' && (
+						<>
+							<PanelRow>
+								<TextControl
+									label={ __( 'Logo Text', 'wp-edit-password-protected' ) }
+									value={ s.logo_text || '' }
+									onChange={ ( v ) => update( 'logo_text', v ) }
+									placeholder={ __( 'Enter logo text', 'wp-edit-password-protected' ) }
+								/>
+							</PanelRow>
+							<PanelRow>
+								<RangeControl
+									label={ __( 'Font Size (px)', 'wp-edit-password-protected' ) }
+									value={ s.logo_text_font_size || 24 }
+									onChange={ ( v ) => update( 'logo_text_font_size', v ) }
+									min={ 12 }
+									max={ 72 }
+								/>
+							</PanelRow>
+							<PanelRow>
+								<ColorControl
+									label={ __( 'Text Color', 'wp-edit-password-protected' ) }
+									color={ s.logo_text_color || '#1e1e1e' }
+									onChange={ ( v ) => update( 'logo_text_color', v ) }
+								/>
+							</PanelRow>
+						</>
+					) }
+				</PanelBody>
 				<PanelBody title={ __( 'Top Text', 'wp-edit-password-protected' ) } initialOpen={ false }>
 					<PanelRow>
 						<ToggleControl
@@ -160,6 +248,19 @@ const PasswordForm = () => {
 							value={ s.form_label || 'Password' }
 							onChange={ ( v ) => update( 'form_label', v ) }
 							placeholder={ __( 'Password', 'wp-edit-password-protected' ) }
+						/>
+					</PanelRow>
+					<PanelRow>
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Label Display', 'wp-edit-password-protected' ) }
+							value={ s.form_label_type || 'label' }
+							options={ [
+								{ label: __( 'Label', 'wp-edit-password-protected' ), value: 'label' },
+								{ label: __( 'Placeholder', 'wp-edit-password-protected' ), value: 'placeholder' },
+							] }
+							onChange={ ( v ) => update( 'form_label_type', v ) }
 						/>
 					</PanelRow>
 					<PanelRow>

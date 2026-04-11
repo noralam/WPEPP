@@ -1,8 +1,8 @@
-# WP Edit Password Protected - v2.0 Plugin Plan
+# WPEPP – Essential Security, Password Protect & Login Page Customizer - v2.0 Plugin Plan
 
 ## Plugin Overview
 
-**Name:** WP Edit Password Protected
+**Name:** WPEPP – Essential Security, Password Protect & Login Page Customizer
 **Slug:** wp-edit-password-protected
 **Version:** 2.0.0
 **Tech Stack:** React + @wordpress/scripts + WordPress REST API

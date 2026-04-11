@@ -161,7 +161,7 @@ final class WPEPP_Notice {
 			return;
 		}
 
-		$pro_url     = 'https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/#pricing';
+		$pro_url     = 'https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing';
 		$coupon_code = 'wpepp100';
 		?>
 		<div class="wpepp-pro-notice" id="wpepp-pro-notice">
@@ -173,7 +173,7 @@ final class WPEPP_Notice {
 				<div class="wpepp-pro-notice__header">
 					<span class="wpepp-pro-notice__badge">PRO</span>
 					<div class="wpepp-pro-notice__header-text">
-						<h3><?php esc_html_e( 'Unlock the Full Power of WPEPP Pro – Login Security, Password Protect & Login Page Customizer ', 'wp-edit-password-protected' ); ?></h3>
+						<h3><?php esc_html_e( 'Unlock the Full Power of WPEPP Pro – Essential Security, Password Protect & Login Page Customizer ', 'wp-edit-password-protected' ); ?></h3>
 						<p><?php esc_html_e( 'Take your site security & password protection to the next level — advanced login customizer, conditional content, role-based locks, TOTP 2FA and more!', 'wp-edit-password-protected' ); ?></p>
 					</div>
 				</div>

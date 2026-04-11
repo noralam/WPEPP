@@ -1,23 +1,23 @@
-=== WPEPP – Login Security, Password Protect & Login Page Customizer ===
+=== WPEPP – Essential Security, Password Protect & Login Page Customizer ===
 Contributors: nalam
 Donate link: https://wpthemespace.com/donation/
-Tags: login security, limit login attempts, password protected, login customizer, block ai crawlers
+Tags: essential security, limit login attempts, password protected, login customizer, block ai crawlers
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: trunk
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Best Login security, password protected content, block AI crawlers, limit login attempts & login customizer with live preview. Total site protection!
+Best Essential security, password protected content, block AI crawlers, limit login attempts & login customizer with live preview. Total site protection!
 
 == Description ==
 
-**WPEPP best for Best Login security, password protected content, block AI crawlers, limit login attempts & login customizer with live preview. Total site protection! WPEPP is the all-in-one WordPress login security and login page customizer plugin.** It combines everything you need to limit login attempts, block brute force attacks, hide the login page, password protect content, and customize the WordPress login page — all from a single, modern dashboard with real-time live preview.
+**WPEPP best for Best Essential security, password protected content, block AI crawlers, limit login attempts & login customizer with live preview. Total site protection! WPEPP is the all-in-one WordPress essential security and login page customizer plugin.** It combines everything you need to limit login attempts, block brute force attacks, hide the login page, password protect content, and customize the WordPress login page — all from a single, modern dashboard with real-time live preview.
 
 Stop installing five separate plugins. WPEPP replaces your login limiter, login page customizer, password form styler, content restriction plugin, and AI crawler blocker with one lightweight solution that loads zero external scripts on the front end.
 
-[View Details](https://wpthemespace.com/wpepp/) | [View Pricing](https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/#pricing)
+[View Details](https://wpthemespace.com/wpepp/) | [View Pricing](https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing)
 
 [youtube https://www.youtube.com/watch?v=QiMpOBgbhSY]
 
@@ -349,6 +349,21 @@ Yes. WPEPP works in WordPress multisite (network) installations. Each sub-site h
 
 == Changelog ==
 
+= 2.0.1 =
+* Added CPU Monitor — real-time CPU usage, memory stats, load average, and system health overview
+* Added Slow Query Logger — logs queries exceeding a configurable threshold with SAVEQUERIES toggle
+* Added Cron Jobs Manager — view, run, and delete WordPress cron events with overdue detection
+* Added Plugin Performance Monitor — view plugin resource impact and deactivate sluggish plugins
+* Added Options Bloat Analyzer — inspect autoloaded options size and clean expired transients
+* Added Error Log Viewer — parse and display PHP/WordPress error log entries (Pro)
+* Added WP Config Manager — toggle SAVEQUERIES, WP_DEBUG, and WP_DEBUG_LOG from the dashboard
+* Fixed login page customizer styles not applying correctly in some themes
+* Fixed password-protected form styles not rendering on certain page builders
+* Fixed conditional display meta box default values not saving properly
+* Updated admin menu name to WPEPP Security
+* Updated documentation page references to match new menu name
+* Improved uninstall cleanup — now removes all CPU Monitor data on plugin deletion
+
 = 2.0.0 =
 * Complete rebuild with React-powered admin dashboard
 * Added real-time live preview for all form and login page styling
@@ -401,6 +416,9 @@ Yes. WPEPP works in WordPress multisite (network) installations. Each sub-site h
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.0.1 =
+New CPU Monitor dashboard with slow query logging, cron manager, plugin performance, options bloat analyzer, and bug fixes for login/password form styles.
 
 = 2.0.0 =
 Major update — complete rebuild with React admin, login security, brute force protection, 2FA, AI blocker, content lock, and login page customizer. All v1.x settings are migrated automatically.

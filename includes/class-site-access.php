@@ -237,12 +237,7 @@ class WPEPP_Site_Access {
 			defined( 'WPEPP_VERSION' ) ? WPEPP_VERSION : '2.0.0'
 		);
 
-		wp_enqueue_style(
-			'wpepp-admin-only-popup',
-			WPEPP_URL . '/assets/css/admin-only-popup.css',
-			[],
-			defined( 'WPEPP_VERSION' ) ? WPEPP_VERSION : '2.0.0'
-		);
+		WPEPP_Plugin::enqueue_popup_login_css();
 
 		// Preserve the username on failed login.
 		$last_username = isset( $_POST['log'] ) ? sanitize_user( wp_unslash( $_POST['log'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -254,9 +249,10 @@ class WPEPP_Site_Access {
 			<meta charset="<?php bloginfo( 'charset' ); ?>">
 			<meta name="viewport" content="width=device-width, initial-scale=1">
 			<title><?php echo esc_html( $site_name ); ?> &mdash; <?php esc_html_e( 'Login Required', 'wp-edit-password-protected' ); ?></title>
+			<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif}</style>
 			<?php wp_head(); ?>
 		</head>
-		<body>
+		<body class="wpepp-popup-login">
 			<div class="wpepp-popup-lock-wrapper">
 				<div class="wpepp-popup-lock-blur" aria-hidden="true"></div>
 				<div class="wpepp-popup-lock-overlay">
@@ -380,7 +376,6 @@ class WPEPP_Site_Access {
 	 * Render the site password form page.
 	 */
 	private function render_site_password_page() {
-		$message = $this->settings['site_password_message'] ?? __( 'This site is password protected. Please enter the password to continue.', 'wp-edit-password-protected' );
 		$error   = apply_filters( 'wpepp_site_password_error', false );
 
 		$current_url = home_url( add_query_arg( [] ) );
@@ -395,8 +390,9 @@ class WPEPP_Site_Access {
 
 		// Generate custom CSS from saved password settings.
 		$custom_css = '';
+		$pw_settings = [];
 		if ( class_exists( 'WPEPP_Password_Customizer' ) ) {
-			$raw      = get_option( 'wpepp_password_settings', '{}' );
+			$raw         = get_option( 'wpepp_password_settings', '{}' );
 			$pw_settings = json_decode( $raw, true );
 			if ( ! empty( $pw_settings ) && is_array( $pw_settings ) ) {
 				$custom_css = WPEPP_Password_Customizer::generate_css( $pw_settings );
@@ -414,10 +410,16 @@ class WPEPP_Site_Access {
 			wp_add_inline_style( 'wpepp-site-password', wp_strip_all_tags( $custom_css ) );
 		}
 
-		$lock_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'
-			. '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>'
-			. '<path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
-			. '</svg>';
+		// Video background support.
+		$bg_type   = $pw_settings['page_background_type'] ?? '';
+		$bg_video  = $pw_settings['page_background_video'] ?? '';
+		$has_video = ( 'video' === $bg_type && ! empty( $bg_video ) );
+
+		// Try to get the custom form from the Password Customizer.
+		$custom_form = '';
+		if ( class_exists( 'WPEPP_Password_Customizer' ) ) {
+			$custom_form = WPEPP_Password_Customizer::render_site_form( $error, $current_url );
+		}
 
 		?>
 		<!DOCTYPE html>
@@ -429,24 +431,39 @@ class WPEPP_Site_Access {
 			<?php wp_head(); ?>
 		</head>
 		<body class="wpepp-site-password-body">
+			<?php if ( $has_video ) : ?>
+				<?php $this->render_video_background( $bg_video ); ?>
+			<?php endif; ?>
 			<div class="wpepp-site-password-wrap">
-				<div class="wpepp-site-password-icon"><?php echo $lock_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></div>
-				<h1 class="wpepp-site-password-title"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></h1>
-				<p class="wpepp-site-password-message"><?php echo wp_kses_post( $message ); ?></p>
+				<?php if ( ! empty( $custom_form ) ) : ?>
+					<?php echo $custom_form; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside render_site_form(). ?>
+				<?php else : ?>
+					<?php
+					$message = $this->settings['site_password_message'] ?? __( 'This site is password protected. Please enter the password to continue.', 'wp-edit-password-protected' );
 
-				<?php if ( $error ) : ?>
-					<div class="wpepp-site-password-error">
-						<?php esc_html_e( 'Incorrect password. Please try again.', 'wp-edit-password-protected' ); ?>
-					</div>
+					$lock_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'
+						. '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>'
+						. '<path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+						. '</svg>';
+					?>
+					<div class="wpepp-site-password-icon"><?php echo $lock_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></div>
+					<h1 class="wpepp-site-password-title"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></h1>
+					<p class="wpepp-site-password-message"><?php echo wp_kses_post( $message ); ?></p>
+
+					<?php if ( $error ) : ?>
+						<div class="wpepp-site-password-error">
+							<?php esc_html_e( 'Incorrect password. Please try again.', 'wp-edit-password-protected' ); ?>
+						</div>
+					<?php endif; ?>
+
+					<form method="post" class="wpepp-site-password-form">
+						<?php wp_nonce_field( 'wpepp_site_password', 'wpepp_site_password_nonce' ); ?>
+						<input type="hidden" name="wpepp_site_redirect" value="<?php echo esc_url( $current_url ); ?>">
+						<label for="wpepp-site-pw"><?php esc_html_e( 'Password', 'wp-edit-password-protected' ); ?></label>
+						<input type="password" id="wpepp-site-pw" name="wpepp_site_password" required autocomplete="off" autofocus>
+						<button type="submit"><?php esc_html_e( 'Enter Site', 'wp-edit-password-protected' ); ?></button>
+					</form>
 				<?php endif; ?>
-
-				<form method="post" class="wpepp-site-password-form">
-					<?php wp_nonce_field( 'wpepp_site_password', 'wpepp_site_password_nonce' ); ?>
-					<input type="hidden" name="wpepp_site_redirect" value="<?php echo esc_url( $current_url ); ?>">
-					<label for="wpepp-site-pw"><?php esc_html_e( 'Password', 'wp-edit-password-protected' ); ?></label>
-					<input type="password" id="wpepp-site-pw" name="wpepp_site_password" required autocomplete="off" autofocus>
-					<button type="submit"><?php esc_html_e( 'Enter Site', 'wp-edit-password-protected' ); ?></button>
-				</form>
 
 				<div class="wpepp-site-password-footer">
 					<?php
@@ -462,5 +479,43 @@ class WPEPP_Site_Access {
 		</body>
 		</html>
 		<?php
+	}
+
+	/**
+	 * Render a video background element (YouTube, Vimeo, or MP4).
+	 *
+	 * @param string $url Video URL.
+	 */
+	private function render_video_background( $url ) {
+		$url      = esc_url( $url );
+		$video_id = '';
+		$provider = 'mp4';
+
+		if ( preg_match( '/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/', $url, $m ) ) {
+			$video_id = $m[1];
+			$provider = 'youtube';
+		} elseif ( preg_match( '/vimeo\.com\/(?:video\/)?(\d+)/', $url, $m ) ) {
+			$video_id = $m[1];
+			$provider = 'vimeo';
+		}
+
+		$video_css = '.wpepp-video-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden;}'
+			. '.wpepp-video-bg video{width:100%;height:100%;object-fit:cover;}'
+			. '.wpepp-video-bg iframe{position:absolute;top:50%;left:50%;width:100vw;height:56.25vw;'
+			. 'min-height:100vh;min-width:177.78vh;transform:translate(-50%,-50%);border:0;pointer-events:none;}'
+			. '.wpepp-site-password-wrap{position:relative;z-index:1;}';
+		wp_register_style( 'wpepp-video-bg', false, [], defined( 'WPEPP_VERSION' ) ? WPEPP_VERSION : '2.0.0' );
+		wp_add_inline_style( 'wpepp-video-bg', $video_css );
+		wp_print_styles( [ 'wpepp-video-bg' ] );
+
+		echo '<div class="wpepp-video-bg">';
+		if ( 'youtube' === $provider ) {
+			echo '<iframe src="' . esc_url( 'https://www.youtube.com/embed/' . $video_id . '?autoplay=1&mute=1&loop=1&playlist=' . $video_id . '&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1' ) . '" allow="autoplay" allowfullscreen></iframe>';
+		} elseif ( 'vimeo' === $provider ) {
+			echo '<iframe src="' . esc_url( 'https://player.vimeo.com/video/' . $video_id . '?autoplay=1&muted=1&loop=1&background=1&app_id=122963' ) . '" allow="autoplay" allowfullscreen></iframe>';
+		} else {
+			echo '<video autoplay muted loop playsinline><source src="' . esc_url( $url ) . '" type="video/mp4"></video>';
+		}
+		echo '</div>';
 	}
 }

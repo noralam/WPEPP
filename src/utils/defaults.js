@@ -101,6 +101,13 @@ export const LOGIN_DEFAULTS = {
 
 export const PASSWORD_DEFAULTS = {
 	active_style: 'one',
+	logo_type: 'none',
+	logo_image: '',
+	logo_width: 120,
+	logo_height: 60,
+	logo_text: '',
+	logo_text_font_size: 24,
+	logo_text_color: '#1e1e1e',
 	page_background_type: 'color',
 	page_background_color: '#f0f0f1',
 	page_background_image: '',
@@ -113,6 +120,7 @@ export const PASSWORD_DEFAULTS = {
 	top_content: 'For more public resources check out our followed link.',
 	top_text_align: 'center',
 	form_label: 'Password',
+	form_label_type: 'label',
 	form_btn_text: 'Submit',
 	form_errortext: 'The password you have entered is invalid',
 	error_text_position: 'top',

@@ -49,6 +49,16 @@ foreach ( $wpepp_meta_keys as $wpepp_key ) {
 $wpepp_table = $wpdb->prefix . 'wpepp_login_log';
 $wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $wpepp_table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
+// Drop CPU Monitor table.
+$wpepp_cpu_table = $wpdb->prefix . 'wpepp_slow_queries';
+$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $wpepp_cpu_table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+// Delete CPU Monitor options, transients, and cron.
+delete_option( 'wpepp_cpu_monitor_settings' );
+delete_option( 'wpepp_cpu_db_version' );
+delete_transient( 'wpepp_cpu_percent' );
+wp_clear_scheduled_hook( 'wpepp_cpu_prune_queries' );
+
 // Clear transients.
 $wpdb->query(
 	$wpdb->prepare(

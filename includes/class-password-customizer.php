@@ -41,6 +41,7 @@ class WPEPP_Password_Customizer {
 		}
 
 		$form_label  = esc_html( $settings['form_label'] ?? __( 'Password', 'wp-edit-password-protected' ) );
+		$label_type  = sanitize_text_field( $settings['form_label_type'] ?? 'label' );
 		$btn_text    = esc_html( $settings['form_btn_text'] ?? __( 'Submit', 'wp-edit-password-protected' ) );
 		$top_header  = esc_html( $settings['top_header'] ?? '' );
 		$top_content = wp_kses_post( $settings['top_content'] ?? '' );
@@ -63,6 +64,8 @@ class WPEPP_Password_Customizer {
 		ob_start();
 		?>
 		<div class="wpepp-password-form wpepp-style-<?php echo esc_attr( $style ); ?>">
+			<?php self::render_logo( $settings ); ?>
+
 			<?php if ( $has_error && ! empty( $error_text ) && 'top' === $error_pos ) : ?>
 				<div class="wpepp-error-message"><?php echo esc_html( $error_text ); ?></div>
 			<?php endif; ?>
@@ -92,8 +95,129 @@ class WPEPP_Password_Customizer {
 
 			<form class="wpepp-password-form-inner" action="<?php echo esc_url( site_url( 'wp-login.php?action=postpass', 'login_post' ) ); ?>" method="post">
 				<p>
-					<label for="pwbox-<?php echo esc_attr( $post_id ); ?>"><?php echo $form_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></label>
-					<input name="post_password" id="pwbox-<?php echo esc_attr( $post_id ); ?>" type="password" size="20" autocomplete="off">
+					<?php if ( 'placeholder' === $label_type ) : ?>
+						<input name="post_password" id="pwbox-<?php echo esc_attr( $post_id ); ?>" type="password" size="20" autocomplete="off" placeholder="<?php echo esc_attr( $form_label ); ?>">
+					<?php else : ?>
+						<label for="pwbox-<?php echo esc_attr( $post_id ); ?>"><?php echo $form_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></label>
+						<input name="post_password" id="pwbox-<?php echo esc_attr( $post_id ); ?>" type="password" size="20" autocomplete="off">
+					<?php endif; ?>
+				</p>
+				<p class="wpepp-submit">
+					<input type="submit" name="Submit" value="<?php echo esc_attr( $btn_text ); ?>">
+				</p>
+			</form>
+
+			<?php if ( $has_error && ! empty( $error_text ) && 'bottom' === $error_pos ) : ?>
+				<div class="wpepp-error-message"><?php echo esc_html( $error_text ); ?></div>
+			<?php endif; ?>
+
+			<?php if ( $show_bottom && ( ! empty( $bot_header ) || ! empty( $bot_content ) ) ) : ?>
+				<div class="wpepp-password-bottom-text" style="text-align:<?php echo esc_attr( $settings['bottom_text_align'] ?? 'left' ); ?>;">
+					<?php if ( ! empty( $bot_header ) ) : ?>
+						<h3><?php echo $bot_header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></h3>
+					<?php endif; ?>
+					<?php if ( ! empty( $bot_content ) ) : ?>
+						<div class="wpepp-bottom-content"><?php echo $bot_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></div>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $show_social && 'bottom' === $social_pos ) : ?>
+				<div class="wpepp-social-icons wpepp-social-<?php echo esc_attr( $social_align ); ?> wpepp-icon-shape-<?php echo esc_attr( $icon_shape ); ?>">
+					<?php self::render_social_icons( $settings ); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render the custom password form for the site-wide password page.
+	 *
+	 * Uses the same styling/layout as the per-post password form but with
+	 * site-password-specific form fields (nonce, redirect, field name).
+	 *
+	 * @param bool   $has_error   Whether the visitor submitted a wrong password.
+	 * @param string $redirect_url URL to redirect after successful password entry.
+	 * @return string HTML output.
+	 */
+	public static function render_site_form( $has_error = false, $redirect_url = '' ) {
+		$raw      = get_option( 'wpepp_password_settings', '{}' );
+		$settings = json_decode( $raw, true );
+
+		if ( empty( $settings ) || ! is_array( $settings ) ) {
+			return '';
+		}
+
+		$style   = sanitize_text_field( $settings['active_style'] ?? 'one' );
+		$allowed = [ 'one', 'two', 'three', 'four' ];
+		if ( ! in_array( $style, $allowed, true ) ) {
+			$style = 'four';
+		}
+
+		if ( in_array( $style, [ 'three', 'four' ], true ) && ! wpepp_has_pro_check() ) {
+			$style = 'one';
+		}
+
+		$form_label   = esc_html( $settings['form_label'] ?? __( 'Password', 'wp-edit-password-protected' ) );
+		$label_type   = sanitize_text_field( $settings['form_label_type'] ?? 'label' );
+		$btn_text     = esc_html( $settings['form_btn_text'] ?? __( 'Submit', 'wp-edit-password-protected' ) );
+		$top_header   = esc_html( $settings['top_header'] ?? '' );
+		$top_content  = wp_kses_post( $settings['top_content'] ?? '' );
+		$bot_header   = esc_html( $settings['bottom_header'] ?? '' );
+		$bot_content  = wp_kses_post( $settings['bottom_content'] ?? '' );
+		$error_text   = esc_html( $settings['form_errortext'] ?? '' );
+		$error_pos    = sanitize_text_field( $settings['error_text_position'] ?? 'top' );
+		$show_top     = 'on' === ( $settings['show_top_text'] ?? 'off' );
+		$show_bottom  = 'on' === ( $settings['show_bottom_text'] ?? 'off' );
+		$show_social  = 'on' === ( $settings['show_social'] ?? 'off' );
+		$social_pos   = esc_attr( $settings['icons_vposition'] ?? 'top' );
+		$social_align = esc_attr( $settings['icons_alignment'] ?? 'right' );
+		$icon_shape   = sanitize_html_class( $settings['icons_style'] ?? 'square' );
+
+		ob_start();
+		?>
+		<div class="wpepp-password-form wpepp-style-<?php echo esc_attr( $style ); ?>">
+			<?php self::render_logo( $settings ); ?>
+
+			<?php if ( $has_error && ! empty( $error_text ) && 'top' === $error_pos ) : ?>
+				<div class="wpepp-error-message"><?php echo esc_html( $error_text ); ?></div>
+			<?php endif; ?>
+
+			<?php if ( $show_social && 'top' === $social_pos ) : ?>
+				<div class="wpepp-social-icons wpepp-social-<?php echo esc_attr( $social_align ); ?> wpepp-icon-shape-<?php echo esc_attr( $icon_shape ); ?>">
+					<?php self::render_social_icons( $settings ); ?>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $show_top && ( ! empty( $top_header ) || ! empty( $top_content ) ) ) : ?>
+				<div class="wpepp-password-top-text" style="text-align:<?php echo esc_attr( $settings['top_text_align'] ?? 'center' ); ?>;">
+					<?php if ( ! empty( $top_header ) ) : ?>
+						<h3><?php echo $top_header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></h3>
+					<?php endif; ?>
+					<?php if ( ! empty( $top_content ) ) : ?>
+						<div class="wpepp-top-content"><?php echo $top_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></div>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $show_social && 'middle' === $social_pos ) : ?>
+				<div class="wpepp-social-icons wpepp-social-<?php echo esc_attr( $social_align ); ?> wpepp-social-middle wpepp-icon-shape-<?php echo esc_attr( $icon_shape ); ?>">
+					<?php self::render_social_icons( $settings ); ?>
+				</div>
+			<?php endif; ?>
+
+			<form class="wpepp-password-form-inner" action="" method="post">
+				<?php wp_nonce_field( 'wpepp_site_password', 'wpepp_site_password_nonce' ); ?>
+				<input type="hidden" name="wpepp_site_redirect" value="<?php echo esc_url( $redirect_url ); ?>">
+				<p>
+					<?php if ( 'placeholder' === $label_type ) : ?>
+						<input name="wpepp_site_password" id="wpepp-site-pw" type="password" autocomplete="off" autofocus placeholder="<?php echo esc_attr( $form_label ); ?>">
+					<?php else : ?>
+						<label for="wpepp-site-pw"><?php echo $form_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></label>
+						<input name="wpepp_site_password" id="wpepp-site-pw" type="password" autocomplete="off" autofocus>
+					<?php endif; ?>
 				</p>
 				<p class="wpepp-submit">
 					<input type="submit" name="Submit" value="<?php echo esc_attr( $btn_text ); ?>">
@@ -178,6 +302,70 @@ class WPEPP_Password_Customizer {
 	}
 
 	/**
+	 * Render the logo at the top of the password form.
+	 *
+	 * @param array $settings Password settings.
+	 */
+	private static function render_logo( $settings ) {
+		$type = sanitize_text_field( $settings['logo_type'] ?? 'none' );
+
+		if ( 'none' === $type ) {
+			return;
+		}
+
+		$width  = absint( $settings['logo_width'] ?? 120 );
+		$height = absint( $settings['logo_height'] ?? 60 );
+
+		echo '<div class="wpepp-form-logo">';
+
+		if ( 'site' === $type ) {
+			$custom_logo_id = get_theme_mod( 'custom_logo' );
+			if ( $custom_logo_id ) {
+				$logo_url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
+				if ( $logo_url ) {
+					printf(
+						'<img src="%s" alt="%s" style="width:%dpx;height:%dpx;object-fit:contain;">',
+						esc_url( $logo_url ),
+						esc_attr( get_bloginfo( 'name' ) ),
+						$width,
+						$height
+					);
+				}
+			} else {
+				printf(
+					'<span class="wpepp-form-logo-text" style="font-size:24px;color:#1e1e1e;">%s</span>',
+					esc_html( get_bloginfo( 'name' ) )
+				);
+			}
+		} elseif ( 'custom' === $type ) {
+			$image = esc_url( $settings['logo_image'] ?? '' );
+			if ( $image ) {
+				printf(
+					'<img src="%s" alt="%s" style="width:%dpx;height:%dpx;object-fit:contain;">',
+					$image,
+					esc_attr( get_bloginfo( 'name' ) ),
+					$width,
+					$height
+				);
+			}
+		} elseif ( 'text' === $type ) {
+			$text      = esc_html( $settings['logo_text'] ?? '' );
+			$font_size = absint( $settings['logo_text_font_size'] ?? 24 );
+			$color     = self::sanitize_color( $settings['logo_text_color'] ?? '#1e1e1e' );
+			if ( $text ) {
+				printf(
+					'<span class="wpepp-form-logo-text" style="font-size:%dpx;color:%s;">%s</span>',
+					$font_size,
+					$color,
+					$text
+				);
+			}
+		}
+
+		echo '</div>';
+	}
+
+	/**
 	 * Sanitize a CSS color value (hex, rgb, rgba, hsl, hsla, named).
 	 *
 	 * @param string $color The color value.
@@ -226,19 +414,23 @@ class WPEPP_Password_Customizer {
 	public static function generate_css( $settings ) {
 		$css = '';
 
+		// Scoped body selector — targets only password-protected post pages
+		// and the site-wide password page to avoid conflicts with other pages.
+		$body = 'body.password-protected-enabled,body.wpepp-site-password-body';
+
 		// Page background.
 		$bg_type = $settings['page_background_type'] ?? 'color';
 		if ( $bg_type === 'color' && ! empty( $settings['page_background_color'] ) ) {
-			$css .= 'body{background-color:' . self::sanitize_color( $settings['page_background_color'] ) . ';}';
+			$css .= $body . '{background-color:' . self::sanitize_color( $settings['page_background_color'] ) . ';}';
 		} elseif ( $bg_type === 'image' && ! empty( $settings['page_background_image'] ) ) {
 			$image = esc_url( $settings['page_background_image'] );
 			$pos   = sanitize_text_field( $settings['page_background_position'] ?? 'center center' );
 			$size  = sanitize_text_field( $settings['page_background_size'] ?? 'cover' );
-			$css .= 'body{background-image:url(' . $image . ');background-position:' . $pos . ';background-size:' . $size . ';background-repeat:no-repeat;background-attachment:fixed;}';
+			$css .= $body . '{background-image:url(' . $image . ');background-position:' . $pos . ';background-size:' . $size . ';background-repeat:no-repeat;background-attachment:fixed;}';
 		} elseif ( $bg_type === 'gradient' && ! empty( $settings['page_background_gradient'] ) ) {
-			$css .= 'body{background:' . wp_strip_all_tags( $settings['page_background_gradient'] ) . ';}';
+			$css .= $body . '{background:' . wp_strip_all_tags( $settings['page_background_gradient'] ) . ';}';
 		} elseif ( $bg_type === 'video' && ! empty( $settings['page_background_color'] ) ) {
-			$css .= 'body{background-color:' . self::sanitize_color( $settings['page_background_color'] ) . ';}';
+			$css .= $body . '{background-color:' . self::sanitize_color( $settings['page_background_color'] ) . ';}';
 		}
 
 		// Form outer wrapper.

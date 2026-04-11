@@ -17,7 +17,7 @@ const Header = () => {
 	return (
 		<header className="wpepp-header">
 			<h1 className="wpepp-header__title">
-				{ __( 'WPEPP – Login Security, Password Protect & Login Page Customizer', 'wp-edit-password-protected' ) }
+				{ __( 'WPEPP – Essential Security, Password Protect & Login Page Customizer', 'wp-edit-password-protected' ) }
 			</h1>
 			<div className="wpepp-header__actions">
 				{ isSaving && <Spinner /> }
@@ -29,7 +29,7 @@ const Header = () => {
 				{ ! window.wpeppData?.isPro && (
 					<Button
 						variant="primary"
-						href={ window.wpeppData?.proUrl || 'https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/#pricing' }
+						href={ window.wpeppData?.proUrl || 'https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing' }
 						target="_blank"
 						className="wpepp-header__upgrade"
 					>

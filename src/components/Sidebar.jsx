@@ -13,6 +13,7 @@ import {
 	globe as SiteAccessIcon,
 	settings as SettingsIcon,
 	blockDefault as AiCrawlerIcon,
+	desktop as CpuMonitorIcon,
 } from '@wordpress/icons';
 import { Icon } from '@wordpress/icons';
 import ProBadge from './ProBadge';
@@ -25,6 +26,7 @@ const navItems = [
 	{ to: '/ai-crawler', icon: AiCrawlerIcon, label: __( 'AI Crawler Blocker', 'wp-edit-password-protected' ) },
 	{ to: '/form-style', icon: FormStyleIcon, label: __( 'Form Style', 'wp-edit-password-protected' ) },
 	{ to: '/templates', icon: TemplatesIcon, label: __( 'Templates', 'wp-edit-password-protected' ) },
+	{ to: '/cpu-monitor', icon: CpuMonitorIcon, label: __( 'CPU Monitor', 'wp-edit-password-protected' ) },
 	{ to: '/settings', icon: SettingsIcon, label: __( 'Settings', 'wp-edit-password-protected' ) },
 ];
 

@@ -21,6 +21,7 @@ const Security      = lazy( () => import( './pages/Security' ) );
 const AiCrawler     = lazy( () => import( './pages/AiCrawler' ) );
 const SiteAccess    = lazy( () => import( './pages/SiteAccess' ) );
 const Settings      = lazy( () => import( './pages/Settings' ) );
+const CpuMonitor    = lazy( () => import( './pages/CpuMonitor' ) );
 
 const App = () => {
 	// Trigger the getSettings resolver on every entry route so all sections are
@@ -44,6 +45,7 @@ const App = () => {
 								<Route path="/templates/*" element={ <Templates /> } />
 								<Route path="/security/*" element={ <Security /> } />
 						<Route path="/ai-crawler" element={ <AiCrawler /> } />							<Route path="/site-access/*" element={ <SiteAccess /> } />								<Route path="/settings/*" element={ <Settings /> } />
+								<Route path="/cpu-monitor/*" element={ <CpuMonitor /> } />
 								<Route path="*" element={ <Navigate to="/" replace /> } />
 							</Routes>
 						</Suspense>

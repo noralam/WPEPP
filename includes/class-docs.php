@@ -14,6 +14,13 @@ defined( 'ABSPATH' ) || exit;
 class WPEPP_Docs {
 
 	/**
+	 * Hook suffix for the docs page.
+	 *
+	 * @var string
+	 */
+	private $hook_suffix = '';
+
+	/**
 	 * Boot the docs page.
 	 */
 	public function __construct() {
@@ -25,7 +32,7 @@ class WPEPP_Docs {
 	 * Register the Documentation submenu page.
 	 */
 	public function add_submenu() {
-		add_submenu_page(
+		$this->hook_suffix = add_submenu_page(
 			'wpepp-settings',
 			__( 'Documentation', 'wp-edit-password-protected' ),
 			__( 'Documentation', 'wp-edit-password-protected' ),
@@ -41,7 +48,7 @@ class WPEPP_Docs {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue_assets( $hook ) {
-		if ( 'wpepp_page_wpepp-docs' !== $hook ) {
+		if ( $this->hook_suffix !== $hook ) {
 			return;
 		}
 
@@ -65,7 +72,7 @@ class WPEPP_Docs {
 				'title' => __( 'Getting Started', 'wp-edit-password-protected' ),
 				'steps' => [
 					__( 'Install and activate the <strong>WPEPP</strong> plugin from the Plugins page.', 'wp-edit-password-protected' ),
-					__( 'Navigate to <strong>Password Protected</strong> in the left sidebar of your WordPress dashboard.', 'wp-edit-password-protected' ),
+					__( 'Navigate to <strong>WPEPP Security</strong> in the left sidebar of your WordPress dashboard.', 'wp-edit-password-protected' ),
 					__( 'You will see a modern tabbed settings panel — this is the main control center for every feature.', 'wp-edit-password-protected' ),
 				],
 			],
@@ -73,7 +80,7 @@ class WPEPP_Docs {
 				'icon'  => 'dashicons-admin-network',
 				'title' => __( 'Site Access Control', 'wp-edit-password-protected' ),
 				'steps' => [
-					__( 'Go to <strong>Password Protected → Site Access</strong> tab.', 'wp-edit-password-protected' ),
+					__( 'Go to <strong>WPEPP Security → Site Access</strong> tab.', 'wp-edit-password-protected' ),
 					__( '<strong>Admin Only Mode</strong> — Restrict the entire site to logged-in administrators only.', 'wp-edit-password-protected' ),
 					__( '<strong>Site Password</strong> — Require a global password for all visitors to access the site.', 'wp-edit-password-protected' ),
 					__( 'Non-authorized visitors will be redirected to the login page or a custom page.', 'wp-edit-password-protected' ),
@@ -84,7 +91,7 @@ class WPEPP_Docs {
 				'title' => __( 'Content Lock', 'wp-edit-password-protected' ),
 				'badge' => 'pro',
 				'steps' => [
-					__( 'Go to <strong>Password Protected → Content Lock</strong> tab (Pro only).', 'wp-edit-password-protected' ),
+					__( 'Go to <strong>WPEPP Security → Content Lock</strong> tab (Pro only).', 'wp-edit-password-protected' ),
 					__( 'Enable content lock and configure the locked message visitors will see.', 'wp-edit-password-protected' ),
 					__( 'Edit any post/page and enable <strong>Content Lock</strong> from the meta box.', 'wp-edit-password-protected' ),
 					__( 'Non-logged-in users will see the locked message instead of the post content.', 'wp-edit-password-protected' ),
@@ -110,14 +117,14 @@ class WPEPP_Docs {
 					__( 'Create a new <strong>Page</strong> in WordPress.', 'wp-edit-password-protected' ),
 					__( 'In the Page editor, open <strong>Page Attributes</strong> and select the <em>"Member Only Template"</em>.', 'wp-edit-password-protected' ),
 					__( 'Logged-in users will see the page content; logged-out users see the login form.', 'wp-edit-password-protected' ),
-					__( 'Configure the member-only form settings under the <strong>Password Protected</strong> settings panel.', 'wp-edit-password-protected' ),
+					__( 'Configure the member-only form settings under the <strong>WPEPP Security</strong> settings panel.', 'wp-edit-password-protected' ),
 				],
 			],
 			'security'             => [
 				'icon'  => 'dashicons-shield-alt',
 				'title' => __( 'Security Features', 'wp-edit-password-protected' ),
 				'steps' => [
-					__( 'Go to <strong>Password Protected → Security</strong> tab.', 'wp-edit-password-protected' ),
+					__( 'Go to <strong>WPEPP Security → Security</strong> tab.', 'wp-edit-password-protected' ),
 					__( '<strong>Login Limiter</strong> — Set the max number of failed login attempts and lockout duration.', 'wp-edit-password-protected' ),
 					__( '<strong>Honeypot</strong> — Enable the invisible honeypot field to catch bots.', 'wp-edit-password-protected' ),
 					__( '<strong>Disable XML-RPC</strong> — Block XML-RPC requests to prevent brute-force attacks.', 'wp-edit-password-protected' ),
@@ -132,7 +139,7 @@ class WPEPP_Docs {
 				'icon'  => 'dashicons-lock',
 				'title' => __( 'Form Style', 'wp-edit-password-protected' ),
 				'steps' => [
-					__( 'Go to <strong>Password Protected → Form Style</strong> tab.', 'wp-edit-password-protected' ),
+					__( 'Go to <strong>WPEPP Security → Form Style</strong> tab.', 'wp-edit-password-protected' ),
 					__( 'Choose a form style — Style 1 & Style 2 are available for free.', 'wp-edit-password-protected' ),
 					[ 'text' => __( 'Style 3 & Style 4 — Additional premium form styles with advanced layouts.', 'wp-edit-password-protected' ), 'pro' => true ],
 					__( 'Customize the form label, button text, error message, top/bottom text, and social icons.', 'wp-edit-password-protected' ),
@@ -146,7 +153,7 @@ class WPEPP_Docs {
 				'icon'  => 'dashicons-admin-users',
 				'title' => __( 'Login Page Customization', 'wp-edit-password-protected' ),
 				'steps' => [
-					__( 'Go to <strong>Password Protected → Login</strong> tab.', 'wp-edit-password-protected' ),
+					__( 'Go to <strong>WPEPP Security → Login</strong> tab.', 'wp-edit-password-protected' ),
 					__( 'Upload a custom logo, set background color/image, and style the login form colors.', 'wp-edit-password-protected' ),
 					__( 'Customize the heading text displayed above the login form.', 'wp-edit-password-protected' ),
 					__( 'Toggle the <strong>video background</strong> option for a dynamic login experience.', 'wp-edit-password-protected' ),
@@ -159,7 +166,7 @@ class WPEPP_Docs {
 				'icon'  => 'dashicons-layout',
 				'title' => __( 'Templates Gallery', 'wp-edit-password-protected' ),
 				'steps' => [
-					__( 'Go to <strong>Password Protected → Templates</strong> tab.', 'wp-edit-password-protected' ),
+					__( 'Go to <strong>WPEPP Security → Templates</strong> tab.', 'wp-edit-password-protected' ),
 					__( 'Browse the template gallery — 3 free templates are included.', 'wp-edit-password-protected' ),
 					__( 'Click <strong>Apply</strong> on any template to load its style settings instantly.', 'wp-edit-password-protected' ),
 					__( 'After applying, customize any setting further to match your brand.', 'wp-edit-password-protected' ),
@@ -185,7 +192,7 @@ class WPEPP_Docs {
 					],
 					[
 						'q' => __( 'I upgraded to Pro but features are still locked.', 'wp-edit-password-protected' ),
-						'a' => __( 'Make sure you activated the Pro license key. Go to <strong>Password Protected → License</strong> and verify the status shows "Active".', 'wp-edit-password-protected' ),
+						'a' => __( 'Make sure you activated the Pro license key. Go to <strong>WPEPP Security → License</strong> and verify the status shows "Active".', 'wp-edit-password-protected' ),
 					],
 					[
 						'q' => __( 'Can I use this with WooCommerce product pages?', 'wp-edit-password-protected' ),

@@ -12,8 +12,8 @@ if (!defined('ABSPATH')) {
 
 // Get the enable value first
 $wpepp_enable = get_post_meta($post->ID, '_wpepp_conditional_display_enable', true) ?: 'no';
-$wpepp_condition = get_post_meta($post->ID, '_wpepp_conditional_display_condition', true) ?: 'user_logged_in';
-$wpepp_action = get_post_meta($post->ID, '_wpepp_conditional_action', true) ?: 'show';
+$wpepp_condition = get_post_meta($post->ID, '_wpepp_conditional_display_condition', true);
+$wpepp_action = get_post_meta($post->ID, '_wpepp_conditional_action', true);
 
 // Get saved values for specific conditions
 $wpepp_recurring_time_start = get_post_meta($post->ID, '_wpepp_conditional_recurring_time_start', true) ?: '09:00';
@@ -33,8 +33,11 @@ $wpepp_date_start = get_post_meta($post->ID, '_wpepp_conditional_date_start', tr
 $wpepp_date_end = get_post_meta($post->ID, '_wpepp_conditional_date_end', true) ?: gmdate('Y-m-d', strtotime('+7 days'));
 
 // Get title and featured image control values
-$wpepp_control_title = get_post_meta($post->ID, '_wpepp_conditional_control_title', true) ?: 'no';
-$wpepp_control_featured_image = get_post_meta($post->ID, '_wpepp_conditional_control_featured_image', true) ?: 'no';
+$wpepp_control_title = get_post_meta($post->ID, '_wpepp_conditional_control_title', true);
+$wpepp_control_featured_image = get_post_meta($post->ID, '_wpepp_conditional_control_featured_image', true);
+$wpepp_hide_comments = get_post_meta($post->ID, '_wpepp_conditional_control_comments', true);
+$wpepp_show_notice = get_post_meta($post->ID, '_wpepp_conditional_notice_enable', true);
+$wpepp_notice_text = get_post_meta($post->ID, '_wpepp_conditional_notice_text', true);
 
 // Add metabox-specific wrapper class
 wp_nonce_field('wpepp_conditional_meta_box', 'wpepp_conditional_meta_box_nonce');
@@ -53,27 +56,9 @@ wp_nonce_field('wpepp_conditional_meta_box', 'wpepp_conditional_meta_box_nonce')
             <?php esc_html_e('Note: Conditions are applied on the frontend only.', 'wp-edit-password-protected'); ?>
         </p>
 
-        <!-- After the enable checkbox and before the condition selection -->
-        <div class="wpepp-conditional-elements">
-            <p><strong><?php esc_html_e('Apply to:', 'wp-edit-password-protected'); ?></strong></p>
-            <label>
-                <input type="checkbox" name="wpepp_conditional_control_title" value="yes" <?php checked('yes', $wpepp_control_title); ?> />
-                <?php esc_html_e('Post Title', 'wp-edit-password-protected'); ?>
-            </label>
-            <br>
-            <label>
-                <input type="checkbox" name="wpepp_conditional_control_featured_image" value="yes" <?php checked('yes', $wpepp_control_featured_image); ?> />
-                <?php esc_html_e('Featured Image', 'wp-edit-password-protected'); ?>
-            </label>
-            <br>
-            <p class="wpepp-notice-small">
-                <strong><?php esc_html_e('Content is always controlled.', 'wp-edit-password-protected'); ?></strong>
-            </p>
-        </div>
-
         <div class="wpepp-conditional-row">
             <label for="wpepp_conditional_display_condition">
-                <?php esc_html_e('Display When', 'wp-edit-password-protected'); ?>
+                <strong><?php esc_html_e('CONDITION:', 'wp-edit-password-protected'); ?></strong>
             </label>
             <select name="wpepp_conditional_display_condition" id="wpepp_conditional_display_condition">
                 <option value="user_logged_in" <?php selected('user_logged_in', $wpepp_condition); ?>>
@@ -115,9 +100,6 @@ wp_nonce_field('wpepp_conditional_meta_box', 'wpepp_conditional_meta_box_nonce')
             </select>
         </div>
 
-        <p class="description">
-            <?php esc_html_e('Choose whether to show or hide the password protected content when the condition is met.', 'wp-edit-password-protected'); ?>
-        </p>
     </div>
 
     <!-- User Role Condition -->
@@ -353,15 +335,44 @@ wp_nonce_field('wpepp_conditional_meta_box', 'wpepp_conditional_meta_box_nonce')
     <!-- Action Selection -->
     <div class="wpepp-conditional-row wpepp-action-row">
         <label for="wpepp_conditional_action">
-            <?php esc_html_e('Action', 'wp-edit-password-protected'); ?>
+            <strong><?php esc_html_e('ACTION:', 'wp-edit-password-protected'); ?></strong>
         </label>
         <select name="wpepp_conditional_action" id="wpepp_conditional_action">
             <option value="show" <?php selected('show', $wpepp_action); ?>>
-                <?php esc_html_e('Show Element', 'wp-edit-password-protected'); ?>
+                <?php esc_html_e('Show content when condition is met', 'wp-edit-password-protected'); ?>
             </option>
             <option value="hide" <?php selected('hide', $wpepp_action); ?>>
-                <?php esc_html_e('Hide Element', 'wp-edit-password-protected'); ?>
+                <?php esc_html_e('Hide content when condition is met', 'wp-edit-password-protected'); ?>
             </option>
         </select>
+    </div>
+
+    <!-- Additional Options -->
+    <div class="wpepp-conditional-extra-options">
+        <label>
+            <input type="checkbox" name="wpepp_conditional_control_title" value="yes" <?php checked('yes', $wpepp_control_title); ?> />
+            <?php esc_html_e('Also control title visibility', 'wp-edit-password-protected'); ?>
+        </label>
+        <br>
+        <label>
+            <input type="checkbox" name="wpepp_conditional_control_featured_image" value="yes" <?php checked('yes', $wpepp_control_featured_image); ?> />
+            <?php esc_html_e('Also control featured image', 'wp-edit-password-protected'); ?>
+        </label>
+        <br>
+        <label>
+            <input type="checkbox" name="wpepp_conditional_control_comments" value="yes" <?php checked('yes', $wpepp_hide_comments); ?> />
+            <?php esc_html_e('Also hide comments', 'wp-edit-password-protected'); ?>
+        </label>
+        <br>
+        <label>
+            <input type="checkbox" name="wpepp_conditional_notice_enable" value="yes" <?php checked('yes', $wpepp_show_notice); ?> />
+            <?php esc_html_e('Show notice when hidden', 'wp-edit-password-protected'); ?>
+        </label>
+        <div class="wpepp-notice-text-wrapper" <?php if ( 'yes' !== $wpepp_show_notice ) { echo 'style="display:none;"'; } ?>>
+            <label for="wpepp_conditional_notice_text">
+                <strong><?php esc_html_e('NOTICE TEXT:', 'wp-edit-password-protected'); ?></strong>
+            </label>
+            <textarea name="wpepp_conditional_notice_text" id="wpepp_conditional_notice_text" rows="3" style="width:100%"><?php echo esc_textarea($wpepp_notice_text); ?></textarea>
+        </div>
     </div>
 </div>

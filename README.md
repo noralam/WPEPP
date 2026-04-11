@@ -1,13 +1,13 @@
-# WPEPP – Login Security, Password Protect & Login Page Customizer
+# WPEPP – Essential Security, Password Protect & Login Page Customizer
 
 > The all-in-one WordPress security plugin. Login protection, AI crawler blocker, content lock, and a beautiful login page customizer with real-time live preview — all from a single modern dashboard.
 
 [![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple?logo=php)](https://php.net)
 [![License](https://img.shields.io/badge/License-GPLv2-green)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Version](https://img.shields.io/badge/Version-2.0.0-orange)](https://wpthemespace.com/wpepp/)
+[![Version](https://img.shields.io/badge/Version-2.0.1-orange)](https://wpthemespace.com/wpepp/)
 
-**[🌐 View Details](https://wpthemespace.com/wpepp/)** &nbsp;|&nbsp; **[💰 View Pricing](https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/#pricing)** &nbsp;|&nbsp; **[🎥 Watch Video Tutorial](https://www.youtube.com/watch?v=QiMpOBgbhSY)**
+**[🌐 View Details](https://wpthemespace.com/wpepp/)** &nbsp;|&nbsp; **[💰 View Pricing](https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing)** &nbsp;|&nbsp; **[🎥 Watch Video Tutorial](https://www.youtube.com/watch?v=QiMpOBgbhSY)**
 
 ---
 

@@ -116,8 +116,6 @@ class WPEPP_Member_Template {
 			$title_tag = 'h2';
 		}
 
-		get_header();
-
 		/* Enqueue the Content Lock stylesheet for consistent styling. */
 		wp_enqueue_style(
 			'wpepp-content-lock',
@@ -125,6 +123,12 @@ class WPEPP_Member_Template {
 			[],
 			defined( 'WPEPP_VERSION' ) ? WPEPP_VERSION : '2.0.0'
 		);
+
+		if ( 'popup' === $mode ) {
+			WPEPP_Plugin::enqueue_popup_login_css();
+		}
+
+		get_header();
 
 		if ( 'popup' === $mode ) :
 			/* ── Glassdoor popup: blurred placeholder + overlay modal ── */

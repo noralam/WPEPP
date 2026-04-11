@@ -32,4 +32,13 @@ jQuery(document).ready(function($) {
             placeholder: wpepp_conditional_data.select_placeholder
         });
     }
+
+    // Toggle notice text when show notice checkbox changes
+    $('input[name="wpepp_conditional_notice_enable"]').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('.wpepp-notice-text-wrapper').slideDown(300);
+        } else {
+            $('.wpepp-notice-text-wrapper').slideUp(300);
+        }
+    });
 });

@@ -183,6 +183,16 @@ class WPEPP_Frontend {
 			}
 			?>
 			<script>
+			<?php
+			// Make the site logo URL available to the preview JS directly.
+			$preview_site_logo = '';
+			$preview_logo_id   = get_theme_mod( 'custom_logo' );
+			if ( $preview_logo_id ) {
+				$preview_site_logo = wp_get_attachment_image_url( $preview_logo_id, 'full' );
+			}
+			?>
+			var wpeppSiteLogo = <?php echo wp_json_encode( $preview_site_logo ? esc_url( $preview_site_logo ) : '' ); ?>;
+			var wpeppSiteName = <?php echo wp_json_encode( get_bloginfo( 'name' ) ); ?>;
 			window.addEventListener( 'message', function( event ) {
 				if ( event.data && event.data.type === 'wpepp_preview_css' ) {
 					document.getElementById( 'wpepp-preview-css' ).textContent = event.data.css;
@@ -197,6 +207,43 @@ class WPEPP_Frontend {
 					var allowed = [ 'one', 'two', 'three', 'four' ];
 					var style = allowed.indexOf( s.active_style ) !== -1 ? s.active_style : 'one';
 					form.className = 'wpepp-password-form wpepp-style-' + style;
+
+					/* Logo */
+					var logoWrap = document.getElementById( 'wpepp-form-logo' );
+					var logoImg  = document.getElementById( 'wpepp-logo-img' );
+					var logoTxt  = document.getElementById( 'wpepp-logo-text' );
+					var logoType = s.logo_type || 'none';
+					if ( logoWrap ) {
+						logoWrap.style.display = logoType !== 'none' ? '' : 'none';
+					}
+					if ( logoImg ) {
+						if ( logoType === 'site' || logoType === 'custom' ) {
+							var imgSrc = logoType === 'custom' ? ( s.logo_image || '' ) : ( wpeppSiteLogo || '' );
+							logoImg.src = imgSrc || '';
+							logoImg.setAttribute( 'data-has-src', imgSrc ? '1' : '0' );
+							logoImg.style.display = imgSrc ? '' : 'none';
+							logoImg.style.width  = ( s.logo_width || 120 ) + 'px';
+							logoImg.style.height = ( s.logo_height || 60 ) + 'px';
+						} else {
+							logoImg.style.display = 'none';
+							logoImg.setAttribute( 'data-has-src', '0' );
+						}
+					}
+					if ( logoTxt ) {
+						if ( logoType === 'text' ) {
+							logoTxt.textContent   = s.logo_text || '';
+							logoTxt.style.display  = s.logo_text ? '' : 'none';
+							logoTxt.style.fontSize = ( s.logo_text_font_size || 24 ) + 'px';
+							logoTxt.style.color    = s.logo_text_color || '#1e1e1e';
+						} else if ( logoType === 'site' && logoImg && logoImg.getAttribute( 'data-has-src' ) !== '1' ) {
+							logoTxt.textContent   = wpeppSiteName || '';
+							logoTxt.style.display  = '';
+							logoTxt.style.fontSize = '24px';
+							logoTxt.style.color    = '#1e1e1e';
+						} else {
+							logoTxt.style.display = 'none';
+						}
+					}
 
 					/* Top text */
 					var topText = document.getElementById( 'wpepp-top-text' );
@@ -222,7 +269,16 @@ class WPEPP_Frontend {
 
 					/* Form label & button */
 					var lbl = document.getElementById( 'wpepp-form-label' );
-					if ( lbl ) lbl.textContent = s.form_label || 'Password';
+					var pwInput = document.getElementById( 'pwbox-preview' );
+					var labelText = s.form_label || 'Password';
+					var labelType = s.form_label_type || 'label';
+					if ( lbl ) {
+						lbl.textContent = labelText;
+						lbl.style.display = labelType === 'placeholder' ? 'none' : '';
+					}
+					if ( pwInput ) {
+						pwInput.placeholder = labelType === 'placeholder' ? labelText : '';
+					}
 					var btn = document.getElementById( 'wpepp-form-submit' );
 					if ( btn ) btn.value = s.form_btn_text || 'Submit';
 
@@ -416,14 +472,55 @@ class WPEPP_Frontend {
 
 		$style       = sanitize_text_field( $settings['active_style'] ?? 'one' );
 		$form_label  = esc_html( $settings['form_label'] ?? __( 'Password', 'wp-edit-password-protected' ) );
+		$label_type  = sanitize_text_field( $settings['form_label_type'] ?? 'label' );
 		$btn_text    = esc_html( $settings['form_btn_text'] ?? __( 'Submit', 'wp-edit-password-protected' ) );
 		$top_header  = esc_html( $settings['top_header'] ?? '' );
 		$top_content = wp_kses_post( $settings['top_content'] ?? '' );
 		$bot_header  = esc_html( $settings['bottom_header'] ?? '' );
 		$bot_content = wp_kses_post( $settings['bottom_content'] ?? '' );
 		$error_text  = esc_html( $settings['form_errortext'] ?? '' );
+
+		// Logo initial state — render server-side so it shows immediately.
+		$logo_type = sanitize_text_field( $settings['logo_type'] ?? 'none' );
+		$logo_show = 'none' !== $logo_type;
+		$logo_img_src = '';
+		$logo_img_show = false;
+		$logo_txt_val  = '';
+		$logo_txt_show = false;
+		$logo_width  = absint( $settings['logo_width'] ?? 120 );
+		$logo_height = absint( $settings['logo_height'] ?? 60 );
+		$logo_txt_fs = absint( $settings['logo_text_font_size'] ?? 24 );
+		$logo_txt_color = esc_attr( $settings['logo_text_color'] ?? '#1e1e1e' );
+
+		if ( 'site' === $logo_type ) {
+			$custom_logo_id = get_theme_mod( 'custom_logo' );
+			if ( $custom_logo_id ) {
+				$logo_img_src = wp_get_attachment_image_url( $custom_logo_id, 'full' );
+				if ( $logo_img_src ) {
+					$logo_img_show = true;
+				}
+			}
+			if ( ! $logo_img_show ) {
+				$logo_txt_val  = get_bloginfo( 'name' );
+				$logo_txt_show = true;
+			}
+		} elseif ( 'custom' === $logo_type ) {
+			$logo_img_src = esc_url( $settings['logo_image'] ?? '' );
+			if ( $logo_img_src ) {
+				$logo_img_show = true;
+			}
+		} elseif ( 'text' === $logo_type ) {
+			$logo_txt_val  = $settings['logo_text'] ?? '';
+			$logo_txt_show = ! empty( $logo_txt_val );
+		}
 		?>
 		<div class="wpepp-password-form wpepp-style-<?php echo esc_attr( $style ); ?>" id="wpepp-pw-preview">
+			<!-- Logo -->
+			<div class="wpepp-form-logo" id="wpepp-form-logo" style="<?php echo $logo_show ? '' : 'display:none;'; ?>">
+				<img id="wpepp-logo-img" src="<?php echo $logo_img_src ? esc_url( $logo_img_src ) : ''; ?>" alt="" style="<?php echo $logo_img_show ? '' : 'display:none;'; ?>object-fit:contain;<?php echo $logo_img_show ? 'width:' . $logo_width . 'px;height:' . $logo_height . 'px;' : ''; ?>" data-has-src="<?php echo $logo_img_src ? '1' : '0'; ?>">
+				<span id="wpepp-logo-text" class="wpepp-form-logo-text" style="<?php echo $logo_txt_show ? '' : 'display:none;'; ?>font-size:<?php echo $logo_txt_fs; ?>px;color:<?php echo $logo_txt_color; ?>;"><?php echo esc_html( $logo_txt_val ); ?></span>
+			</div>
+
 			<!-- Error top -->
 			<div class="wpepp-error-message" id="wpepp-error-top" style="display:none;"><?php echo $error_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></div>
 
@@ -446,8 +543,8 @@ class WPEPP_Frontend {
 			<!-- Form -->
 			<form class="wpepp-password-form-inner" method="post" onsubmit="return false;">
 				<p>
-					<label for="pwbox-preview" id="wpepp-form-label"><?php echo $form_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></label>
-					<input name="post_password" id="pwbox-preview" type="password" size="20">
+					<label for="pwbox-preview" id="wpepp-form-label" <?php if ( 'placeholder' === $label_type ) echo 'style="display:none;"'; ?>><?php echo $form_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?></label>
+					<input name="post_password" id="pwbox-preview" type="password" size="20" <?php if ( 'placeholder' === $label_type ) echo 'placeholder="' . esc_attr( $form_label ) . '"'; ?>>
 				</p>
 				<p class="wpepp-submit">
 					<input type="submit" name="Submit" id="wpepp-form-submit" value="<?php echo esc_attr( $btn_text ); ?>">

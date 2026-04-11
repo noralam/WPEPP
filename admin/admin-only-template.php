@@ -48,6 +48,10 @@ wp_enqueue_style(
 	defined( 'WPEPP_VERSION' ) ? WPEPP_VERSION : '2.0.0'
 );
 
+if ( 'popup' === $wpepp_mode ) {
+	WPEPP_Plugin::enqueue_popup_login_css();
+}
+
 get_header();
 ?>
 

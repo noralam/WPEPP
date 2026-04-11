@@ -57,6 +57,7 @@ final class WPEPP_Plugin {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_password_form_styles' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_content_lock_styles' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_conditional_script' ] );
+		add_filter( 'body_class', [ $this, 'add_password_protected_body_class' ] );
 		add_action( 'login_enqueue_scripts', [ $this, 'enqueue_login_styles' ] );
 		add_action( 'login_enqueue_scripts', [ $this, 'enqueue_global_custom_css' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_global_custom_css' ] );
@@ -112,6 +113,9 @@ final class WPEPP_Plugin {
 		new WPEPP_Content_Lock();
 		new WPEPP_Conditional_Meta();
 
+		// CPU Monitor.
+		new WPEPP_CPU_Monitor();
+
 		// Preview handler.
 		add_action( 'template_redirect', [ $this, 'handle_preview' ] );
 		add_action( 'wp_ajax_wpepp_preview', [ $this, 'ajax_preview' ] );
@@ -139,6 +143,14 @@ final class WPEPP_Plugin {
 			'class-security.php',
 			'class-member-template.php',
 			'class-site-access.php',
+			'class-cpu-system-info.php',
+			'class-cpu-query-monitor.php',
+			'class-cpu-cron-monitor.php',
+			'class-cpu-error-log.php',
+			'class-cpu-plugin-monitor.php',
+			'class-cpu-options-monitor.php',
+			'class-cpu-wp-config.php',
+			'class-cpu-monitor.php',
 		];
 
 		foreach ( $includes as $file ) {
@@ -172,8 +184,8 @@ final class WPEPP_Plugin {
 			. '</svg>';
 
 		add_menu_page(
-			__( 'WPEPP', 'wp-edit-password-protected' ),
-			__( 'WPEPP', 'wp-edit-password-protected' ),
+			__( 'WPEPP Security', 'wp-edit-password-protected' ),
+			__( 'WPEPP Security', 'wp-edit-password-protected' ),
 			'manage_options',
 			'wpepp-settings',
 			[ $this, 'render_admin_page' ],
@@ -217,7 +229,7 @@ final class WPEPP_Plugin {
 		if ( ! wpepp_has_pro_check() ) {
 			$pro_link = sprintf(
 				'<a href="%s" target="_blank" rel="noopener noreferrer" style="color:#6366f1;font-weight:600;">%s</a>',
-				esc_url( 'https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/#pricing' ),
+				esc_url( 'https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing' ),
 				esc_html__( 'Upgrade Now', 'wp-edit-password-protected' )
 			);
 			$links[] = $pro_link;
@@ -268,7 +280,7 @@ final class WPEPP_Plugin {
 			'homeUrl'      => esc_url( home_url( '/' ) ),
 			'version'      => WPEPP_VERSION,
 			'isPro'        => wpepp_has_pro_check(),
-			'proUrl'       => esc_url( 'https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/#pricing' ),
+			'proUrl'       => esc_url( 'https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing' ),
 			'clientIp'     => WPEPP_Security::get_client_ip(),
 		] );
 
@@ -330,13 +342,7 @@ final class WPEPP_Plugin {
 			'_wpepp_content_lock_show_excerpt',
 			'_wpepp_content_lock_excerpt_text',
 			'_wpepp_conditional_display_enable',
-			'_wpepp_conditional_display_condition',
-			'_wpepp_conditional_action',
 			'_wpepp_conditional_control_title',
-			'_wpepp_conditional_control_featured_image',
-			'_wpepp_conditional_control_comments',
-			'_wpepp_conditional_notice_enable',
-			'_wpepp_conditional_notice_text',
 			'_wpepp_conditional_device_type',
 			'_wpepp_conditional_time_start',
 			'_wpepp_conditional_time_end',
@@ -362,6 +368,28 @@ final class WPEPP_Plugin {
 			] );
 		}
 
+		// Fields with specific defaults.
+		$meta_with_defaults = [
+			'_wpepp_conditional_display_condition'     => 'user_logged_out',
+			'_wpepp_conditional_action'                => 'hide',
+			'_wpepp_conditional_control_featured_image' => 'yes',
+			'_wpepp_conditional_control_comments'      => 'yes',
+			'_wpepp_conditional_notice_enable'         => 'yes',
+		];
+
+		foreach ( $meta_with_defaults as $key => $default ) {
+			register_post_meta( '', $key, [
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
+				'default'           => $default,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			] );
+		}
+
 		// Message fields allow HTML.
 		register_post_meta( '', '_wpepp_content_lock_message', [
 			'show_in_rest'      => true,
@@ -369,6 +397,17 @@ final class WPEPP_Plugin {
 			'type'              => 'string',
 			'default'           => '',
 			'sanitize_callback' => 'wp_kses_post',
+			'auth_callback'     => function () {
+				return current_user_can( 'edit_posts' );
+			},
+		] );
+
+		register_post_meta( '', '_wpepp_conditional_notice_text', [
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+			'default'           => 'This content is not available.',
+			'sanitize_callback' => 'sanitize_textarea_field',
 			'auth_callback'     => function () {
 				return current_user_can( 'edit_posts' );
 			},
@@ -588,6 +627,19 @@ final class WPEPP_Plugin {
 	}
 
 	/**
+	 * Add body class when the current post is password-protected.
+	 *
+	 * @param array $classes Existing body classes.
+	 * @return array
+	 */
+	public function add_password_protected_body_class( $classes ) {
+		if ( is_singular() && post_password_required() ) {
+			$classes[] = 'password-protected-enabled';
+		}
+		return $classes;
+	}
+
+	/**
 	 * Enqueue frontend password form CSS on protected posts only.
 	 */
 	public function enqueue_password_form_styles() {
@@ -611,6 +663,9 @@ final class WPEPP_Plugin {
 				wp_add_inline_style( 'wpepp-password-form', wp_strip_all_tags( $css ) );
 			}
 		}
+
+		// Make .entry-content background transparent so theme backgrounds don't cover the form.
+		wp_add_inline_style( 'wpepp-password-form', 'html body.password-protected-enabled .entry-content { background: transparent; }' );
 	}
 
 	/**
@@ -632,6 +687,55 @@ final class WPEPP_Plugin {
 			[],
 			WPEPP_VERSION
 		);
+
+		// Hide locked content instantly to prevent flash of original content.
+		wp_add_inline_style( 'wpepp-content-lock', '.wpepp-content-locked,.wpepp-popup-lock-wrapper{opacity:0;animation:wpepp-fadein .3s ease-in forwards}@keyframes wpepp-fadein{to{opacity:1}}' );
+
+		$action = get_post_meta( get_the_ID(), '_wpepp_content_lock_action', true ) ?: 'link';
+		if ( 'popup' === $action ) {
+			self::enqueue_popup_login_css();
+		}
+
+		if ( 'form' === $action ) {
+			self::enqueue_content_lock_login_css();
+		}
+	}
+
+	/**
+	 * Enqueue content lock login form CSS — login customizer overrides for inline form.
+	 */
+	public static function enqueue_content_lock_login_css() {
+		$raw      = get_option( 'wpepp_login_settings', '{}' );
+		$settings = json_decode( $raw, true );
+		if ( ! empty( $settings ) && is_array( $settings ) ) {
+			require_once WPEPP_PATH . 'includes/class-login-customizer.php';
+			$css = WPEPP_Login_Customizer::generate_content_lock_css( $settings );
+			if ( ! empty( $css ) ) {
+				wp_add_inline_style( 'wpepp-content-lock', wp_strip_all_tags( $css ) );
+			}
+		}
+	}
+
+	/**
+	 * Enqueue popup login CSS — base stylesheet + login customizer overrides.
+	 */
+	public static function enqueue_popup_login_css() {
+		wp_enqueue_style(
+			'wpepp-admin-only-popup',
+			WPEPP_URL . '/assets/css/admin-only-popup.css',
+			[],
+			WPEPP_VERSION
+		);
+
+		$raw      = get_option( 'wpepp_login_settings', '{}' );
+		$settings = json_decode( $raw, true );
+		if ( ! empty( $settings ) && is_array( $settings ) ) {
+			require_once WPEPP_PATH . 'includes/class-login-customizer.php';
+			$css = WPEPP_Login_Customizer::generate_popup_css( $settings );
+			if ( ! empty( $css ) ) {
+				wp_add_inline_style( 'wpepp-admin-only-popup', wp_strip_all_tags( $css ) );
+			}
+		}
 	}
 
 	/**
@@ -1293,9 +1397,16 @@ final class WPEPP_Plugin {
 			. '.wpepp-conditional-hidden .taxonomy-category'
 			. '{display:none!important}'
 			. '.wpepp-conditional-notice{'
-			. 'background:#fff8e1;border-left:4px solid #ffb300;'
-			. 'padding:16px 20px;margin:20px 0;border-radius:4px;'
-			. 'color:#6d4c00;font-size:15px;line-height:1.6'
+			. 'text-align:center;max-width:600px;margin:40px auto;'
+			. 'padding:24px 32px;border-radius:8px;'
+			. 'background:#fff5f5;border:1px solid #e8c4c4;'
+			. 'color:#c0392b;font-size:16px;line-height:1.6'
+			. '}'
+			. '.wpepp-conditional-notice::before{'
+			. 'content:"\\2716";display:block;width:40px;height:40px;'
+			. 'margin:0 auto 12px;border-radius:50%;'
+			. 'background:#c0392b;color:#fff;font-size:20px;'
+			. 'line-height:40px;text-align:center'
 			. '}'
 			. ( $hide_comments ? '#comments,.comments-area,.wp-block-comments{display:none!important}' : '' );
 		wp_register_style( 'wpepp-conditional-hidden', false, [], defined( 'WPEPP_VERSION' ) ? WPEPP_VERSION : '2.0.0' );
@@ -1454,7 +1565,7 @@ final class WPEPP_Plugin {
 		}
 
 		if ( class_exists( 'Appsero\Client' ) ) {
-			$client = new Appsero\Client( '08132ef7-0f22-4c36-9ac4-0cad92ae19de', 'WPEPP – Login Security, Password Protect & Login Page Customizer', WPEPP_FILE );
+			$client = new Appsero\Client( '08132ef7-0f22-4c36-9ac4-0cad92ae19de', 'WPEPP – Essential Security, Password Protect & Login Page Customizer', WPEPP_FILE );
 			$client->insights()->init();
 		}
 	}

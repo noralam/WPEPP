@@ -69,6 +69,9 @@ class WPEPP_Conditional_Meta
         // Add filters for title and featured image
         add_filter('the_title', array($this, 'apply_conditional_title'), 10, 2);
         add_filter('post_thumbnail_html', array($this, 'apply_conditional_thumbnail'), 10, 5);
+        // Add filter for comments
+        add_filter('comments_open', array($this, 'apply_conditional_comments'), 10, 2);
+        add_filter('get_comments_number', array($this, 'apply_conditional_comments_number'), 10, 2);
         // REST API: Hide content if conditional display applies
         add_filter('rest_prepare_post', array($this, 'rest_api_conditional_content'), 12, 3);
         add_filter('rest_prepare_page', array($this, 'rest_api_conditional_content'), 12, 3);
@@ -89,7 +92,7 @@ class WPEPP_Conditional_Meta
                 return $response;
             }
             $condition = get_post_meta($post_id, '_wpepp_conditional_display_condition', true);
-            $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'show';
+            $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'hide';
             // Browser/referrer conditions are client-side only, so always hide in REST
             if (in_array($condition, array('browser_type', 'referrer_source'))) {
                 $should_hide = true;
@@ -114,7 +117,7 @@ class WPEPP_Conditional_Meta
                 return $response;
             }
             $condition = get_post_meta($post_id, '_wpepp_conditional_display_condition', true);
-            $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'show';
+            $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'hide';
             $control_title = get_post_meta($post_id, '_wpepp_conditional_control_title', true);
             $control_featured_image = get_post_meta($post_id, '_wpepp_conditional_control_featured_image', true);
             // Browser/referrer conditions are client-side only, so always hide in REST
@@ -168,8 +171,8 @@ class WPEPP_Conditional_Meta
 
         // Get saved values
         $enable = get_post_meta($post->ID, '_wpepp_conditional_display_enable', true);
-        $condition = get_post_meta($post->ID, '_wpepp_conditional_display_condition', true) ?: 'user_logged_in';
-        $action = get_post_meta($post->ID, '_wpepp_conditional_action', true) ?: 'show';
+        $condition = get_post_meta($post->ID, '_wpepp_conditional_display_condition', true) ?: 'user_logged_out';
+        $action = get_post_meta($post->ID, '_wpepp_conditional_action', true) ?: 'hide';
 
         // Include view
         include plugin_dir_path(__FILE__) . 'views/meta-box.php';
@@ -221,6 +224,25 @@ class WPEPP_Conditional_Meta
             update_post_meta($post_id, '_wpepp_conditional_control_featured_image', 'yes');
         } else {
             update_post_meta($post_id, '_wpepp_conditional_control_featured_image', 'no');
+        }
+
+        // Save hide comments
+        if (isset($_POST['wpepp_conditional_control_comments'])) {
+            update_post_meta($post_id, '_wpepp_conditional_control_comments', 'yes');
+        } else {
+            update_post_meta($post_id, '_wpepp_conditional_control_comments', 'no');
+        }
+
+        // Save show notice
+        if (isset($_POST['wpepp_conditional_notice_enable'])) {
+            update_post_meta($post_id, '_wpepp_conditional_notice_enable', 'yes');
+        } else {
+            update_post_meta($post_id, '_wpepp_conditional_notice_enable', 'no');
+        }
+
+        // Save notice text
+        if (isset($_POST['wpepp_conditional_notice_text'])) {
+            update_post_meta($post_id, '_wpepp_conditional_notice_text', sanitize_textarea_field(wp_unslash($_POST['wpepp_conditional_notice_text'])));
         }
 
         // Save condition.
@@ -289,7 +311,7 @@ class WPEPP_Conditional_Meta
                     wp_enqueue_script('wpepp-conditional-meta-frontend', WP_EDIT_PASS_ASSETS . 'js/conditional-meta-frontend.js', array('jquery'), WP_EDIT_PASS_VERSION, true);
 
                     // Pass data to script
-                    $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'show';
+                    $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'hide';
 
                     $data = array(
                         'post_id' => $post_id,
@@ -325,7 +347,7 @@ class WPEPP_Conditional_Meta
         }
 
         $condition = get_post_meta($post_id, '_wpepp_conditional_display_condition', true);
-        $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'show';
+        $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'hide';
 
         // Skip browser-specific conditions as they're handled client-side
         if (in_array($condition, array('browser_type', 'referrer_source'))) {
@@ -339,7 +361,16 @@ class WPEPP_Conditional_Meta
         if (($condition_met && $action === 'show') || (!$condition_met && $action === 'hide')) {
             return $content;
         } else {
-            return ''; // Don't show content
+            // Show notice if enabled
+            $show_notice = get_post_meta($post_id, '_wpepp_conditional_notice_enable', true);
+            if ('yes' === $show_notice) {
+                $notice_text = get_post_meta($post_id, '_wpepp_conditional_notice_text', true);
+                if (empty($notice_text)) {
+                    $notice_text = __('This content is not available.', 'wp-edit-password-protected');
+                }
+                return '<div class="wpepp-conditional-notice">' . esc_html($notice_text) . '</div>';
+            }
+            return '';
         }
     }
 
@@ -366,7 +397,7 @@ class WPEPP_Conditional_Meta
         }
 
         $condition = get_post_meta($post_id, '_wpepp_conditional_display_condition', true);
-        $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'show';
+        $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'hide';
 
         // Handle browser-specific conditions
         if (in_array($condition, array('browser_type', 'referrer_source'))) {
@@ -410,7 +441,7 @@ class WPEPP_Conditional_Meta
         }
 
         $condition = get_post_meta($post_id, '_wpepp_conditional_display_condition', true);
-        $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'show';
+        $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'hide';
 
         // Handle browser-specific conditions
         if (in_array($condition, array('browser_type', 'referrer_source'))) {
@@ -426,6 +457,80 @@ class WPEPP_Conditional_Meta
         } else {
             return ''; // Don't show thumbnail
         }
+    }
+    /**
+     * Apply conditional display to comments.
+     *
+     * @param bool $open    Whether comments are open.
+     * @param int  $post_id The post ID.
+     * @return bool
+     */
+    public function apply_conditional_comments($open, $post_id)
+    {
+        if (!is_singular() || !$post_id) {
+            return $open;
+        }
+
+        $enable = get_post_meta($post_id, '_wpepp_conditional_display_enable', true);
+        $hide_comments = get_post_meta($post_id, '_wpepp_conditional_control_comments', true);
+
+        if ('yes' !== $enable || 'yes' !== $hide_comments) {
+            return $open;
+        }
+
+        $condition = get_post_meta($post_id, '_wpepp_conditional_display_condition', true);
+        $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'hide';
+
+        // Skip browser-specific conditions
+        if (in_array($condition, array('browser_type', 'referrer_source'))) {
+            return $open;
+        }
+
+        $condition_met = WPEPP_Conditional_Meta_Helper::evaluate_condition($post_id, $condition);
+        $should_hide = !(($condition_met && $action === 'show') || (!$condition_met && $action === 'hide'));
+
+        if ($should_hide) {
+            return false;
+        }
+
+        return $open;
+    }
+
+    /**
+     * Apply conditional display to comments number.
+     *
+     * @param int $count   The comments count.
+     * @param int $post_id The post ID.
+     * @return int
+     */
+    public function apply_conditional_comments_number($count, $post_id)
+    {
+        if (!is_singular() || !$post_id) {
+            return $count;
+        }
+
+        $enable = get_post_meta($post_id, '_wpepp_conditional_display_enable', true);
+        $hide_comments = get_post_meta($post_id, '_wpepp_conditional_control_comments', true);
+
+        if ('yes' !== $enable || 'yes' !== $hide_comments) {
+            return $count;
+        }
+
+        $condition = get_post_meta($post_id, '_wpepp_conditional_display_condition', true);
+        $action = get_post_meta($post_id, '_wpepp_conditional_action', true) ?: 'hide';
+
+        if (in_array($condition, array('browser_type', 'referrer_source'))) {
+            return $count;
+        }
+
+        $condition_met = WPEPP_Conditional_Meta_Helper::evaluate_condition($post_id, $condition);
+        $should_hide = !(($condition_met && $action === 'show') || (!$condition_met && $action === 'hide'));
+
+        if ($should_hide) {
+            return 0;
+        }
+
+        return $count;
     }
 }
 
