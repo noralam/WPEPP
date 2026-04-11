@@ -1,6 +1,6 @@
 # WPEPP – Essential Security, Password Protect & Login Page Customizer
 
-> The all-in-one WordPress security plugin. Login protection, AI crawler blocker, content lock, and a beautiful login page customizer with real-time live preview — all from a single modern dashboard.
+> The all-in-one WordPress security plugin. Login protection, AI crawler blocker, CPU monitor, content lock, and a beautiful login page customizer with real-time live preview — all from a single modern dashboard.
 
 [![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple?logo=php)](https://php.net)
@@ -28,6 +28,7 @@ Stop installing 5 separate plugins. WPEPP replaces your:
 | Password form styler | → | ✅ 4 Styles + Templates |
 | Content restriction plugin | → | ✅ Content Lock + Conditional Display |
 | AI crawler blocker | → | ✅ One-click AI Blocker |
+| Server monitoring plugin | → | ✅ Built-in CPU Monitor & Site Health |
 
 **Zero external scripts on the front end. No impact on page speed.**
 
@@ -141,6 +142,20 @@ Show or hide any post or page based on smart conditions — no shortcodes.
 - Logged-out visitors see a login form; authenticated users see the content
 - Zero configuration — works out of the box
 
+### 📈 CPU Monitor & Site Health Dashboard
+
+- **Real-Time CPU Usage** — CPU percentage, core count, and 1/5/15-minute load averages
+- **Memory Overview** — PHP memory usage, peak usage, and configured limits
+- **System Health Score** — green/yellow/red health badge based on CPU, memory, and cron status
+- **Slow Query Logger** — log database queries exceeding a configurable time threshold
+- **SAVEQUERIES Toggle** — enable/disable WordPress query logging from the dashboard
+- **Cron Jobs Manager** — view, run, and delete scheduled cron events with overdue detection
+- **Plugin Performance** — see plugin resource impact and deactivate sluggish plugins
+- **Options Bloat Analyzer** — inspect database options size, autoloaded data, and top options
+- **Transient Cleanup** — clean expired transients with one click
+- **Error Log Viewer** — parse and display PHP/WordPress error log entries *(Pro)*
+- **WP Config Manager** — toggle WP_DEBUG, WP_DEBUG_LOG, SAVEQUERIES without editing files
+
 ---
 
 ## ✅ Free vs Pro
@@ -171,6 +186,15 @@ Show or hide any post or page based on smart conditions — no shortcodes.
 | Login Popup (Blur Overlay) | | ✅ |
 | Disposable Email Blocker | | ✅ |
 | Admin Registration Approval | | ✅ |
+| **CPU Monitor & Site Health** | | |
+| CPU Usage & Memory Stats | ✅ | ✅ |
+| Slow Query Logger | ✅ | ✅ |
+| Cron Jobs Manager | ✅ | ✅ |
+| Plugin Performance Monitor | ✅ | ✅ |
+| Options Bloat Analyzer | ✅ | ✅ |
+| Transient Cleanup | ✅ | ✅ |
+| Error Log Viewer | | ✅ |
+| WP Config Manager | ✅ | ✅ |
 
 ---
 
@@ -239,6 +263,19 @@ Yes. Each sub-site has independent settings. Network-wide activation is supporte
 ---
 
 ## 📝 Changelog
+
+### 2.0.1
+- Added CPU Monitor — real-time CPU usage, memory stats, load average, and system health overview
+- Added Slow Query Logger with configurable threshold and SAVEQUERIES toggle
+- Added Cron Jobs Manager — view, run, and delete cron events with overdue detection
+- Added Plugin Performance Monitor — view resource impact and deactivate plugins
+- Added Options Bloat Analyzer — inspect autoloaded options and clean expired transients
+- Added Error Log Viewer *(Pro)* — parse PHP/WordPress error log entries
+- Added WP Config Manager — toggle SAVEQUERIES, WP_DEBUG, WP_DEBUG_LOG from dashboard
+- Fixed login page customizer styles not applying in some themes
+- Fixed password-protected form styles not rendering on certain page builders
+- Fixed conditional display meta box default values not saving properly
+- Updated admin menu name to WPEPP Security
 
 ### 2.0.0
 - Complete rebuild with React-powered admin dashboard
