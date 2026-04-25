@@ -219,7 +219,7 @@ export function generatePasswordCss( s ) {
 
 	// Form outer wrapper.
 	if ( s.form_outer_background || s.form_outer_border_radius !== undefined || s.form_outer_padding !== undefined ) {
-		css += '.wpepp-password-form{';
+		css += 'html body .wpepp-password-form{';
 		if ( s.form_outer_background ) {
 			css += `background-color:${ s.form_outer_background };`;
 		}
@@ -234,7 +234,7 @@ export function generatePasswordCss( s ) {
 
 	// Form container.
 	if ( s.form_background || s.form_border_radius !== undefined || s.form_padding !== undefined || s.form_text_color ) {
-		css += '.wpepp-password-form form.wpepp-password-form-inner{';
+		css += 'html body .wpepp-password-form form.wpepp-password-form-inner{';
 		if ( s.form_background ) {
 			css += `background-color:${ s.form_background };`;
 		}
@@ -253,7 +253,7 @@ export function generatePasswordCss( s ) {
 	// Form shadow.
 	const shadowMap = { small: '0 1px 3px rgba(0,0,0,0.12)', medium: '0 4px 6px rgba(0,0,0,0.1)', large: '0 10px 25px rgba(0,0,0,0.15)' };
 	if ( s.form_shadow && shadowMap[ s.form_shadow ] ) {
-		css += `.wpepp-password-form{box-shadow:${ shadowMap[ s.form_shadow ] };}`;
+		css += `html body .wpepp-password-form{box-shadow:${ shadowMap[ s.form_shadow ] };}`;
 	}
 
 	// Heading.
@@ -298,15 +298,19 @@ export function generatePasswordCss( s ) {
 		if ( s.input_border_radius !== undefined ) {
 			css += `border-radius:${ dimToCss( s.input_border_radius ) };`;
 		}
-		if ( s.input_padding !== undefined ) {
-			css += `padding:${ dimToCss( s.input_padding ) };`;
+		if ( s.input_padding !== undefined && s.input_padding !== null ) {
+			const ip = s.input_padding;
+			const hasVal = typeof ip === 'object' ? ( ip.top || ip.right || ip.bottom || ip.left ) : ip;
+			if ( hasVal ) {
+				css += `padding:${ dimToCss( s.input_padding ) };`;
+			}
 		}
 		css += '}';
 	}
 
 	// Button.
 	if ( s.button_color || s.button_text_color || s.button_border_radius !== undefined || s.button_font_size || s.button_padding !== undefined ) {
-		css += '.wpepp-submit input[type="submit"]{';
+		css += 'html body .wpepp-password-form .wpepp-submit input[type="submit"]{';
 		if ( s.button_color ) {
 			css += `background-color:${ s.button_color };border-color:${ s.button_color };`;
 		}
@@ -319,8 +323,12 @@ export function generatePasswordCss( s ) {
 		if ( s.button_font_size ) {
 			css += `font-size:${ s.button_font_size }px;`;
 		}
-		if ( s.button_padding !== undefined ) {
-			css += `padding:${ dimToCss( s.button_padding ) };`;
+		if ( s.button_padding !== undefined && s.button_padding !== null ) {
+			const bp = s.button_padding;
+			const hasVal = typeof bp === 'object' ? ( bp.top || bp.right || bp.bottom || bp.left ) : bp;
+			if ( hasVal ) {
+				css += `padding:${ dimToCss( s.button_padding ) };`;
+			}
 		}
 		css += '}';
 	}

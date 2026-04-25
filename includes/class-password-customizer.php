@@ -26,7 +26,7 @@ class WPEPP_Password_Customizer {
 		$settings = json_decode( $raw, true );
 
 		if ( empty( $settings ) || ! is_array( $settings ) ) {
-			return $output;
+			$settings = [];
 		}
 
 		$style      = sanitize_text_field( $settings['active_style'] ?? 'one' );
@@ -42,14 +42,18 @@ class WPEPP_Password_Customizer {
 
 		$form_label  = esc_html( $settings['form_label'] ?? __( 'Password', 'wp-edit-password-protected' ) );
 		$label_type  = sanitize_text_field( $settings['form_label_type'] ?? 'label' );
+		// Inline / card layouts always use placeholder — label above breaks alignment.
+		if ( in_array( $style, [ 'two', 'three', 'four' ], true ) ) {
+			$label_type = 'placeholder';
+		}
 		$btn_text    = esc_html( $settings['form_btn_text'] ?? __( 'Submit', 'wp-edit-password-protected' ) );
-		$top_header  = esc_html( $settings['top_header'] ?? '' );
-		$top_content = wp_kses_post( $settings['top_content'] ?? '' );
+		$top_header  = esc_html( $settings['top_header'] ?? __( 'This content is password protected for members only', 'wp-edit-password-protected' ) );
+		$top_content = wp_kses_post( $settings['top_content'] ?? __( 'For more public resources check out our followed link.', 'wp-edit-password-protected' ) );
 		$bot_header  = esc_html( $settings['bottom_header'] ?? '' );
 		$bot_content = wp_kses_post( $settings['bottom_content'] ?? '' );
 		$error_text  = esc_html( $settings['form_errortext'] ?? '' );
 		$error_pos   = sanitize_text_field( $settings['error_text_position'] ?? 'top' );
-		$show_top    = 'on' === ( $settings['show_top_text'] ?? 'off' );
+		$show_top    = 'off' !== ( $settings['show_top_text'] ?? 'on' );
 		$show_bottom = 'on' === ( $settings['show_bottom_text'] ?? 'off' );
 		$show_social = 'on' === ( $settings['show_social'] ?? 'off' );
 		$social_pos  = esc_attr( $settings['icons_vposition'] ?? 'top' );
@@ -162,6 +166,10 @@ class WPEPP_Password_Customizer {
 
 		$form_label   = esc_html( $settings['form_label'] ?? __( 'Password', 'wp-edit-password-protected' ) );
 		$label_type   = sanitize_text_field( $settings['form_label_type'] ?? 'label' );
+		// Inline and Vertical Card layouts always use placeholder.
+		if ( in_array( $style, [ 'two', 'three', 'four' ], true ) ) {
+			$label_type = 'placeholder';
+		}
 		$btn_text     = esc_html( $settings['form_btn_text'] ?? __( 'Submit', 'wp-edit-password-protected' ) );
 		$top_header   = esc_html( $settings['top_header'] ?? '' );
 		$top_content  = wp_kses_post( $settings['top_content'] ?? '' );
@@ -392,6 +400,13 @@ class WPEPP_Password_Customizer {
 	 * @param string $unit CSS unit.
 	 * @return string
 	 */
+	private static function dim_has_value( $val ) {
+		if ( is_array( $val ) ) {
+			return ( $val['top'] ?? 0 ) || ( $val['right'] ?? 0 ) || ( $val['bottom'] ?? 0 ) || ( $val['left'] ?? 0 );
+		}
+		return (bool) $val;
+	}
+
 	private static function dim_to_css( $val, $unit = 'px' ) {
 		if ( is_array( $val ) ) {
 			return sprintf(
@@ -435,7 +450,7 @@ class WPEPP_Password_Customizer {
 
 		// Form outer wrapper.
 		if ( ! empty( $settings['form_outer_background'] ) || isset( $settings['form_outer_border_radius'] ) || isset( $settings['form_outer_padding'] ) ) {
-			$css .= '.wpepp-password-form{';
+			$css .= 'html body .wpepp-password-form{';
 			if ( ! empty( $settings['form_outer_background'] ) ) {
 				$css .= 'background-color:' . self::sanitize_color( $settings['form_outer_background'] ) . ';';
 			}
@@ -450,7 +465,7 @@ class WPEPP_Password_Customizer {
 
 		// Form container.
 		if ( ! empty( $settings['form_background'] ) || isset( $settings['form_border_radius'] ) || isset( $settings['form_padding'] ) || ! empty( $settings['form_text_color'] ) ) {
-			$css .= '.wpepp-password-form form.wpepp-password-form-inner{';
+			$css .= 'html body .wpepp-password-form form.wpepp-password-form-inner{';
 			if ( ! empty( $settings['form_background'] ) ) {
 				$css .= 'background-color:' . self::sanitize_color( $settings['form_background'] ) . ';';
 			}
@@ -473,7 +488,7 @@ class WPEPP_Password_Customizer {
 			'large'  => '0 10px 25px rgba(0,0,0,0.15)',
 		];
 		if ( isset( $shadow_map[ $shadow ] ) ) {
-			$css .= '.wpepp-password-form{box-shadow:' . $shadow_map[ $shadow ] . ';}';
+			$css .= 'html body .wpepp-password-form{box-shadow:' . $shadow_map[ $shadow ] . ';}';
 		}
 
 		// Heading.
@@ -518,7 +533,7 @@ class WPEPP_Password_Customizer {
 			if ( isset( $settings['input_border_radius'] ) ) {
 				$css .= 'border-radius:' . self::dim_to_css( $settings['input_border_radius'] ) . ';';
 			}
-			if ( isset( $settings['input_padding'] ) ) {
+			if ( isset( $settings['input_padding'] ) && self::dim_has_value( $settings['input_padding'] ) ) {
 				$css .= 'padding:' . self::dim_to_css( $settings['input_padding'] ) . ';';
 			}
 			$css .= '}';
@@ -526,7 +541,7 @@ class WPEPP_Password_Customizer {
 
 		// Button.
 		if ( ! empty( $settings['button_color'] ) || ! empty( $settings['button_text_color'] ) || isset( $settings['button_border_radius'] ) || ! empty( $settings['button_font_size'] ) || isset( $settings['button_padding'] ) ) {
-			$css .= '.wpepp-submit input[type="submit"]{';
+			$css .= 'html body .wpepp-password-form .wpepp-submit input[type="submit"]{';
 			if ( ! empty( $settings['button_color'] ) ) {
 				$css .= 'background-color:' . self::sanitize_color( $settings['button_color'] ) . ';border-color:' . self::sanitize_color( $settings['button_color'] ) . ';';
 			}
@@ -539,7 +554,7 @@ class WPEPP_Password_Customizer {
 			if ( ! empty( $settings['button_font_size'] ) ) {
 				$css .= 'font-size:' . absint( $settings['button_font_size'] ) . 'px;';
 			}
-			if ( isset( $settings['button_padding'] ) ) {
+			if ( isset( $settings['button_padding'] ) && self::dim_has_value( $settings['button_padding'] ) ) {
 				$css .= 'padding:' . self::dim_to_css( $settings['button_padding'] ) . ';';
 			}
 			$css .= '}';

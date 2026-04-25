@@ -271,7 +271,8 @@ class WPEPP_Frontend {
 					var lbl = document.getElementById( 'wpepp-form-label' );
 					var pwInput = document.getElementById( 'pwbox-preview' );
 					var labelText = s.form_label || 'Password';
-					var labelType = s.form_label_type || 'label';
+					// Inline/Vertical Card layouts always use placeholder — mirrors PHP render_form() logic.
+					var labelType = ( style === 'two' || style === 'three' || style === 'four' ) ? 'placeholder' : ( s.form_label_type || 'label' );
 					if ( lbl ) {
 						lbl.textContent = labelText;
 						lbl.style.display = labelType === 'placeholder' ? 'none' : '';
@@ -473,6 +474,10 @@ class WPEPP_Frontend {
 		$style       = sanitize_text_field( $settings['active_style'] ?? 'one' );
 		$form_label  = esc_html( $settings['form_label'] ?? __( 'Password', 'wp-edit-password-protected' ) );
 		$label_type  = sanitize_text_field( $settings['form_label_type'] ?? 'label' );
+		// Inline and Vertical Card layouts always use placeholder — same as render_form().
+		if ( in_array( $style, [ 'two', 'three', 'four' ], true ) ) {
+			$label_type = 'placeholder';
+		}
 		$btn_text    = esc_html( $settings['form_btn_text'] ?? __( 'Submit', 'wp-edit-password-protected' ) );
 		$top_header  = esc_html( $settings['top_header'] ?? '' );
 		$top_content = wp_kses_post( $settings['top_content'] ?? '' );

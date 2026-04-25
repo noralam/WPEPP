@@ -5,11 +5,11 @@ Tags: essential security, limit login attempts, password protected, login custom
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.0.1
+Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Essential security, password protect content, block AI crawlers, limit login attempts, CPU monitor & login page customizer with live preview.
+Essential security, password protected, block AI crawlers, limit login attempts, CPU monitor & login page customizer with live preview.
 
 == Description ==
 
@@ -376,6 +376,14 @@ Yes. WPEPP works in WordPress multisite (network) installations. Each sub-site h
 8. Templates gallery — 10+ one-click designs for password forms and login pages
 
 == Changelog ==
+
+= 2.0.2 =
+* Added modern Full Width (Pro) layout for password-protected forms — dark gradient background, glassmorphism card, and blue submit button
+* Improved password-protected form now displays correctly out of the box even before any settings are saved
+* Improved editor customizations (form wrapper background, form container background, button color) now reliably override style defaults
+* Fixed Horizontal layout form container background not showing the correct default gray (#ededed) color
+* Fixed button text not centering correctly when custom padding was set in the editor
+* Fixed input and button padding fields now start at 0 and only override when explicitly set
 
 = 2.0.1 =
 * Added CPU Monitor — real-time CPU usage, memory stats, load average, and system health overview
