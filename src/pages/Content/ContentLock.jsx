@@ -72,6 +72,7 @@ const ContentLock = () => {
 								<td>{ post.post_type }</td>
 								<td>
 									<ToggleControl
+										__nextHasNoMarginBottom
 										checked={ post.locked }
 										onChange={ ( v ) => toggleLock( post.id, v ) }
 										__nextHasNoMarginBottom

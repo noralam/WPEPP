@@ -377,6 +377,14 @@ Yes. WPEPP works in WordPress multisite (network) installations. Each sub-site h
 
 == Changelog ==
 
+= 2.0.3 =
+* Added inline wrong-password error for post/page password forms — no page reload required
+* Added inline wrong-password error for site-wide password protection form — no page reload required
+* Added dedicated AJAX password handler class (class-ajax-password.php) for cleaner code organisation
+* Added external JS file (wpepp-password-ajax.js) replacing embedded inline script
+* Fixed wp.components.ToggleControl deprecation warnings — added __nextHasNoMarginBottom prop across all admin screens
+* Fixed wp.components.SelectControl deprecation warnings — added __next40pxDefaultSize and __nextHasNoMarginBottom props across all admin screens
+
 = 2.0.2 =
 * Added modern Full Width (Pro) layout for password-protected forms — dark gradient background, glassmorphism card, and blue submit button
 * Improved password-protected form now displays correctly out of the box even before any settings are saved

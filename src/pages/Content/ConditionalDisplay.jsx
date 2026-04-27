@@ -92,6 +92,7 @@ const ConditionalDisplay = () => {
 									<td>{ post.action }</td>
 									<td>
 										<ToggleControl
+											__nextHasNoMarginBottom
 											checked={ post.enabled }
 											onChange={ ( v ) => toggleConditional( post.id, v ) }
 											__nextHasNoMarginBottom

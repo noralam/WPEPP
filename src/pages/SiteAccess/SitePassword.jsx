@@ -56,6 +56,7 @@ const SitePassword = () => {
 			<PanelBody title={ __( 'Password Protect Entire Site', 'wp-edit-password-protected' ) } initialOpen>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Enable Site Password', 'wp-edit-password-protected' ) }
 						help={ __( 'When enabled, all visitors must enter a password before they can view any page on the site. Logged-in administrators bypass the password.', 'wp-edit-password-protected' ) }
 						checked={ !! s.site_password_enabled }
@@ -105,6 +106,7 @@ const SitePassword = () => {
 
 						<PanelRow>
 							<ToggleControl
+								__nextHasNoMarginBottom
 								label={ __( 'Allow Logged-In Users to Bypass', 'wp-edit-password-protected' ) }
 								help={ __( 'When enabled, all logged-in users bypass the site password. When disabled, only administrators bypass it.', 'wp-edit-password-protected' ) }
 								checked={ s.site_password_bypass_logged_in !== false }

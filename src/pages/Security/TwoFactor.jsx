@@ -152,6 +152,7 @@ const TwoFactor = () => {
 			<PanelBody title={ __( 'Two-Factor Settings', 'wp-edit-password-protected' ) } initialOpen>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Enable Two-Factor Authentication', 'wp-edit-password-protected' ) }

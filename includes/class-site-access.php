@@ -410,6 +410,11 @@ class WPEPP_Site_Access {
 			wp_add_inline_style( 'wpepp-site-password', wp_strip_all_tags( $custom_css ) );
 		}
 
+		// Enqueue AJAX inline-error JS for the site password form.
+		if ( class_exists( 'WPEPP_Plugin' ) ) {
+			WPEPP_Plugin::enqueue_password_ajax_js( [ 'site' => true ] );
+		}
+
 		// Video background support.
 		$bg_type   = $pw_settings['page_background_type'] ?? '';
 		$bg_video  = $pw_settings['page_background_video'] ?? '';

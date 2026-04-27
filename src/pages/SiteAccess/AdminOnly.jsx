@@ -58,6 +58,7 @@ const AdminOnly = () => {
 			<PanelBody title={ __( 'Admin Only Site', 'wp-edit-password-protected' ) } initialOpen>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Enable Admin Only Mode', 'wp-edit-password-protected' ) }
 						help={ __( 'When enabled, only logged-in users can view the site. All other visitors will be required to log in.', 'wp-edit-password-protected' ) }
 						checked={ !! s.admin_only_enabled }
@@ -73,6 +74,8 @@ const AdminOnly = () => {
 
 						<PanelRow>
 							<SelectControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
 								label={
 									<>
 										{ __( 'Action for Non-Logged-In Users', 'wp-edit-password-protected' ) }

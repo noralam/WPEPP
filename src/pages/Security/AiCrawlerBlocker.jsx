@@ -112,6 +112,7 @@ const AiCrawlerBlocker = () => {
 			<PanelBody title={ __( 'Enable AI Crawler Blocking', 'wp-edit-password-protected' ) } initialOpen>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Enable AI Crawler Blocker', 'wp-edit-password-protected' ) }
 						checked={ !! s.ai_crawler_blocker_enabled }
 						onChange={ ( v ) => update( 'ai_crawler_blocker_enabled', v ) }
@@ -132,6 +133,7 @@ const AiCrawlerBlocker = () => {
 						</Notice>
 						<PanelRow>
 							<ToggleControl
+								__nextHasNoMarginBottom
 								label={ __( 'Block via User-Agent header (403 response)', 'wp-edit-password-protected' ) }
 								help={ __( 'Actively blocks bots that ignore robots.txt by checking the HTTP User-Agent on every frontend request.', 'wp-edit-password-protected' ) }
 								checked={ s.ai_crawler_block_ua !== false }

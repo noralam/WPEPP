@@ -65,6 +65,9 @@ final class WPEPP_Plugin {
 		add_filter( 'login_message', [ $this, 'add_login_heading' ] );
 		add_action( 'login_footer', [ $this, 'add_login_video_background' ] );
 
+		// Purge page caches when settings are saved.
+		add_action( 'wpepp/settings/saved', [ $this, 'purge_page_caches' ] );
+
 		// Content filters.
 		add_filter( 'the_password_form', [ $this, 'custom_password_form' ] );
 		add_filter( 'the_content', [ $this, 'maybe_lock_content' ], 99 );
@@ -120,6 +123,9 @@ final class WPEPP_Plugin {
 		add_action( 'template_redirect', [ $this, 'handle_preview' ] );
 		add_action( 'wp_ajax_wpepp_preview', [ $this, 'ajax_preview' ] );
 
+		// AJAX password check (no-reload inline error) — handled by WPEPP_Ajax_Password.
+		WPEPP_Ajax_Password::register_hooks();
+
 		// Appsero tracker.
 		$this->init_appsero();
 	}
@@ -142,6 +148,7 @@ final class WPEPP_Plugin {
 			'class-totp.php',
 			'class-security.php',
 			'class-member-template.php',
+			'class-ajax-password.php',
 			'class-site-access.php',
 			'class-cpu-system-info.php',
 			'class-cpu-query-monitor.php',
@@ -666,6 +673,9 @@ final class WPEPP_Plugin {
 
 		// Make .entry-content background transparent so theme backgrounds don't cover the form.
 		wp_add_inline_style( 'wpepp-password-form', 'html body.password-protected-enabled .entry-content { background: transparent; }' );
+
+		// Enqueue AJAX inline-error JS for post password forms.
+		self::enqueue_password_ajax_js( [ 'post' => true ] );
 	}
 
 	/**
@@ -714,6 +724,55 @@ final class WPEPP_Plugin {
 				wp_add_inline_style( 'wpepp-content-lock', wp_strip_all_tags( $css ) );
 			}
 		}
+	}
+
+	/**
+	 * Enqueue the shared password AJAX script with localised config.
+	 *
+	 * Pass an array of flags to control which nonces/data are included:
+	 *   'post' => true   – include post_nonce + post_id (for post password forms)
+	 *   'site' => true   – include site_nonce          (for site-wide password form)
+	 *
+	 * The script is only registered once per page load even if called multiple times.
+	 *
+	 * @param array $flags
+	 */
+	public static function enqueue_password_ajax_js( $flags = [] ) {
+		$handle = 'wpepp-password-ajax';
+
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			wp_register_script(
+				$handle,
+				WPEPP_URL . '/assets/js/wpepp-password-ajax.js',
+				[],
+				WPEPP_VERSION,
+				true
+			);
+		}
+
+		// Build config; merge with anything already localised.
+		$raw_settings = get_option( 'wpepp_password_settings', '{}' );
+		$pw_settings  = json_decode( $raw_settings, true );
+		$error_text   = ! empty( $pw_settings['form_errortext'] )
+			? $pw_settings['form_errortext']
+			: __( 'Wrong password. Please try again.', 'wp-edit-password-protected' );
+
+		$data = [
+			'ajax_url'   => admin_url( 'admin-ajax.php' ),
+			'error_text' => $error_text,
+		];
+
+		if ( ! empty( $flags['post'] ) ) {
+			$data['post_nonce'] = wp_create_nonce( 'wpepp_check_password' );
+			$data['post_id']    = (int) get_the_ID();
+		}
+
+		if ( ! empty( $flags['site'] ) ) {
+			$data['site_nonce'] = wp_create_nonce( 'wpepp_check_site_password' );
+		}
+
+		wp_enqueue_script( $handle );
+		wp_localize_script( $handle, 'wpeppPasswordAjax', $data );
 	}
 
 	/**
@@ -841,6 +900,60 @@ final class WPEPP_Plugin {
 		}
 
 		return home_url( '/' );
+	}
+
+	/**
+	 * Purge page caches from common caching plugins when WPEPP settings are saved.
+	 * Ensures CSS/style changes appear on the frontend without manual cache clearing.
+	 */
+	public function purge_page_caches() {
+		// LiteSpeed Cache.
+		if ( class_exists( '\LiteSpeed\Purge' ) ) {
+			\LiteSpeed\Purge::purge_all();
+		} elseif ( function_exists( 'litespeed_purge_all' ) ) {
+			litespeed_purge_all();
+		}
+
+		// WP Rocket.
+		if ( function_exists( 'rocket_clean_domain' ) ) {
+			rocket_clean_domain();
+		}
+
+		// W3 Total Cache.
+		if ( function_exists( 'w3tc_flush_all' ) ) {
+			w3tc_flush_all();
+		}
+
+		// WP Super Cache.
+		if ( function_exists( 'wp_cache_clear_cache' ) ) {
+			wp_cache_clear_cache();
+		}
+
+		// Autoptimize.
+		if ( class_exists( 'autoptimizeCache' ) ) {
+			\autoptimizeCache::clearall();
+		}
+
+		// Breeze (Cloudways).
+		if ( class_exists( 'Breeze_PurgeCache' ) ) {
+			\Breeze_PurgeCache::breeze_cache_flush();
+		}
+
+		// SG Optimizer (SiteGround).
+		if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
+			sg_cachepress_purge_cache();
+		}
+
+		// Kinsta Cache.
+		if ( isset( $GLOBALS['kinsta_cache'] ) && method_exists( $GLOBALS['kinsta_cache'], 'kinsta_clear_full_cache' ) ) {
+			$GLOBALS['kinsta_cache']->kinsta_clear_full_cache();
+		}
+
+		// Generic WordPress object cache flush (covers Redis, Memcached, etc.).
+		wp_cache_flush();
+
+		// Fire action so third-party caches can hook in.
+		do_action( 'wpepp/cache/purged' );
 	}
 
 	/**

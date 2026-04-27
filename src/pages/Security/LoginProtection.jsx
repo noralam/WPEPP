@@ -59,6 +59,7 @@ const LoginProtection = () => {
 			<PanelBody title={ __( 'Login Limiter', 'wp-edit-password-protected' ) } initialOpen>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Enable Login Limiter', 'wp-edit-password-protected' ) }
 						checked={ s.login_limit_enabled !== false }
 						onChange={ ( v ) => update( 'login_limit_enabled', v ) }
@@ -94,6 +95,7 @@ const LoginProtection = () => {
 			<PanelBody title={ __( 'Honeypot', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Enable Honeypot Field', 'wp-edit-password-protected' ) }
 						checked={ s.honeypot_enabled !== false }
 						onChange={ ( v ) => update( 'honeypot_enabled', v ) }
@@ -109,6 +111,7 @@ const LoginProtection = () => {
 			<PanelBody title={ __( 'WordPress Hardening', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Disable XML-RPC', 'wp-edit-password-protected' ) }
 						checked={ s.disable_xmlrpc !== false }
 						onChange={ ( v ) => update( 'disable_xmlrpc', v ) }
@@ -121,6 +124,7 @@ const LoginProtection = () => {
 				) }
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Hide WordPress Version', 'wp-edit-password-protected' ) }
 						checked={ s.hide_wp_version !== false }
 						onChange={ ( v ) => update( 'hide_wp_version', v ) }
@@ -133,6 +137,7 @@ const LoginProtection = () => {
 				) }
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Disable REST API User Enumeration', 'wp-edit-password-protected' ) }
 						checked={ s.disable_rest_users !== false }
 						onChange={ ( v ) => update( 'disable_rest_users', v ) }
@@ -148,6 +153,7 @@ const LoginProtection = () => {
 			<PanelBody title={ __( 'reCAPTCHA', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Enable reCAPTCHA', 'wp-edit-password-protected' ) }
@@ -218,6 +224,7 @@ const LoginProtection = () => {
 			<PanelBody title={ __( 'Hide Login Page', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Hide wp-login.php', 'wp-edit-password-protected' ) }
 						checked={ !! s.hide_login_page }
 						onChange={ ( v ) => update( 'hide_login_page', v ) }

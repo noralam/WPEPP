@@ -1,121 +1,132 @@
 {
-	"login": {
-		"page": {
-			"background_type": "gradient",
-			"background_gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-		},
-		"logo": {
-			"type": "text",
-			"text": "Login",
-			"text_color": "#ffffff",
-			"text_font_size": 26
-		},
-		"form": {
-			"background_color": "rgba(255,255,255,0.95)",
-			"border_radius": 16,
-			"width": 400
-		},
-		"heading": {
-			"show": true,
-			"text": "Sign In",
-			"color": "#333333"
-		},
-		"fields": {
-			"border_color": "#d0d0d0",
-			"border_radius": 8
-		},
-		"button": {
-			"background_color": "#667eea",
-			"text_color": "#ffffff",
-			"border_radius": 8
-		},
-		"links": {
-			"color": "#667eea",
-			"show_lost_password": true
-		}
-	},
-	"register": {
-		"page": {
-			"background_type": "gradient",
-			"background_gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-		},
-		"logo": {
-			"type": "text",
-			"text": "Login",
-			"text_color": "#ffffff",
-			"text_font_size": 26
-		},
-		"form": {
-			"background_color": "rgba(255,255,255,0.95)",
-			"border_radius": 16,
-			"width": 400
-		},
-		"heading": {
-			"show": true,
-			"text": "Sign In",
-			"color": "#333333"
-		},
-		"fields": {
-			"border_color": "#d0d0d0",
-			"border_radius": 8
-		},
-		"button": {
-			"background_color": "#667eea",
-			"text_color": "#ffffff",
-			"border_radius": 8
-		},
-		"links": {
-			"color": "#667eea",
-			"show_lost_password": true
-		}
-	},
-	"lostpassword": {
-		"page": {
-			"background_type": "gradient",
-			"background_gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-		},
-		"logo": {
-			"type": "text",
-			"text": "Login",
-			"text_color": "#ffffff",
-			"text_font_size": 26
-		},
-		"form": {
-			"background_color": "rgba(255,255,255,0.95)",
-			"border_radius": 16,
-			"width": 400
-		},
-		"heading": {
-			"show": true,
-			"text": "Sign In",
-			"color": "#333333"
-		},
-		"fields": {
-			"border_color": "#d0d0d0",
-			"border_radius": 8
-		},
-		"button": {
-			"background_color": "#667eea",
-			"text_color": "#ffffff",
-			"border_radius": 8
-		},
-		"links": {
-			"color": "#667eea",
-			"show_lost_password": true
-		}
-	},
-	"password": {
-		"active_style": "two",
-		"show_top_text": "on",
-		"top_header": "Password Required",
-		"top_content": "Please enter the password to continue.",
-		"top_text_align": "center",
-		"form_label": "Password",
-		"form_btn_text": "Enter",
-		"form_background": "rgba(255,255,255,0.95)",
-		"form_border_radius": 16,
-		"button_color": "#667eea",
-		"show_social": "off",
-		"show_bottom_text": "off"
-	}
+    "login":  {
+                  "page":  {
+                               "background_type":  "gradient",
+                               "background_gradient":  "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                           },
+                  "logo":  {
+                               "type":  "text",
+                               "text":  "Login",
+                               "text_color":  "#ffffff",
+                               "text_font_size":  26
+                           },
+                  "form":  {
+                               "background_color":  "rgba(255,255,255,0.95)",
+                               "border_radius":  16,
+                               "width":  400
+                           },
+                  "heading":  {
+                                  "show":  true,
+                                  "text":  "Sign In",
+                                  "color":  "#333333"
+                              },
+                  "fields":  {
+                                 "border_color":  "#d0d0d0",
+                                 "border_radius":  8
+                             },
+                  "button":  {
+                                 "background_color":  "#667eea",
+                                 "text_color":  "#ffffff",
+                                 "border_radius":  8
+                             },
+                  "links":  {
+                                "color":  "#667eea",
+                                "show_lost_password":  true
+                            }
+              },
+    "register":  {
+                     "page":  {
+                                  "background_type":  "gradient",
+                                  "background_gradient":  "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                              },
+                     "logo":  {
+                                  "type":  "text",
+                                  "text":  "Login",
+                                  "text_color":  "#ffffff",
+                                  "text_font_size":  26
+                              },
+                     "form":  {
+                                  "background_color":  "rgba(255,255,255,0.95)",
+                                  "border_radius":  16,
+                                  "width":  400
+                              },
+                     "heading":  {
+                                     "show":  true,
+                                     "text":  "Sign In",
+                                     "color":  "#333333"
+                                 },
+                     "fields":  {
+                                    "border_color":  "#d0d0d0",
+                                    "border_radius":  8
+                                },
+                     "button":  {
+                                    "background_color":  "#667eea",
+                                    "text_color":  "#ffffff",
+                                    "border_radius":  8
+                                },
+                     "links":  {
+                                   "color":  "#667eea",
+                                   "show_lost_password":  true
+                               }
+                 },
+    "lostpassword":  {
+                         "page":  {
+                                      "background_type":  "gradient",
+                                      "background_gradient":  "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                                  },
+                         "logo":  {
+                                      "type":  "text",
+                                      "text":  "Login",
+                                      "text_color":  "#ffffff",
+                                      "text_font_size":  26
+                                  },
+                         "form":  {
+                                      "background_color":  "rgba(255,255,255,0.95)",
+                                      "border_radius":  16,
+                                      "width":  400
+                                  },
+                         "heading":  {
+                                         "show":  true,
+                                         "text":  "Sign In",
+                                         "color":  "#333333"
+                                     },
+                         "fields":  {
+                                        "border_color":  "#d0d0d0",
+                                        "border_radius":  8
+                                    },
+                         "button":  {
+                                        "background_color":  "#667eea",
+                                        "text_color":  "#ffffff",
+                                        "border_radius":  8
+                                    },
+                         "links":  {
+                                       "color":  "#667eea",
+                                       "show_lost_password":  true
+                                   }
+                     },
+    "password":  {
+                     "show_top_text":  "on",
+                     "top_header":  "Password Required",
+                     "top_content":  "Please enter the password to continue.",
+                     "top_text_align":  "center",
+                     "form_label":  "Password",
+                     "form_btn_text":  "Enter",
+                     "form_border_radius":  16,
+                     "show_social":  "off",
+                     "show_bottom_text":  "off",
+                     "form_background":  "rgba(255,255,255,0.15)",
+                     "form_text_color":  "#2d2d2d",
+                     "form_outer_background":  "rgba(255,255,255,0.95)",
+                     "button_color":  "#764ba2",
+                     "input_border_color":  "#c0a8e8",
+                     "page_background_gradient":  "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                     "button_border_radius":  8,
+                     "active_style":  "two",
+                     "page_background_type":  "gradient",
+                     "heading_color":  "#2d2d2d",
+                     "input_background":  "#ffffff",
+                     "label_color":  "#444444",
+                     "button_text_color":  "#ffffff",
+                     "input_border_radius":  8
+                 }
 }

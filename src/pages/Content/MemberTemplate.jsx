@@ -174,6 +174,7 @@ const MemberTemplate = () => {
 								</PanelRow>
 								<PanelRow>
 									<ToggleControl
+										__nextHasNoMarginBottom
 										label={ __( 'Show Remember Me', 'wp-edit-password-protected' ) }
 										checked={ s.form_remember !== 'off' }
 										onChange={ ( v ) => update( 'form_remember', v ? 'on' : 'off' ) }

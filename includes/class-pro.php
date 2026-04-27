@@ -68,7 +68,6 @@ function wpepp_enforce_pro_settings( $settings, $section ) {
 			if ( isset( $settings['active_style'] ) && ! in_array( $settings['active_style'], $allowed_styles, true ) ) {
 				$settings['active_style'] = 'one';
 			}
-			unset( $settings['custom_css'] );
 			break;
 
 		case 'login':

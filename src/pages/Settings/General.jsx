@@ -53,6 +53,7 @@ const General = () => {
 					onChange={ ( v ) => set( 'cookie_expiration', parseInt( v, 10 ) || 10 ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					label={ __( 'Delete Data on Uninstall', 'wp-edit-password-protected' ) }
 					help={ __( 'Remove all plugin data when uninstalled.', 'wp-edit-password-protected' ) }
 					checked={ !! settings?.delete_data_on_uninstall }

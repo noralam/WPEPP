@@ -1,6 +1,6 @@
 {
   "name": "wp-edit-password-protected",
-  "version": "2.0.0",
+  "version": "2.0.3",
   "description": "Create member only page and change the message displayed of default WP Password Protected.",
   "scripts": {
     "build": "wp-scripts build",

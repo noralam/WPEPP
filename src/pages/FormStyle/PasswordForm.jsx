@@ -201,6 +201,7 @@ const PasswordForm = () => {
 				<PanelBody title={ __( 'Top Text', 'wp-edit-password-protected' ) } initialOpen={ false }>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __( 'Show Top Text', 'wp-edit-password-protected' ) }
 							checked={ s.show_top_text === 'on' }
 							onChange={ ( v ) => update( 'show_top_text', v ? 'on' : 'off' ) }
@@ -608,6 +609,7 @@ const PasswordForm = () => {
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __( 'Background Overlay', 'wp-edit-password-protected' ) }
 							checked={ !! s.heading_show_background }
 							onChange={ ( v ) => update( 'heading_show_background', v ) }
@@ -648,6 +650,7 @@ const PasswordForm = () => {
 				<PanelBody title={ __( 'Social Icons', 'wp-edit-password-protected' ) } initialOpen={ false }>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __( 'Show Social Icons', 'wp-edit-password-protected' ) }
 							checked={ s.show_social === 'on' }
 							onChange={ ( v ) => update( 'show_social', v ? 'on' : 'off' ) }
@@ -794,6 +797,7 @@ const PasswordForm = () => {
 				<PanelBody title={ __( 'Bottom Text', 'wp-edit-password-protected' ) } initialOpen={ false }>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __( 'Show Bottom Text', 'wp-edit-password-protected' ) }
 							checked={ s.show_bottom_text === 'on' }
 							onChange={ ( v ) => update( 'show_bottom_text', v ? 'on' : 'off' ) }

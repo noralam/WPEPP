@@ -59,6 +59,7 @@ const RegistrationProtection = () => {
 			<PanelBody title={ __( 'Registration Honeypot', 'wp-edit-password-protected' ) } initialOpen>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Enable Registration Honeypot', 'wp-edit-password-protected' ) }
 						checked={ !! s.reg_honeypot_enabled }
 						onChange={ ( v ) => update( 'reg_honeypot_enabled', v ) }
@@ -75,6 +76,7 @@ const RegistrationProtection = () => {
 			<PanelBody title={ __( 'Registration Rate Limiter', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Enable Registration Rate Limiter', 'wp-edit-password-protected' ) }
 						checked={ !! s.reg_rate_limit_enabled }
 						onChange={ ( v ) => update( 'reg_rate_limit_enabled', v ) }
@@ -111,6 +113,7 @@ const RegistrationProtection = () => {
 			<PanelBody title={ __( 'reCAPTCHA on Registration', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Enable reCAPTCHA on Registration', 'wp-edit-password-protected' ) }
@@ -141,6 +144,7 @@ const RegistrationProtection = () => {
 			<PanelBody title={ __( 'Disposable Email Blocker', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Block Disposable Email Addresses', 'wp-edit-password-protected' ) }
@@ -163,6 +167,8 @@ const RegistrationProtection = () => {
 			<PanelBody title={ __( 'Email Domain Whitelist / Blacklist', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Email Domain Filter', 'wp-edit-password-protected' ) }
@@ -208,6 +214,7 @@ const RegistrationProtection = () => {
 			<PanelBody title={ __( 'Admin Approval for New Users', 'wp-edit-password-protected' ) } initialOpen={ false }>
 				<PanelRow>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Require Admin Approval', 'wp-edit-password-protected' ) }

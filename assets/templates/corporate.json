@@ -1,121 +1,132 @@
 {
-	"login": {
-		"page": {
-			"background_type": "color",
-			"background_color": "#f5f5f5"
-		},
-		"logo": {
-			"type": "text",
-			"text": "Company",
-			"text_color": "#1a1a1a",
-			"text_font_size": 22
-		},
-		"form": {
-			"background_color": "#ffffff",
-			"border_radius": 4,
-			"width": 360
-		},
-		"heading": {
-			"show": true,
-			"text": "Employee Portal",
-			"color": "#1a1a1a"
-		},
-		"fields": {
-			"border_color": "#cccccc",
-			"border_radius": 2
-		},
-		"button": {
-			"background_color": "#0066cc",
-			"text_color": "#ffffff",
-			"border_radius": 2
-		},
-		"links": {
-			"color": "#0066cc",
-			"show_lost_password": true
-		}
-	},
-	"register": {
-		"page": {
-			"background_type": "color",
-			"background_color": "#f5f5f5"
-		},
-		"logo": {
-			"type": "text",
-			"text": "Company",
-			"text_color": "#1a1a1a",
-			"text_font_size": 22
-		},
-		"form": {
-			"background_color": "#ffffff",
-			"border_radius": 4,
-			"width": 360
-		},
-		"heading": {
-			"show": true,
-			"text": "Employee Portal",
-			"color": "#1a1a1a"
-		},
-		"fields": {
-			"border_color": "#cccccc",
-			"border_radius": 2
-		},
-		"button": {
-			"background_color": "#0066cc",
-			"text_color": "#ffffff",
-			"border_radius": 2
-		},
-		"links": {
-			"color": "#0066cc",
-			"show_lost_password": true
-		}
-	},
-	"lostpassword": {
-		"page": {
-			"background_type": "color",
-			"background_color": "#f5f5f5"
-		},
-		"logo": {
-			"type": "text",
-			"text": "Company",
-			"text_color": "#1a1a1a",
-			"text_font_size": 22
-		},
-		"form": {
-			"background_color": "#ffffff",
-			"border_radius": 4,
-			"width": 360
-		},
-		"heading": {
-			"show": true,
-			"text": "Employee Portal",
-			"color": "#1a1a1a"
-		},
-		"fields": {
-			"border_color": "#cccccc",
-			"border_radius": 2
-		},
-		"button": {
-			"background_color": "#0066cc",
-			"text_color": "#ffffff",
-			"border_radius": 2
-		},
-		"links": {
-			"color": "#0066cc",
-			"show_lost_password": true
-		}
-	},
-	"password": {
-		"active_style": "one",
-		"show_top_text": "on",
-		"top_header": "Access Required",
-		"top_content": "Please enter the password to access this document.",
-		"top_text_align": "left",
-		"form_label": "Password",
-		"form_btn_text": "Access",
-		"form_background": "#ffffff",
-		"form_border_radius": 4,
-		"button_color": "#0066cc",
-		"show_social": "off",
-		"show_bottom_text": "off"
-	}
+    "login":  {
+                  "page":  {
+                               "background_type":  "color",
+                               "background_color":  "#f5f5f5"
+                           },
+                  "logo":  {
+                               "type":  "text",
+                               "text":  "Company",
+                               "text_color":  "#1a1a1a",
+                               "text_font_size":  22
+                           },
+                  "form":  {
+                               "background_color":  "#ffffff",
+                               "border_radius":  4,
+                               "width":  360
+                           },
+                  "heading":  {
+                                  "show":  true,
+                                  "text":  "Employee Portal",
+                                  "color":  "#1a1a1a"
+                              },
+                  "fields":  {
+                                 "border_color":  "#cccccc",
+                                 "border_radius":  2
+                             },
+                  "button":  {
+                                 "background_color":  "#0066cc",
+                                 "text_color":  "#ffffff",
+                                 "border_radius":  2
+                             },
+                  "links":  {
+                                "color":  "#0066cc",
+                                "show_lost_password":  true
+                            }
+              },
+    "register":  {
+                     "page":  {
+                                  "background_type":  "color",
+                                  "background_color":  "#f5f5f5"
+                              },
+                     "logo":  {
+                                  "type":  "text",
+                                  "text":  "Company",
+                                  "text_color":  "#1a1a1a",
+                                  "text_font_size":  22
+                              },
+                     "form":  {
+                                  "background_color":  "#ffffff",
+                                  "border_radius":  4,
+                                  "width":  360
+                              },
+                     "heading":  {
+                                     "show":  true,
+                                     "text":  "Employee Portal",
+                                     "color":  "#1a1a1a"
+                                 },
+                     "fields":  {
+                                    "border_color":  "#cccccc",
+                                    "border_radius":  2
+                                },
+                     "button":  {
+                                    "background_color":  "#0066cc",
+                                    "text_color":  "#ffffff",
+                                    "border_radius":  2
+                                },
+                     "links":  {
+                                   "color":  "#0066cc",
+                                   "show_lost_password":  true
+                               }
+                 },
+    "lostpassword":  {
+                         "page":  {
+                                      "background_type":  "color",
+                                      "background_color":  "#f5f5f5"
+                                  },
+                         "logo":  {
+                                      "type":  "text",
+                                      "text":  "Company",
+                                      "text_color":  "#1a1a1a",
+                                      "text_font_size":  22
+                                  },
+                         "form":  {
+                                      "background_color":  "#ffffff",
+                                      "border_radius":  4,
+                                      "width":  360
+                                  },
+                         "heading":  {
+                                         "show":  true,
+                                         "text":  "Employee Portal",
+                                         "color":  "#1a1a1a"
+                                     },
+                         "fields":  {
+                                        "border_color":  "#cccccc",
+                                        "border_radius":  2
+                                    },
+                         "button":  {
+                                        "background_color":  "#0066cc",
+                                        "text_color":  "#ffffff",
+                                        "border_radius":  2
+                                    },
+                         "links":  {
+                                       "color":  "#0066cc",
+                                       "show_lost_password":  true
+                                   }
+                     },
+    "password":  {
+                     "show_top_text":  "on",
+                     "top_header":  "Access Required",
+                     "top_content":  "Please enter the password to access this document.",
+                     "top_text_align":  "left",
+                     "form_label":  "Password",
+                     "form_btn_text":  "Access",
+                     "form_border_radius":  4,
+                     "show_social":  "off",
+                     "show_bottom_text":  "off",
+                     "form_background":  "#f5f7fa",
+                     "page_background_color":  "#f5f7fa",
+                     "form_text_color":  "#1a2a4a",
+                     "form_outer_background":  "#ffffff",
+                     "button_color":  "#1a4a8a",
+                     "input_border_color":  "#c0cad8",
+                     "button_border_radius":  4,
+                     "active_style":  "one",
+                     "page_background_type":  "color",
+                     "heading_color":  "#1a2a4a",
+                     "input_background":  "#ffffff",
+                     "label_color":  "#3a4a6a",
+                     "button_text_color":  "#ffffff",
+                     "input_border_radius":  4
+                 }
 }

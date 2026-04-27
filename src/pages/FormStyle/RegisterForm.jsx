@@ -306,6 +306,7 @@ const RegisterForm = () => {
 							</PanelRow>
 							<PanelRow>
 								<ToggleControl
+									__nextHasNoMarginBottom
 									label={ __( 'Background Overlay', 'wp-edit-password-protected' ) }
 									checked={ !! s.logo?.show_background }
 									onChange={ ( v ) => update( 'logo.show_background', v ) }
@@ -392,6 +393,7 @@ const RegisterForm = () => {
 				<PanelBody title={ __( 'Heading', 'wp-edit-password-protected' ) } initialOpen={ false }>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __( 'Show Heading', 'wp-edit-password-protected' ) }
 							checked={ !! s.heading?.show }
 							onChange={ ( v ) => update( 'heading.show', v ) }
@@ -425,6 +427,7 @@ const RegisterForm = () => {
 							</PanelRow>
 							<PanelRow>
 								<ToggleControl
+									__nextHasNoMarginBottom
 									label={ __( 'Background Overlay', 'wp-edit-password-protected' ) }
 									checked={ !! s.heading?.show_background }
 									onChange={ ( v ) => update( 'heading.show_background', v ) }
@@ -579,6 +582,7 @@ const RegisterForm = () => {
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __( 'Show Lost Password', 'wp-edit-password-protected' ) }
 							checked={ s.links?.show_lost_password !== false }
 							onChange={ ( v ) => update( 'links.show_lost_password', v ) }
@@ -586,6 +590,7 @@ const RegisterForm = () => {
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __( 'Show Back to Site', 'wp-edit-password-protected' ) }
 							checked={ s.links?.show_back_to_site !== false }
 							onChange={ ( v ) => update( 'links.show_back_to_site', v ) }

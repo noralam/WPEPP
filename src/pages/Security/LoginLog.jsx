@@ -66,6 +66,7 @@ const LoginLog = () => {
 	return (
 		<div className="wpepp-login-log">
 			<ToggleControl
+				__nextHasNoMarginBottom
 				label={
 					<span>
 						{ __( 'Enable Login Logging', 'wp-edit-password-protected' ) }

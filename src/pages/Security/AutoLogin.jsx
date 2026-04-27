@@ -150,6 +150,8 @@ const AutoLogin = () => {
 			<PanelBody title={ __( 'Create New Link', 'wp-edit-password-protected' ) } initialOpen>
 				<PanelRow>
 					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'User', 'wp-edit-password-protected' ) }
 						value={ userId }
 						options={ userOptions }
@@ -177,6 +179,8 @@ const AutoLogin = () => {
 
 				<PanelRow>
 					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Expiration', 'wp-edit-password-protected' ) }
@@ -215,6 +219,8 @@ const AutoLogin = () => {
 				</PanelRow>
 				<PanelRow>
 					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Role Restriction', 'wp-edit-password-protected' ) }
