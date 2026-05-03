@@ -19,6 +19,16 @@ final class WPEPP_Notice {
 	const DISMISS_OPTION = 'wpepp_pro_notice_dismissed';
 
 	/**
+	 * Option key for the 5-star review notice dismiss.
+	 */
+	const REVIEW_DISMISS_OPTION = 'wpepp_review_dismissed';
+
+	/**
+	 * Days after activation before showing the review notice.
+	 */
+	const REVIEW_DAYS = 7;
+
+	/**
 	 * Option key for dismiss count.
 	 */
 	const DISMISS_COUNT_OPTION = 'wpepp_pro_notice_dismiss_count';
@@ -36,8 +46,10 @@ final class WPEPP_Notice {
 		add_action( 'admin_footer', [ $this, 'render_menu_tooltip' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_notice_assets' ] );
 		add_action( 'admin_notices', [ $this, 'render_pro_notice' ] );
+		add_action( 'admin_notices', [ $this, 'render_review_notice' ] );
 		add_action( 'wp_ajax_wpepp_dismiss_pro_notice', [ $this, 'ajax_dismiss_pro_notice' ] );
 		add_action( 'wp_ajax_wpepp_dismiss_new_badge', [ $this, 'ajax_dismiss_new_badge' ] );
+		add_action( 'wp_ajax_wpepp_dismiss_review_notice', [ $this, 'ajax_dismiss_review_notice' ] );
 	}
 
 	/* ─── 1. Menu "NEW" badge ───────────────────────────────────── */
@@ -237,6 +249,96 @@ final class WPEPP_Notice {
 		update_option( self::DISMISS_OPTION, time() + ( $days * DAY_IN_SECONDS ) );
 
 		wp_send_json_success( [ 'hidden_for_days' => $days ] );
+	}
+
+	/* ─── 3. 5-star review notice ──────────────────────────────── */
+
+	/**
+	 * Should the review notice be shown?
+	 *
+	 * @return bool
+	 */
+	private function should_show_review_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		$dismissed = get_option( self::REVIEW_DISMISS_OPTION );
+
+		// Permanently dismissed ('done') or snoozed until a future timestamp.
+		if ( 'done' === $dismissed ) {
+			return false;
+		}
+
+		if ( $dismissed && time() < (int) $dismissed ) {
+			return false;
+		}
+
+		$install_date = get_option( 'wpepp_install_date' );
+		if ( ! $install_date ) {
+			return false;
+		}
+
+		return strtotime( $install_date ) < strtotime( '-' . self::REVIEW_DAYS . ' days' );
+	}
+
+	/**
+	 * Render the 5-star review notice.
+	 */
+	public function render_review_notice() {
+		if ( ! $this->should_show_review_notice() ) {
+			return;
+		}
+
+		$review_url = 'https://wordpress.org/support/plugin/wp-edit-password-protected/reviews/?filter=5/#new-post';
+		?>
+		<div class="wpepp-review-notice" id="wpepp-review-notice">
+			<div class="wpepp-review-notice__stars" aria-hidden="true">★★★★★</div>
+			<div class="wpepp-review-notice__content">
+				<p class="wpepp-review-notice__title">
+					<?php esc_html_e( 'You’ve been using WP Edit Password Protected for a week — thank you!', 'wp-edit-password-protected' ); ?>
+				</p>
+				<p class="wpepp-review-notice__body">
+					<?php esc_html_e( 'If the plugin has been useful, a quick 5-star review on WordPress.org means a lot to us and helps other site owners discover it. It takes less than a minute.', 'wp-edit-password-protected' ); ?>
+				</p>
+				<div class="wpepp-review-notice__actions">
+					<a href="<?php echo esc_url( $review_url ); ?>" class="wpepp-review-notice__btn-rate" target="_blank" rel="noopener noreferrer" id="wpepp-review-rate">
+						★★★★★ <?php esc_html_e( 'Leave a 5-star review', 'wp-edit-password-protected' ); ?>
+					</a>
+					<button type="button" class="wpepp-review-notice__btn-remind" id="wpepp-review-remind">
+						<?php esc_html_e( 'Maybe later', 'wp-edit-password-protected' ); ?>
+					</button>
+					<button type="button" class="wpepp-review-notice__btn-done" id="wpepp-review-done">
+						<?php esc_html_e( 'I already left a review', 'wp-edit-password-protected' ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * AJAX: dismiss the review notice.
+	 *
+	 * POST param `snooze` = 1  → remind after 30 days
+	 * POST param `snooze` = 0  → permanent (already did / rated)
+	 */
+	public function ajax_dismiss_review_notice() {
+		check_ajax_referer( 'wpepp_notice_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error();
+		}
+
+		$snooze = isset( $_POST['snooze'] ) && '1' === $_POST['snooze'];
+
+		if ( $snooze ) {
+			update_option( self::REVIEW_DISMISS_OPTION, time() + ( 30 * DAY_IN_SECONDS ) );
+		} else {
+			update_option( self::REVIEW_DISMISS_OPTION, 'done' );
+		}
+
+		wp_send_json_success();
 	}
 
 	/* ─── Assets ────────────────────────────────────────────────── */

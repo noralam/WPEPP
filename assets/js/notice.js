@@ -67,6 +67,45 @@
 			});
 		}
 
+		/* ── Review notice ── */
+		function sendReviewDismiss(snooze) {
+			var notice = document.getElementById('wpepp-review-notice');
+			if (notice) {
+				notice.style.transition = 'opacity .3s';
+				notice.style.opacity = '0';
+				setTimeout(function () { notice.remove(); }, 320);
+			}
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', wpeppNotice.ajaxUrl, true);
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			xhr.send(
+				'action=wpepp_dismiss_review_notice&nonce=' +
+				encodeURIComponent(wpeppNotice.nonce) +
+				'&snooze=' + (snooze ? '1' : '0')
+			);
+		}
+
+		var rateBtn = document.getElementById('wpepp-review-rate');
+		if (rateBtn) {
+			rateBtn.addEventListener('click', function () {
+				sendReviewDismiss(false);
+			});
+		}
+
+		var remindBtn = document.getElementById('wpepp-review-remind');
+		if (remindBtn) {
+			remindBtn.addEventListener('click', function () {
+				sendReviewDismiss(true);
+			});
+		}
+
+		var doneBtn = document.getElementById('wpepp-review-done');
+		if (doneBtn) {
+			doneBtn.addEventListener('click', function () {
+				sendReviewDismiss(false);
+			});
+		}
+
 		/* ── Dismiss Pro notice ── */
 		var dismissBtn = document.getElementById('wpepp-dismiss-pro-notice');
 		if (dismissBtn) {
