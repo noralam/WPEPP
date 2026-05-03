@@ -296,7 +296,7 @@ final class WPEPP_Notice {
 			<div class="wpepp-review-notice__stars" aria-hidden="true">★★★★★</div>
 			<div class="wpepp-review-notice__content">
 				<p class="wpepp-review-notice__title">
-					<?php esc_html_e( 'You’ve been using WP Edit Password Protected for a week — thank you!', 'wp-edit-password-protected' ); ?>
+				<?php esc_html_e( 'Thank you for using WPEPP – Essential Security, Password Protect & Login Page Customizer!', 'wp-edit-password-protected' ); ?>
 				</p>
 				<p class="wpepp-review-notice__body">
 					<?php esc_html_e( 'If the plugin has been useful, a quick 5-star review on WordPress.org means a lot to us and helps other site owners discover it. It takes less than a minute.', 'wp-edit-password-protected' ); ?>
