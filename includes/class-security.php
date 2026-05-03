@@ -217,7 +217,10 @@ class WPEPP_Security {
 
 		$table = $wpdb->prefix . 'wpepp_login_log';
 
-		// If table doesn't exist, skip silently.
+		if ( ! self::login_log_table_exists( true ) ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->insert(
 			$table,
@@ -250,6 +253,10 @@ class WPEPP_Security {
 
 		$table = $wpdb->prefix . 'wpepp_login_log';
 
+		if ( ! self::login_log_table_exists( true ) ) {
+			return false;
+		}
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$count = (int) $wpdb->get_var(
 			$wpdb->prepare(
@@ -263,6 +270,45 @@ class WPEPP_Security {
 		);
 
 		return $count >= $max;
+	}
+
+	/**
+	 * Check whether the login log table exists, optionally creating plugin tables.
+	 *
+	 * @param bool $create Whether to try creating missing tables.
+	 * @return bool
+	 */
+	private static function login_log_table_exists( $create = false ) {
+		global $wpdb;
+
+		$table        = $wpdb->prefix . 'wpepp_login_log';
+		$cache_key    = 'wpepp_login_log_exists';
+		$table_exists = wp_cache_get( $cache_key, 'wpepp' );
+
+		if ( false === $table_exists ) {
+			$table_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
+			);
+			wp_cache_set( $cache_key, $table_exists ?: 'no', 'wpepp' );
+		}
+
+		if ( $table_exists && 'no' !== $table_exists ) {
+			return true;
+		}
+
+		if ( ! $create || ! class_exists( 'WPEPP_Activator' ) ) {
+			return false;
+		}
+
+		WPEPP_Activator::create_tables();
+		wp_cache_delete( $cache_key, 'wpepp' );
+
+		$table_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
+		);
+		wp_cache_set( $cache_key, $table_exists ?: 'no', 'wpepp' );
+
+		return (bool) $table_exists;
 	}
 
 	/**

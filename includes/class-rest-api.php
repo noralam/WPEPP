@@ -904,6 +904,10 @@ class WPEPP_Rest_Api {
 		$cache_key = 'wpepp_login_log_' . $limit;
 		$results   = wp_cache_get( $cache_key, 'wpepp' );
 
+		if ( ! $this->login_log_table_exists( true ) ) {
+			return rest_ensure_response( [] );
+		}
+
 		if ( false === $results ) {
 			$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 				$wpdb->prepare(
@@ -926,6 +930,11 @@ class WPEPP_Rest_Api {
 	public function clear_login_log() {
 		global $wpdb;
 		$table = $wpdb->prefix . 'wpepp_login_log';
+
+		if ( ! $this->login_log_table_exists( true ) ) {
+			return rest_ensure_response( [ 'success' => true ] );
+		}
+
 		$wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 		wp_cache_flush_group( 'wpepp' );
@@ -957,16 +966,7 @@ class WPEPP_Rest_Api {
 		$login_failed_30d  = 0;
 		$logins_today      = 0;
 
-		// Check if table exists before querying.
-		$table_exists = wp_cache_get( 'wpepp_login_log_exists', 'wpepp' );
-		if ( false === $table_exists ) {
-			$table_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-				$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
-			);
-			wp_cache_set( 'wpepp_login_log_exists', $table_exists ?: 'no', 'wpepp' );
-		}
-
-		if ( $table_exists && 'no' !== $table_exists ) {
+		if ( $this->login_log_table_exists( true ) ) {
 			$login_success_30d = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM %i WHERE status = 'success' AND created_at >= %s",
@@ -1021,6 +1021,45 @@ class WPEPP_Rest_Api {
 		wp_cache_set( 'wpepp_dashboard_stats', $stats, 'wpepp' );
 
 		return rest_ensure_response( $stats );
+	}
+
+	/**
+	 * Check whether the login log table exists, optionally creating plugin tables.
+	 *
+	 * @param bool $create Whether to try creating missing tables.
+	 * @return bool
+	 */
+	private function login_log_table_exists( $create = false ) {
+		global $wpdb;
+
+		$table        = $wpdb->prefix . 'wpepp_login_log';
+		$cache_key    = 'wpepp_login_log_exists';
+		$table_exists = wp_cache_get( $cache_key, 'wpepp' );
+
+		if ( false === $table_exists ) {
+			$table_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
+			);
+			wp_cache_set( $cache_key, $table_exists ?: 'no', 'wpepp' );
+		}
+
+		if ( $table_exists && 'no' !== $table_exists ) {
+			return true;
+		}
+
+		if ( ! $create || ! class_exists( 'WPEPP_Activator' ) ) {
+			return false;
+		}
+
+		WPEPP_Activator::create_tables();
+		wp_cache_delete( $cache_key, 'wpepp' );
+
+		$table_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
+		);
+		wp_cache_set( $cache_key, $table_exists ?: 'no', 'wpepp' );
+
+		return (bool) $table_exists;
 	}
 
 	// ── Preview ──
