@@ -8,6 +8,7 @@ import { Spinner } from '@wordpress/components';
 
 const AdminOnly    = lazy( () => import( './SiteAccess/AdminOnly' ) );
 const SitePassword = lazy( () => import( './SiteAccess/SitePassword' ) );
+const CountryRestriction = lazy( () => import( './SiteAccess/CountryRestriction' ) );
 
 const SiteAccess = () => {
 	return (
@@ -19,6 +20,9 @@ const SiteAccess = () => {
 				<NavLink to="/site-access/site-password" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Site Password', 'wp-edit-password-protected' ) }
 				</NavLink>
+				<NavLink to="/site-access/country-restriction" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+					{ __( 'Country Restriction', 'wp-edit-password-protected' ) }
+				</NavLink>
 			</nav>
 
 			<Suspense fallback={ <Spinner /> }>
@@ -26,6 +30,7 @@ const SiteAccess = () => {
 					<Route index element={ <Navigate to="admin-only" replace /> } />
 					<Route path="admin-only" element={ <AdminOnly /> } />
 					<Route path="site-password" element={ <SitePassword /> } />
+					<Route path="country-restriction" element={ <CountryRestriction /> } />
 				</Routes>
 			</Suspense>
 		</div>

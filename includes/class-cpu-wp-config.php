@@ -167,6 +167,7 @@ class WPEPP_CPU_WP_Config {
 
 		// Write atomically: write to temp file then rename.
 		$temp_path = $config_path . '.wpepp-tmp';
+		$orig_perms = @fileperms( $config_path ) & 0777;
 		$written   = file_put_contents( $temp_path, $contents, LOCK_EX );
 
 		if ( false === $written ) {
@@ -177,13 +178,26 @@ class WPEPP_CPU_WP_Config {
 			);
 		}
 
+		// Restrict the temp file to owner-only while it sits on disk so the
+		// full wp-config.php contents are never world-readable, even briefly.
+		@chmod( $temp_path, 0600 );
+
 		if ( ! rename( $temp_path, $config_path ) ) {
-			@unlink( $temp_path );
+			// Ensure the temp copy never lingers; if it cannot be removed,
+			// truncate it so the credentials it holds are not exposed.
+			if ( file_exists( $temp_path ) && ! @unlink( $temp_path ) ) {
+				@file_put_contents( $temp_path, '' );
+			}
 			return new WP_Error(
 				'config_rename_error',
 				__( 'Could not replace wp-config.php.', 'wp-edit-password-protected' ),
 				[ 'status' => 500 ]
 			);
+		}
+
+		// Restore the original file permissions after the swap.
+		if ( $orig_perms ) {
+			@chmod( $config_path, $orig_perms );
 		}
 
 		return true;

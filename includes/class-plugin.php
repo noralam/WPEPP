@@ -147,6 +147,7 @@ final class WPEPP_Plugin {
 			'class-conditional-meta-helper.php',
 			'class-totp.php',
 			'class-security.php',
+			'class-geo.php',
 			'class-member-template.php',
 			'class-ajax-password.php',
 			'class-site-access.php',
@@ -288,7 +289,7 @@ final class WPEPP_Plugin {
 			'version'      => WPEPP_VERSION,
 			'isPro'        => wpepp_has_pro_check(),
 			'proUrl'       => esc_url( 'https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing' ),
-			'clientIp'     => WPEPP_Security::get_client_ip(),
+			'clientIp'     => esc_html( WPEPP_Security::get_client_ip() ),
 		] );
 
 		// Media uploader for image uploads.

@@ -69,6 +69,29 @@ class WPEPP_Login_Customizer {
 	}
 
 	/**
+	 * Sanitize a free-form CSS property value (gradient, shadow, position, size).
+	 *
+	 * Removes characters that allow breaking out of a CSS declaration/rule or
+	 * the surrounding <style> element while keeping gradient/shadow syntax intact.
+	 *
+	 * @param mixed $val Raw value.
+	 * @return string
+	 */
+	private static function css_value( $val ) {
+		return trim( str_replace( [ ';', '{', '}', '<', '>', '@', '\\' ], '', wp_strip_all_tags( (string) $val ) ) );
+	}
+
+	/**
+	 * Sanitize a value placed inside a quoted CSS string (e.g. content:"...").
+	 *
+	 * @param mixed $val Raw value.
+	 * @return string
+	 */
+	private static function css_string( $val ) {
+		return str_replace( [ '"', '\\', '<', '>', "\n", "\r" ], '', wp_strip_all_tags( (string) $val ) );
+	}
+
+	/**
 	 * Convert a dimension value (array or scalar) to CSS shorthand.
 	 *
 	 * @param mixed  $val  Dimension value — array with top/right/bottom/left or scalar.
@@ -105,12 +128,12 @@ class WPEPP_Login_Customizer {
 				$css .= 'background-color:' . self::sanitize_color( $page['background_color'] ) . ';';
 			}
 			if ( 'gradient' === ( $page['background_type'] ?? '' ) && ! empty( $page['background_gradient'] ) ) {
-				$css .= 'background:' . wp_strip_all_tags( $page['background_gradient'] ) . ';';
+				$css .= 'background:' . self::css_value( $page['background_gradient'] ) . ';';
 			}
 			if ( 'image' === ( $page['background_type'] ?? '' ) && ! empty( $page['background_image'] ) ) {
 				$css .= 'background-image:url(' . esc_url( $page['background_image'] ) . ');';
-				$css .= 'background-position:' . esc_attr( $page['background_position'] ?? 'center center' ) . ';';
-				$css .= 'background-size:' . esc_attr( $page['background_size'] ?? 'cover' ) . ';';
+				$css .= 'background-position:' . self::css_value( $page['background_position'] ?? 'center center' ) . ';';
+				$css .= 'background-size:' . self::css_value( $page['background_size'] ?? 'cover' ) . ';';
 				$css .= 'background-repeat:no-repeat;';
 			}
 			if ( 'video' === ( $page['background_type'] ?? '' ) && ! empty( $page['background_color'] ) ) {
@@ -142,7 +165,7 @@ class WPEPP_Login_Customizer {
 				$css .= 'background-size:contain;background-repeat:no-repeat;background-position:center;}';
 			} elseif ( 'text' === $logo_type ) {
 				$css .= '#login h1 a{background-image:none;text-indent:0;font-size:0;width:auto;height:auto;}';
-				$css .= '#login h1 a::after{content:"' . esc_attr( $logo['text'] ?? '' ) . '";';
+				$css .= '#login h1 a::after{content:"' . self::css_string( $logo['text'] ?? '' ) . '";';
 				$css .= 'font-size:' . absint( $logo['text_font_size'] ?? 24 ) . 'px;';
 				if ( ! empty( $logo['text_color'] ) ) {
 					$css .= 'color:' . self::sanitize_color( $logo['text_color'] ) . ';';
@@ -200,7 +223,7 @@ class WPEPP_Login_Customizer {
 				'large'  => '0 10px 25px rgba(0,0,0,0.15)',
 			];
 			if ( 'custom' === $shadow && ! empty( $form['shadow_custom'] ) ) {
-				$css .= 'box-shadow:' . wp_strip_all_tags( $form['shadow_custom'] ) . ';';
+				$css .= 'box-shadow:' . self::css_value( $form['shadow_custom'] ) . ';';
 			} elseif ( isset( $shadow_map[ $shadow ] ) ) {
 				$css .= 'box-shadow:' . $shadow_map[ $shadow ] . ';';
 			} elseif ( 'none' === $shadow ) {
@@ -436,7 +459,7 @@ class WPEPP_Login_Customizer {
 				'large'  => '0 10px 25px rgba(0,0,0,0.15)',
 			];
 			if ( 'custom' === $shadow && ! empty( $form['shadow_custom'] ) ) {
-				$css .= 'box-shadow:' . wp_strip_all_tags( $form['shadow_custom'] ) . ';';
+				$css .= 'box-shadow:' . self::css_value( $form['shadow_custom'] ) . ';';
 			} elseif ( isset( $shadow_map[ $shadow ] ) ) {
 				$css .= 'box-shadow:' . $shadow_map[ $shadow ] . ';';
 			}
@@ -588,7 +611,7 @@ class WPEPP_Login_Customizer {
 				'large'  => '0 10px 25px rgba(0,0,0,0.15)',
 			];
 			if ( 'custom' === $shadow && ! empty( $form['shadow_custom'] ) ) {
-				$css .= 'box-shadow:' . wp_strip_all_tags( $form['shadow_custom'] ) . ';';
+				$css .= 'box-shadow:' . self::css_value( $form['shadow_custom'] ) . ';';
 			} elseif ( isset( $shadow_map[ $shadow ] ) ) {
 				$css .= 'box-shadow:' . $shadow_map[ $shadow ] . ';';
 			}

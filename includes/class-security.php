@@ -312,19 +312,31 @@ class WPEPP_Security {
 	}
 
 	/**
-	 * Get client IP — checks proxy headers then falls back to REMOTE_ADDR.
+	 * Get client IP.
 	 *
-	 * Priority: HTTP_CF_CONNECTING_IP (Cloudflare) → HTTP_X_FORWARDED_FOR
-	 * → HTTP_X_REAL_IP → REMOTE_ADDR.
+	 * Forwarded headers (CF-Connecting-IP, X-Forwarded-For, X-Real-IP) are
+	 * trivially spoofable and are ONLY honoured when the direct peer
+	 * (REMOTE_ADDR) is a trusted proxy. Sites behind Cloudflare/Nginx must
+	 * register their proxy IPs/CIDRs via the `wpepp_trusted_proxies` filter,
+	 * otherwise REMOTE_ADDR is used (spoof-proof default).
 	 *
 	 * @return string
 	 */
 	public static function get_client_ip() {
+		$remote = isset( $_SERVER['REMOTE_ADDR'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
+			: '0.0.0.0';
+		$remote = filter_var( $remote, FILTER_VALIDATE_IP ) ? $remote : '0.0.0.0';
+
+		// Only consult forwarded headers when the direct peer is a trusted proxy.
+		if ( ! self::is_trusted_proxy( $remote ) ) {
+			return $remote;
+		}
+
 		$headers = [
 			'HTTP_CF_CONNECTING_IP', // Cloudflare.
 			'HTTP_X_FORWARDED_FOR',  // Most reverse proxies.
 			'HTTP_X_REAL_IP',        // Nginx.
-			'REMOTE_ADDR',           // Direct connection.
 		];
 
 		foreach ( $headers as $header ) {
@@ -339,17 +351,46 @@ class WPEPP_Security {
 				$value = trim( explode( ',', $value )[0] );
 			}
 
-			if ( filter_var( $value, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+			if ( filter_var( $value, FILTER_VALIDATE_IP ) ) {
 				return $value;
 			}
 		}
 
-		// Fallback — allow private/reserved IPs (localhost, LAN, etc.).
-		$ip = isset( $_SERVER['REMOTE_ADDR'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
-			: '0.0.0.0';
+		return $remote;
+	}
 
-		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
+	/**
+	 * Whether the given IP is a configured trusted reverse proxy.
+	 *
+	 * Returns false by default. Register proxy IPs or CIDR ranges via:
+	 *   add_filter( 'wpepp_trusted_proxies', fn() => [ '173.245.48.0/20', ... ] );
+	 *
+	 * @param string $ip Direct peer IP (REMOTE_ADDR).
+	 * @return bool
+	 */
+	private static function is_trusted_proxy( $ip ) {
+		$proxies = apply_filters( 'wpepp_trusted_proxies', [] );
+		if ( empty( $proxies ) || ! is_array( $proxies ) ) {
+			return false;
+		}
+
+		foreach ( $proxies as $proxy ) {
+			$proxy = trim( (string) $proxy );
+			if ( '' === $proxy ) {
+				continue;
+			}
+			if ( false === strpos( $proxy, '/' ) ) {
+				if ( hash_equals( $proxy, $ip ) ) {
+					return true;
+				}
+				continue;
+			}
+			if ( self::ip_in_cidr( $ip, $proxy ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/* ─── Honeypot ─── */
@@ -487,7 +528,11 @@ class WPEPP_Security {
 		] );
 
 		if ( is_wp_error( $result ) ) {
-			return $user; // Fail open on network error.
+			// Fail closed — a network error must not bypass the challenge.
+			return new \WP_Error(
+				'wpepp_recaptcha',
+				__( 'Could not verify reCAPTCHA. Please try again.', 'wp-edit-password-protected' )
+			);
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $result ), true );
@@ -787,9 +832,35 @@ class WPEPP_Security {
 			);
 		}
 
+		// Rate limit token guessing — max 10 attempts per IP per 15 minutes.
+		$rl_key   = 'wpepp_autologin_rl_' . md5( self::get_client_ip() );
+		$attempts = (int) get_transient( $rl_key );
+		if ( $attempts >= 10 ) {
+			wp_die(
+				esc_html__( 'Too many auto-login attempts. Please try again later.', 'wp-edit-password-protected' ),
+				esc_html__( 'Login Error', 'wp-edit-password-protected' ),
+				[ 'response' => 429 ]
+			);
+		}
+		set_transient( $rl_key, $attempts + 1, 15 * MINUTE_IN_SECONDS );
+
 		$links = get_option( 'wpepp_auto_login_links', [] );
 		if ( ! is_array( $links ) ) {
 			$links = [];
+		}
+
+		// Prune expired links so the option does not grow unbounded.
+		$now     = time();
+		$pruned  = false;
+		foreach ( $links as $i => $l ) {
+			if ( ! empty( $l['expires_at'] ) && $now > (int) $l['expires_at'] ) {
+				unset( $links[ $i ] );
+				$pruned = true;
+			}
+		}
+		if ( $pruned ) {
+			$links = array_values( $links );
+			update_option( 'wpepp_auto_login_links', $links, false );
 		}
 
 		$found = null;

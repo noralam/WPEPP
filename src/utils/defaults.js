@@ -236,4 +236,9 @@ export const SITE_ACCESS_DEFAULTS = {
 	site_password_message: 'This site is password protected. Please enter the password to continue.',
 	site_password_cookie_days: 7,
 	site_password_bypass_logged_in: true,
+	country_restriction_enabled: false,
+	country_restriction_mode: 'block',
+	country_restriction_list: [],
+	country_restriction_title: 'Access Restricted',
+	country_restriction_message: 'This site is not available in your region.',
 };

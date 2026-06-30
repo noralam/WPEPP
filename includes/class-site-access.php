@@ -46,7 +46,9 @@ class WPEPP_Site_Access {
 		}
 
 		// Nothing enabled — bail early.
-		if ( empty( $this->settings['admin_only_enabled'] ) && empty( $this->settings['site_password_enabled'] ) ) {
+		if ( empty( $this->settings['admin_only_enabled'] )
+			&& empty( $this->settings['site_password_enabled'] )
+			&& empty( $this->settings['country_restriction_enabled'] ) ) {
 			return;
 		}
 
@@ -127,6 +129,11 @@ class WPEPP_Site_Access {
 			return;
 		}
 
+		// --- Country Restriction --- (runs first; may end the request).
+		if ( ! empty( $this->settings['country_restriction_enabled'] ) ) {
+			$this->enforce_country_restriction();
+		}
+
 		// --- Admin Only Mode ---
 		if ( ! empty( $this->settings['admin_only_enabled'] ) ) {
 			$this->enforce_admin_only();
@@ -137,6 +144,102 @@ class WPEPP_Site_Access {
 		if ( ! empty( $this->settings['site_password_enabled'] ) && ! empty( $this->settings['site_password'] ) ) {
 			$this->enforce_site_password();
 		}
+	}
+
+	/**
+	 * Enforce country restriction — block or allow visitors by country.
+	 *
+	 * Fails open: if the country cannot be resolved, the visitor passes.
+	 * Administrators always bypass so a bad rule cannot lock them out.
+	 */
+	private function enforce_country_restriction() {
+		// Admins bypass — never lock out the site owner.
+		if ( current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! class_exists( 'WPEPP_Geo' ) || ! class_exists( 'WPEPP_Security' ) ) {
+			return;
+		}
+
+		$code = WPEPP_Geo::country_for_ip( WPEPP_Security::get_client_ip() );
+
+		// Unknown — fail open.
+		if ( '' === $code ) {
+			return;
+		}
+
+		$list = array_map(
+			'strtoupper',
+			array_filter( (array) ( $this->settings['country_restriction_list'] ?? [] ), 'is_string' )
+		);
+
+		if ( empty( $list ) ) {
+			return;
+		}
+
+		$mode      = ( 'allow' === ( $this->settings['country_restriction_mode'] ?? 'block' ) ) ? 'allow' : 'block';
+		$in_list   = in_array( $code, $list, true );
+		$is_blocked = ( 'block' === $mode ) ? $in_list : ! $in_list;
+
+		if ( $is_blocked ) {
+			$this->render_country_blocked_page();
+			exit;
+		}
+	}
+
+	/**
+	 * Render the "not available in your region" full-page block.
+	 */
+	private function render_country_blocked_page() {
+		$title   = $this->settings['country_restriction_title'] ?? __( 'Access Restricted', 'wp-edit-password-protected' );
+		$message = $this->settings['country_restriction_message'] ?? __( 'This site is not available in your region.', 'wp-edit-password-protected' );
+
+		status_header( 403 );
+		nocache_headers();
+
+		// Reuse the site password page stylesheet for consistent styling.
+		wp_enqueue_style(
+			'wpepp-site-password',
+			WPEPP_URL . '/assets/css/site-password.css',
+			[],
+			defined( 'WPEPP_VERSION' ) ? WPEPP_VERSION : '2.0.0'
+		);
+
+		$lock_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'
+			. '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>'
+			. '<path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+			. '</svg>';
+
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<head>
+			<meta charset="<?php bloginfo( 'charset' ); ?>">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<meta name="robots" content="noindex, nofollow">
+			<title><?php echo esc_html( get_bloginfo( 'name' ) ); ?> &mdash; <?php echo esc_html( $title ); ?></title>
+			<?php wp_head(); ?>
+		</head>
+		<body class="wpepp-site-password-body">
+			<div class="wpepp-site-password-wrap">
+				<div class="wpepp-site-password-icon"><?php echo $lock_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></div>
+				<h1 class="wpepp-site-password-title"><?php echo esc_html( $title ); ?></h1>
+				<p class="wpepp-site-password-message"><?php echo wp_kses_post( $message ); ?></p>
+				<div class="wpepp-site-password-footer">
+					<?php
+					printf(
+						/* translators: %s: site name */
+						esc_html__( '&copy; %s. All rights reserved.', 'wp-edit-password-protected' ),
+						esc_html( get_bloginfo( 'name' ) )
+					);
+					?>
+				</div>
+			</div>
+			<?php wp_footer(); ?>
+		</body>
+		</html>
+		<?php
 	}
 
 	/**
