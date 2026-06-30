@@ -394,6 +394,30 @@ class WPEPP_Password_Customizer {
 	}
 
 	/**
+	 * Sanitize a free-form CSS property value (gradient, shadow, position, size).
+	 *
+	 * Removes characters that allow breaking out of a CSS declaration/rule or
+	 * the surrounding <style> element while keeping gradient/shadow syntax
+	 * (commas, parentheses, %, #, units) intact.
+	 *
+	 * @param mixed $val Raw value.
+	 * @return string
+	 */
+	private static function css_value( $val ) {
+		return trim( str_replace( [ ';', '{', '}', '<', '>', '@', '\\' ], '', wp_strip_all_tags( (string) $val ) ) );
+	}
+
+	/**
+	 * Sanitize a value placed inside a quoted CSS string (e.g. content:"...").
+	 *
+	 * @param mixed $val Raw value.
+	 * @return string
+	 */
+	private static function css_string( $val ) {
+		return str_replace( [ '"', '\\', '<', '>', "\n", "\r" ], '', wp_strip_all_tags( (string) $val ) );
+	}
+
+	/**
 	 * Convert a dimension value (array or scalar) to CSS shorthand.
 	 *
 	 * @param mixed  $val  Dimension value — array with top/right/bottom/left or scalar.
@@ -439,11 +463,11 @@ class WPEPP_Password_Customizer {
 			$css .= $body . '{background-color:' . self::sanitize_color( $settings['page_background_color'] ) . ';}';
 		} elseif ( $bg_type === 'image' && ! empty( $settings['page_background_image'] ) ) {
 			$image = esc_url( $settings['page_background_image'] );
-			$pos   = sanitize_text_field( $settings['page_background_position'] ?? 'center center' );
-			$size  = sanitize_text_field( $settings['page_background_size'] ?? 'cover' );
+			$pos   = self::css_value( $settings['page_background_position'] ?? 'center center' );
+			$size  = self::css_value( $settings['page_background_size'] ?? 'cover' );
 			$css .= $body . '{background-image:url(' . $image . ');background-position:' . $pos . ';background-size:' . $size . ';background-repeat:no-repeat;background-attachment:fixed;}';
 		} elseif ( $bg_type === 'gradient' && ! empty( $settings['page_background_gradient'] ) ) {
-			$css .= $body . '{background:' . wp_strip_all_tags( $settings['page_background_gradient'] ) . ';}';
+			$css .= $body . '{background:' . self::css_value( $settings['page_background_gradient'] ) . ';}';
 		} elseif ( $bg_type === 'video' && ! empty( $settings['page_background_color'] ) ) {
 			$css .= $body . '{background-color:' . self::sanitize_color( $settings['page_background_color'] ) . ';}';
 		}
@@ -572,7 +596,9 @@ class WPEPP_Password_Customizer {
 		}
 
 		if ( ! empty( $settings['custom_css'] ) ) {
-			$css .= wp_strip_all_tags( $settings['custom_css'] );
+			// Strip tags (blocks </style> breakout) and angle brackets defensively.
+			// CSS syntax (;{}) is intentionally allowed here — admin-only field.
+			$css .= str_replace( [ '<', '>' ], '', wp_strip_all_tags( $settings['custom_css'] ) );
 		}
 
 		// Social icons styling.

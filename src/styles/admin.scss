@@ -358,6 +358,67 @@ body.toplevel_page_wpepp-settings {
 		background: $bg-card;
 	}
 
+	// Country Restriction — FormTokenField + matching select width
+	.wpepp-country-restriction-settings {
+		// Make the mode select and the country field the same width.
+		.components-base-control,
+		.components-form-token-field {
+			width: 100% !important;
+		}
+
+		.components-form-token-field__input-container {
+			background: $bg-input !important;
+			border: 1px solid $border-color !important;
+			border-radius: $radius-sm !important;
+			padding: 4px 8px !important;
+
+			&.is-active {
+				border-color: $primary !important;
+				box-shadow: 0 0 0 1px $primary !important;
+			}
+
+			input.components-form-token-field__input {
+				background: transparent !important;
+				border: 0 !important;
+				color: $text-primary !important;
+				box-shadow: none !important;
+				width: auto !important;
+				min-width: 120px;
+			}
+		}
+
+		// Selected tokens (chips).
+		.components-form-token-field__token {
+			.components-form-token-field__token-text {
+				background: $primary !important;
+				color: #fff !important;
+				border-radius: $radius-sm 0 0 $radius-sm;
+			}
+
+			.components-form-token-field__remove-token {
+				background: $primary !important;
+				color: #fff !important;
+				border-radius: 0 $radius-sm $radius-sm 0;
+			}
+		}
+
+		// Suggestions dropdown — constrain width and make text visible.
+		.components-form-token-field__suggestions-list {
+			background: $bg-card !important;
+			border: 1px solid $border-color !important;
+			max-width: 100%;
+
+			.components-form-token-field__suggestion {
+				color: $text-primary !important;
+
+				&.is-selected {
+					background: $primary !important;
+					color: #fff !important;
+				}
+			}
+		}
+	}
+
 	// Color Control (swatch + popover)
 	.wpepp-color-control {
 		display: flex;
@@ -1868,6 +1929,7 @@ body.toplevel_page_wpepp-settings {
 .wpepp-custom-css,
 .wpepp-admin-only-settings,
 .wpepp-site-password-settings,
+.wpepp-country-restriction-settings,
 .wpepp-ai-crawler-blocker {
 	max-width: 800px;
 

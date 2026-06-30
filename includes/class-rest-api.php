@@ -590,6 +590,7 @@ class WPEPP_Rest_Api {
 
 		foreach ( $body as $section => $settings ) {
 			$settings = $this->sanitize_settings_object( $settings );
+			$settings = wpepp_enforce_pro_settings( $settings, $section );
 			update_option( 'wpepp_' . $section . '_settings', wp_json_encode( $settings ) );
 		}
 
@@ -597,6 +598,27 @@ class WPEPP_Rest_Api {
 	}
 
 	// ── Content Lock ──
+
+	/**
+	 * Ensure the current user can edit the given post.
+	 *
+	 * The route permission_callback only checks the generic `edit_posts`
+	 * capability; this enforces the per-post `edit_post` meta-capability so a
+	 * user cannot mutate posts they do not own/cannot edit.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return true|\WP_Error
+	 */
+	private function require_edit_post( $post_id ) {
+		$post_id = absint( $post_id );
+		if ( ! $post_id || ! get_post( $post_id ) ) {
+			return new WP_Error( 'not_found', __( 'Post not found.', 'wp-edit-password-protected' ), [ 'status' => 404 ] );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error( 'forbidden', __( 'You are not allowed to edit this post.', 'wp-edit-password-protected' ), [ 'status' => 403 ] );
+		}
+		return true;
+	}
 
 	/**
 	 * Get all locked posts.
@@ -673,6 +695,10 @@ class WPEPP_Rest_Api {
 	 */
 	public function toggle_post_lock( $request ) {
 		$post_id = absint( $request->get_param( 'post_id' ) );
+		$cap     = $this->require_edit_post( $post_id );
+		if ( is_wp_error( $cap ) ) {
+			return $cap;
+		}
 		$body    = $request->get_json_params();
 
 		if ( isset( $body['enabled'] ) ) {
@@ -695,6 +721,10 @@ class WPEPP_Rest_Api {
 	 */
 	public function update_post_lock( $request ) {
 		$post_id = absint( $request->get_param( 'post_id' ) );
+		$cap     = $this->require_edit_post( $post_id );
+		if ( is_wp_error( $cap ) ) {
+			return $cap;
+		}
 		$body    = $request->get_json_params();
 
 		if ( isset( $body['enabled'] ) ) {
@@ -746,7 +776,7 @@ class WPEPP_Rest_Api {
 		$value = ( 'lock' === $action ) ? 'yes' : 'no';
 
 		foreach ( $ids as $post_id ) {
-			if ( get_post( $post_id ) ) {
+			if ( get_post( $post_id ) && current_user_can( 'edit_post', $post_id ) ) {
 				update_post_meta( $post_id, '_wpepp_content_lock_enabled', $value );
 			}
 		}
@@ -839,6 +869,10 @@ class WPEPP_Rest_Api {
 	 */
 	public function update_post_conditional( $request ) {
 		$post_id            = absint( $request->get_param( 'post_id' ) );
+		$cap                = $this->require_edit_post( $post_id );
+		if ( is_wp_error( $cap ) ) {
+			return $cap;
+		}
 		$body               = $request->get_json_params();
 		$available          = wpepp_get_available_conditions();
 		$available_keys     = array_keys( $available );
@@ -872,6 +906,10 @@ class WPEPP_Rest_Api {
 	 */
 	public function toggle_conditional( $request ) {
 		$post_id = absint( $request->get_param( 'post_id' ) );
+		$cap     = $this->require_edit_post( $post_id );
+		if ( is_wp_error( $cap ) ) {
+			return $cap;
+		}
 		$body    = $request->get_json_params();
 
 		if ( isset( $body['enabled'] ) ) {

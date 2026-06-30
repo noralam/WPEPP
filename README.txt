@@ -9,13 +9,13 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Essential security, password protected, block AI crawlers, limit login attempts, CPU monitor & login page customizer with live preview.
+Essential security, password protected, block AI crawlers, limit login attempts, country restriction, CPU monitor & login page customizer with live preview.
 
 == Description ==
 
-**WPEPP best for Best Essential security, password protected content, block AI crawlers, limit login attempts, CPU monitor & login customizer with live preview. Total site protection! WPEPP is the all-in-one WordPress essential security and login page customizer plugin.** It combines everything you need to limit login attempts, block brute force attacks, hide the login page, password protect content, and customize the WordPress login page — all from a single, modern dashboard with real-time live preview.
+**WPEPP best for Best Essential security, password protected content, block AI crawlers, limit login attempts, country restriction, CPU monitor & login customizer with live preview. Total site protection! WPEPP is the all-in-one WordPress essential security and login page customizer plugin.** It combines everything you need to limit login attempts, block brute force attacks, hide the login page, password protect content, restrict by country, and customize the WordPress login page — all from a single, modern dashboard with real-time live preview.
 
-Stop installing five separate plugins. WPEPP replaces your login limiter, login page customizer, password form styler, content restriction plugin, and AI crawler blocker with one lightweight solution that loads zero external scripts on the front end.
+Stop installing five separate plugins. WPEPP replaces your login limiter, login page customizer, password form styler, content restriction plugin, country blocker, and AI crawler blocker with one lightweight solution that loads zero external scripts on the front end.
 
 [View Details](https://wpthemespace.com/wpepp/) | [View Pricing](https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing)
 
@@ -214,6 +214,7 @@ Keep your WordPress site fast and healthy with a built-in performance monitoring
 * Site-Wide Access Control — Free & Pro
 * Admin-Only Mode — Free & Pro
 * Site-Wide Password — Free & Pro
+* Country Restriction (block or allow by country) — Free (2 countries) / Pro (unlimited)
 * Content Lock (Per-Post) — Pro
 * Auto-Expiry Unlock — Pro
 * Role-Based Content Lock — Pro
@@ -376,6 +377,18 @@ Yes. WPEPP works in WordPress multisite (network) installations. Each sub-site h
 8. Templates gallery — 10+ one-click designs for password forms and login pages
 
 == Changelog ==
+
+= 2.0.5 =
+* Added Country Restriction — block or allow visitors by country (Cloudflare header + ipapi.co fallback, free cap 2 countries, Pro unlimited)
+* Fixed CSS injection vulnerability — sanitized gradient, shadow, position/size, and custom CSS values in Password + Login page customizers
+* Fixed spoofable client IP — forwarded headers now honoured only when remote peer is a trusted proxy
+* Fixed reCAPTCHA fail-open — network errors now block login instead of bypassing the challenge
+* Fixed auto-login token abuse — added per-IP rate limiting (10 attempts / 15 min) and automatic expired-link pruning
+* Fixed REST access control — added per-post edit_post capability checks for lock toggle, lock settings, conditional display, and bulk actions
+* Fixed import_template pro bypass — now enforces pro settings on template import
+* Fixed wp-config atomic write — temp file now chmod 0600, guaranteed cleanup on failure, original permissions restored
+* Fixed client IP escaping when passed to JavaScript (wp_localize_script)
+* Fixed admin.php deprecated function calls causing PHP 8.2+ warnings
 
 = 2.0.4 =
 * Fixed database table update issue 

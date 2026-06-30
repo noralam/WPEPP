@@ -83,6 +83,17 @@ function wpepp_enforce_pro_settings( $settings, $section ) {
 			if ( isset( $settings['admin_only_action'] ) && 'popup' === $settings['admin_only_action'] ) {
 				$settings['admin_only_action'] = 'redirect';
 			}
+			// Country restriction — free tier capped at 2 countries.
+			if ( isset( $settings['country_restriction_list'] ) && is_array( $settings['country_restriction_list'] ) ) {
+				$codes = [];
+				foreach ( $settings['country_restriction_list'] as $code ) {
+					$code = strtoupper( trim( (string) $code ) );
+					if ( preg_match( '/^[A-Z]{2}$/', $code ) ) {
+						$codes[] = $code;
+					}
+				}
+				$settings['country_restriction_list'] = array_slice( array_values( array_unique( $codes ) ), 0, 2 );
+			}
 			break;
 
 		case 'member_template':
