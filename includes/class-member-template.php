@@ -86,7 +86,7 @@ class WPEPP_Member_Template {
 			exit;
 		}, 999 );
 
-		return $template ?? '';
+		return '';
 	}
 
 	/**

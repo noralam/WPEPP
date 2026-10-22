@@ -1,11 +1,13 @@
 /**
- * Settings page — inner tabs for General and Custom CSS.
+ * Settings page — inner tabs for General, Database & Logs, Backup, and Custom CSS.
  */
 import { __ } from '@wordpress/i18n';
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelect } from '@wordpress/data';
 import { lazy, Suspense } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
+import Backup from './Settings/Backup';
+import DatabaseMaintenance from './Settings/DatabaseMaintenance';
 import ProBadge from '../components/ProBadge';
 import ProLock from '../components/ProLock';
 
@@ -21,6 +23,12 @@ const Settings = () => {
 				<NavLink to="/settings/general" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'General', 'wp-edit-password-protected' ) }
 				</NavLink>
+				<NavLink to="/settings/database" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+					{ __( 'Database & Logs', 'wp-edit-password-protected' ) }
+				</NavLink>
+				<NavLink to="/settings/backup" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+					{ __( 'Backup & Restore', 'wp-edit-password-protected' ) }
+				</NavLink>
 				<NavLink to="/settings/custom-css" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Custom CSS', 'wp-edit-password-protected' ) }
 					{ ! isPro && <ProBadge /> }
@@ -29,8 +37,10 @@ const Settings = () => {
 
 			<Suspense fallback={ <Spinner /> }>
 				<Routes>
-					<Route index element={ <Navigate to="general" replace /> } />
+					<Route index element={ <Navigate to="/settings/general" replace /> } />
 					<Route path="general" element={ <General /> } />
+					<Route path="database" element={ <DatabaseMaintenance /> } />
+					<Route path="backup" element={ <Backup /> } />
 					<Route
 						path="custom-css"
 						element={
@@ -39,6 +49,7 @@ const Settings = () => {
 							</ProLock>
 						}
 					/>
+					<Route path="*" element={ <Navigate to="/settings/general" replace /> } />
 				</Routes>
 			</Suspense>
 		</div>

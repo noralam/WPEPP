@@ -33,7 +33,7 @@ const Content = () => {
 
 			<Suspense fallback={ <Spinner /> }>
 				<Routes>
-					<Route index element={ <Navigate to="lock" replace /> } />
+					<Route index element={ <Navigate to="/content/lock" replace /> } />
 					<Route
 						path="lock"
 						element={
@@ -44,6 +44,8 @@ const Content = () => {
 					/>
 					<Route path="conditional" element={ <ConditionalDisplay /> } />
 					<Route path="member-template" element={ <MemberTemplate /> } />
+					<Route path="template" element={ <Navigate to="/content/member-template" replace /> } />
+					<Route path="*" element={ <Navigate to="/content/lock" replace /> } />
 				</Routes>
 			</Suspense>
 		</div>

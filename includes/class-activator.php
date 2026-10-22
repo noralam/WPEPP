@@ -25,6 +25,25 @@ class WPEPP_Activator {
 	}
 
 	/**
+	 * Upgrade routine for plugin updates applied without reactivation.
+	 *
+	 * Runs once per version bump (plugins_loaded) — creates missing tables,
+	 * fills missing defaults and re-runs the v1 migration guard.
+	 */
+	public static function maybe_upgrade() {
+		if ( get_option( 'wpepp_version' ) === WPEPP_VERSION ) {
+			return;
+		}
+
+		self::create_tables();
+		self::set_defaults();
+		WPEPP_Migration::migrate();
+
+		// Migration only bumps the version from <2.0 — keep it current here.
+		update_option( 'wpepp_version', WPEPP_VERSION );
+	}
+
+	/**
 	 * Create custom database tables.
 	 */
 	public static function create_tables() {
@@ -60,6 +79,18 @@ class WPEPP_Activator {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+
+						if ( class_exists( 'WPEPP_Logger' ) ) {
+			WPEPP_Logger::create_table();
+		}
+
+		if ( class_exists( 'WPEPP_Blocks' ) ) {
+			WPEPP_Blocks::create_table();
+		}
+
+		if ( class_exists( 'WPEPP_Issues' ) ) {
+			WPEPP_Issues::create_table();
+		}
 	}
 
 	/**
@@ -87,7 +118,12 @@ class WPEPP_Activator {
 				'recaptcha_site_key'   => '',
 				'recaptcha_secret_key' => '',
 				'custom_login_url'     => '',
-				'login_log_enabled'    => true,
+				'login_log_enabled'           => true,
+				'auto_prune_logs_enabled'     => true,
+				'events_retention_days'       => 30,
+				'login_log_retention_days'    => 30,
+				'slow_queries_retention_days' => 7,
+				'max_log_rows_cap'            => 5000,
 			] ),
 			'wpepp_general_settings'  => wp_json_encode( [
 				'cookie_expiration'        => 10,

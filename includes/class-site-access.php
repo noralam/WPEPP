@@ -59,6 +59,9 @@ class WPEPP_Site_Access {
 		// Main enforcement — priority 0 to run before other template_redirect hooks.
 		add_action( 'template_redirect', [ $this, 'enforce_access' ], 0 );
 
+		// Enforce site-wide access restrictions on REST API requests (fixes CVE-2025-8945 residual).
+		add_filter( 'rest_authentication_errors', [ $this, 'enforce_rest_access' ], 99 );
+
 		// Prevent server-level & CDN page caching when access restrictions are active.
 		add_action( 'send_headers', [ $this, 'send_no_cache_headers' ] );
 	}
@@ -77,7 +80,9 @@ class WPEPP_Site_Access {
 	}
 
 	/**
-	 * Check if current request should be skipped (admin, login, REST, AJAX, cron, feed).
+	 * Check if current web request should be skipped (admin, login, AJAX, cron).
+	 *
+	 * REST API requests are handled by enforce_rest_access() filter, not template_redirect HTML.
 	 *
 	 * @return bool
 	 */
@@ -102,7 +107,7 @@ class WPEPP_Site_Access {
 			return true;
 		}
 
-		// REST API requests.
+		// REST API requests are handled by enforce_rest_access() filter, not template_redirect.
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 			return true;
 		}
@@ -113,36 +118,188 @@ class WPEPP_Site_Access {
 			return true;
 		}
 
-		// Plugin preview requests.
-		if ( isset( $_GET['wpepp_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return true;
-		}
-
 		return false;
 	}
 
 	/**
-	 * Enforce access restrictions.
+	 * Check whether the current visitor is blocked by any active site-wide access restriction.
+	 *
+	 * Used for both web template_redirect and REST API authentication checks.
+	 *
+	 * @return array|null Block info array if blocked, null if access allowed.
+	 */
+	public function get_site_access_block() {
+		// Emergency Safe Mode bypass.
+		if ( class_exists( 'WPEPP_Security' ) && WPEPP_Security::is_safe_mode() ) {
+			return null;
+		}
+
+		// Administrators always bypass so site management is never blocked.
+		if ( current_user_can( 'manage_options' ) ) {
+			return null;
+		}
+
+		// WP-CLI or Cron.
+		if ( ( defined( 'WP_CLI' ) && WP_CLI ) || wp_doing_cron() ) {
+			return null;
+		}
+
+		// 1. Country Restriction.
+		if ( ! empty( $this->settings['country_restriction_enabled'] ) ) {
+			if ( class_exists( 'WPEPP_Geo' ) && class_exists( 'WPEPP_Security' ) ) {
+				$code = WPEPP_Geo::country_for_ip( WPEPP_Security::get_client_ip() );
+				if ( '' !== $code ) {
+					$list = array_map(
+						'strtoupper',
+						array_filter( (array) ( $this->settings['country_restriction_list'] ?? [] ), 'is_string' )
+					);
+					if ( ! empty( $list ) ) {
+						$mode       = ( 'allow' === ( $this->settings['country_restriction_mode'] ?? 'block' ) ) ? 'allow' : 'block';
+						$in_list    = in_array( $code, $list, true );
+						$is_blocked = ( 'block' === $mode ) ? $in_list : ! $in_list;
+						if ( $is_blocked ) {
+							return [
+								'type'    => 'country_restriction',
+								'code'    => 'wpepp_country_restricted',
+								'message' => $this->settings['country_restriction_message'] ?? __( 'This site is not available in your region.', 'wp-edit-password-protected' ),
+								'status'  => 403,
+							];
+						}
+					}
+				}
+			}
+		}
+
+		// 2. Admin Only Mode.
+		if ( ! empty( $this->settings['admin_only_enabled'] ) ) {
+			if ( ! is_user_logged_in() ) {
+				return [
+					'type'    => 'admin_only',
+					'code'    => 'wpepp_admin_only_restricted',
+					'message' => __( 'Site is in Admin Only mode. Authentication required.', 'wp-edit-password-protected' ),
+					'status'  => 401,
+				];
+			}
+			return null;
+		}
+
+		// 3. Site Password Mode.
+		if ( ! empty( $this->settings['site_password_enabled'] ) && ! empty( $this->settings['site_password'] ) ) {
+			$bypass = $this->settings['site_password_bypass_logged_in'] ?? true;
+			if ( $bypass && is_user_logged_in() ) {
+				return null;
+			}
+
+			if ( ! $this->has_valid_site_password_cookie() ) {
+				return [
+					'type'    => 'site_password',
+					'code'    => 'wpepp_site_password_required',
+					'message' => __( 'Site password required to access this resource.', 'wp-edit-password-protected' ),
+					'status'  => 403,
+				];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Static helper to check whether the current visitor is blocked by site-wide restrictions.
+	 *
+	 * @return bool True if blocked, false if access allowed.
+	 */
+	public static function is_visitor_blocked() {
+		static $blocked = null;
+		if ( null !== $blocked ) {
+			return $blocked;
+		}
+
+		$instance = new self();
+		$blocked  = ( null !== $instance->get_site_access_block() );
+		return $blocked;
+	}
+
+	/**
+	 * Enforce site-wide access restrictions on WordPress REST API requests.
+	 *
+	 * Blocks unauthenticated access to published posts, pages, and core endpoints
+	 * over REST when Site Password, Admin Only, or Country Restriction is active.
+	 *
+	 * @param \WP_Error|null|bool $access Existing authentication state.
+	 * @return \WP_Error|null|bool
+	 */
+	public function enforce_rest_access( $access ) {
+		// If another auth filter already produced a WP_Error, pass it through.
+		if ( is_wp_error( $access ) ) {
+			return $access;
+		}
+
+		$block = $this->get_site_access_block();
+		if ( ! $block ) {
+			return $access;
+		}
+
+		/**
+		 * Filter allowed REST routes when site-wide access restrictions are active.
+		 *
+		 * Matching is strictly performed against the parsed route path, never raw query parameters.
+		 *
+		 * @param string[] $allowed_routes Allowed route path prefixes (e.g. ['/custom-plugin/v1/webhook']).
+		 * @param array    $block          Block details.
+		 */
+		$allowed_routes = apply_filters( 'wpepp_site_access_allowed_rest_routes', [], $block );
+		if ( ! empty( $allowed_routes ) && is_array( $allowed_routes ) ) {
+			$current_route = untrailingslashit( $GLOBALS['wp']->query_vars['rest_route'] ?? '' );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading public rest_route query parameter.
+			if ( empty( $current_route ) && isset( $_GET['rest_route'] ) ) {
+				$current_route = untrailingslashit( sanitize_text_field( wp_unslash( $_GET['rest_route'] ) ) );
+			}
+			if ( empty( $current_route ) && ! empty( $_SERVER['PATH_INFO'] ) ) {
+				$current_route = untrailingslashit( sanitize_text_field( wp_unslash( $_SERVER['PATH_INFO'] ) ) );
+			}
+			$current_route = '/' . ltrim( (string) $current_route, '/' );
+
+			foreach ( $allowed_routes as $allowed ) {
+				$allowed = '/' . trim( (string) $allowed, '/' );
+				if ( '/' !== $allowed && 0 === strpos( $current_route, $allowed ) ) {
+					return $access;
+				}
+			}
+		}
+
+		return new \WP_Error(
+			$block['code'],
+			$block['message'],
+			[ 'status' => $block['status'] ]
+		);
+	}
+
+	/**
+	 * Enforce access restrictions for front-end web navigation.
 	 */
 	public function enforce_access() {
 		if ( $this->should_skip() ) {
 			return;
 		}
 
-		// --- Country Restriction --- (runs first; may end the request).
-		if ( ! empty( $this->settings['country_restriction_enabled'] ) ) {
-			$this->enforce_country_restriction();
+		$block = $this->get_site_access_block();
+		if ( ! $block ) {
+			return;
 		}
 
-		// --- Admin Only Mode ---
-		if ( ! empty( $this->settings['admin_only_enabled'] ) ) {
+		if ( 'country_restriction' === $block['type'] ) {
+			$this->render_country_blocked_page();
+			exit;
+		}
+
+		if ( 'admin_only' === $block['type'] ) {
 			$this->enforce_admin_only();
-			return; // Admin Only takes priority; don't also run site password.
+			return;
 		}
 
-		// --- Site Password ---
-		if ( ! empty( $this->settings['site_password_enabled'] ) && ! empty( $this->settings['site_password'] ) ) {
-			$this->enforce_site_password();
+		if ( 'site_password' === $block['type'] ) {
+			$this->render_site_password_page();
+			exit;
 		}
 	}
 
@@ -414,11 +571,59 @@ class WPEPP_Site_Access {
 	}
 
 	/**
+	 * Whether a stored secret is already a password hash.
+	 *
+	 * Portable hashes ($P$), bcrypt ($2y/$2b/$2a) and phpass variants all
+	 * start with '$'. Legacy plaintext values never do.
+	 *
+	 * @param string $value Stored value.
+	 * @return bool
+	 */
+	public static function looks_hashed( $value ) {
+		return is_string( $value )
+			&& strlen( $value ) >= 30
+			&& 0 === strpos( $value, '$' );
+	}
+
+	/**
+	 * Verify a submitted site password against the stored secret.
+	 *
+	 * Supports legacy plaintext storage (timing-safe compare) and transparently
+	 * upgrades it to wp_hash_password() on first successful login (B4).
+	 *
+	 * @param string $submitted Plain-text submission.
+	 * @return bool True when the password matches the active site password.
+	 */
+	public static function verify_site_password( $submitted ) {
+		$raw      = get_option( 'wpepp_site_access_settings', '{}' );
+		$settings = json_decode( $raw, true );
+
+		if ( ! is_array( $settings ) || empty( $settings['site_password_enabled'] ) || empty( $settings['site_password'] ) ) {
+			return false;
+		}
+
+		$stored = (string) $settings['site_password'];
+
+		if ( self::looks_hashed( $stored ) ) {
+			return wp_check_password( (string) $submitted, $stored );
+		}
+
+		// Legacy plaintext — timing-safe compare, then upgrade in place.
+		if ( hash_equals( $stored, (string) $submitted ) ) {
+			$settings['site_password'] = wp_hash_password( $stored );
+			update_option( 'wpepp_site_access_settings', wp_json_encode( $settings ), false );
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Check if the visitor has a valid site password cookie.
 	 *
 	 * @return bool
 	 */
-	private function has_valid_site_password_cookie() {
+	public function has_valid_site_password_cookie() {
 		if ( ! isset( $_COOKIE[ self::COOKIE_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
@@ -454,12 +659,18 @@ class WPEPP_Site_Access {
 			? sanitize_text_field( wp_unslash( $_POST['wpepp_site_password'] ) )
 			: '';
 
-		$stored = $this->settings['site_password'] ?? '';
+		if ( self::verify_site_password( $submitted ) ) {
+			// Re-read settings — verify_site_password may have upgraded the
+			// stored hash from legacy plaintext.
+			$raw      = get_option( 'wpepp_site_access_settings', '{}' );
+			$settings = json_decode( $raw, true );
+			if ( ! is_array( $settings ) ) {
+				$settings = $this->settings;
+			}
 
-		if ( $submitted === $stored ) {
-			$days   = max( 1, intval( $this->settings['site_password_cookie_days'] ?? 7 ) );
+			$days   = max( 1, intval( $settings['site_password_cookie_days'] ?? 7 ) );
 			$expire = time() + ( $days * DAY_IN_SECONDS );
-			$value  = wp_hash( $stored );
+			$value  = wp_hash( (string) $settings['site_password'] );
 
 			setcookie( self::COOKIE_NAME, $value, $expire, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 

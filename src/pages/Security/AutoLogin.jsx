@@ -11,10 +11,9 @@ import {
 	RangeControl,
 	Notice,
 	Spinner,
-	PanelBody,
-	PanelRow,
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
+import Card from '../../components/Card';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { copy, trash } from '@wordpress/icons';
@@ -147,18 +146,15 @@ const AutoLogin = () => {
 				{ __( 'Generate magic login URLs that allow users to log in without entering credentials. Share these links carefully — anyone with the link can log in as the selected user.', 'wp-edit-password-protected' ) }
 			</Notice>
 
-			<PanelBody title={ __( 'Create New Link', 'wp-edit-password-protected' ) } initialOpen>
-				<PanelRow>
+			<Card title={ __( 'Create New Link', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-form-grid">
 					<SelectControl
 						__next40pxDefaultSize
-						__nextHasNoMarginBottom
 						label={ __( 'User', 'wp-edit-password-protected' ) }
 						value={ userId }
 						options={ userOptions }
 						onChange={ setUserId }
 					/>
-				</PanelRow>
-				<PanelRow>
 					<TextControl
 						label={ __( 'Label', 'wp-edit-password-protected' ) }
 						help={ __( 'A name to identify this link (e.g. "Client preview link").', 'wp-edit-password-protected' ) }
@@ -166,21 +162,18 @@ const AutoLogin = () => {
 						onChange={ setLabel }
 						placeholder={ __( 'Auto Login Link', 'wp-edit-password-protected' ) }
 					/>
-				</PanelRow>
-				<PanelRow>
-					<TextControl
-						label={ __( 'Redirect URL (optional)', 'wp-edit-password-protected' ) }
-						help={ __( 'Where to redirect after auto-login. Leave empty for homepage.', 'wp-edit-password-protected' ) }
-						value={ redirectUrl }
-						onChange={ setRedirectUrl }
-						placeholder="https://example.com/welcome"
-					/>
-				</PanelRow>
+					<div className="wpepp-form-grid__full">
+						<TextControl
+							label={ __( 'Redirect URL (optional)', 'wp-edit-password-protected' ) }
+							help={ __( 'Where to redirect after auto-login. Leave empty for homepage.', 'wp-edit-password-protected' ) }
+							value={ redirectUrl }
+							onChange={ setRedirectUrl }
+							placeholder="https://example.com/welcome"
+						/>
+					</div>
 
-				<PanelRow>
 					<SelectControl
 						__next40pxDefaultSize
-						__nextHasNoMarginBottom
 						label={
 							<span>
 								{ __( 'Expiration', 'wp-edit-password-protected' ) }
@@ -200,8 +193,6 @@ const AutoLogin = () => {
 						onChange={ ( v ) => setExpiresIn( parseInt( v, 10 ) ) }
 						disabled={ ! isPro }
 					/>
-				</PanelRow>
-				<PanelRow>
 					<RangeControl
 						label={
 							<span>
@@ -216,39 +207,38 @@ const AutoLogin = () => {
 						max={ 100 }
 						disabled={ ! isPro }
 					/>
-				</PanelRow>
-				<PanelRow>
-					<SelectControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={
-							<span>
-								{ __( 'Role Restriction', 'wp-edit-password-protected' ) }
-								{ ! isPro && <ProBadge /> }
-							</span>
-						}
-						help={ __( 'Only create a link for users with this role.', 'wp-edit-password-protected' ) }
-						value={ isPro ? roleRestriction : '' }
-						options={ roleOptions }
-						onChange={ setRoleRestriction }
-						disabled={ ! isPro }
-					/>
-				</PanelRow>
+					<div className="wpepp-form-grid__full">
+						<SelectControl
+							__next40pxDefaultSize
+							label={
+								<span>
+									{ __( 'Role Restriction', 'wp-edit-password-protected' ) }
+									{ ! isPro && <ProBadge /> }
+								</span>
+							}
+							help={ __( 'Only create a link for users with this role.', 'wp-edit-password-protected' ) }
+							value={ isPro ? roleRestriction : '' }
+							options={ roleOptions }
+							onChange={ setRoleRestriction }
+							disabled={ ! isPro }
+						/>
+					</div>
 
-				<PanelRow>
-					<Button
-						variant="primary"
-						onClick={ handleCreate }
-						isBusy={ creating }
-						disabled={ ! userId || creating }
-					>
-						{ __( 'Generate Link', 'wp-edit-password-protected' ) }
-					</Button>
-				</PanelRow>
-			</PanelBody>
+					<div className="wpepp-form-grid__full wpepp-form-actions">
+						<Button
+							variant="primary"
+							onClick={ handleCreate }
+							isBusy={ creating }
+							disabled={ ! userId || creating }
+						>
+							{ __( 'Generate Link', 'wp-edit-password-protected' ) }
+						</Button>
+					</div>
+				</div>
+			</Card>
 
 			{ links.length > 0 && (
-				<PanelBody title={ __( 'Existing Links', 'wp-edit-password-protected' ) } initialOpen>
+				<Card title={ __( 'Existing Links', 'wp-edit-password-protected' ) }>
 					<div className="wpepp-auto-login-table">
 						<table className="widefat">
 							<thead>
@@ -300,7 +290,7 @@ const AutoLogin = () => {
 							</tbody>
 						</table>
 					</div>
-				</PanelBody>
+				</Card>
 			) }
 
 			{ links.length === 0 && (

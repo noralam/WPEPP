@@ -9,12 +9,17 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { Button, Spinner, Notice } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../../components/ProBadge';
+import Pagination from '../../components/Pagination';
+
+const PAGE_SIZE = 15;
 
 const CronJobs = () => {
 	const [ jobs, setJobs ] = useState( [] );
+	const [ page, setPage ] = useState( 1 );
 	const [ loading, setLoading ] = useState( true );
 	const [ actionLoading, setActionLoading ] = useState( null );
 	const [ notice, setNotice ] = useState( null );
+
 
 	const isPro = useSelect( ( select ) => select( 'wpepp/settings' ).isPro() );
 
@@ -106,6 +111,7 @@ const CronJobs = () => {
 					{ __( 'No cron events found.', 'wp-edit-password-protected' ) }
 				</p>
 			) : (
+				<>
 				<table className="wpepp-table widefat striped">
 					<thead>
 						<tr>
@@ -117,7 +123,7 @@ const CronJobs = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{ jobs.map( ( job, idx ) => {
+						{ jobs.slice( ( page - 1 ) * PAGE_SIZE, page * PAGE_SIZE ).map( ( job, idx ) => {
 							const overdue = job.timestamp < now;
 							const actionKey = `${ job.hook }-${ job.timestamp }`;
 							return (
@@ -164,6 +170,14 @@ const CronJobs = () => {
 						} ) }
 					</tbody>
 				</table>
+				<Pagination
+					currentPage={ page }
+					totalItems={ jobs.length }
+					pageSize={ PAGE_SIZE }
+					onPageChange={ setPage }
+					itemName={ __( 'cron events', 'wp-edit-password-protected' ) }
+				/>
+				</>
 			) }
 		</div>
 	);

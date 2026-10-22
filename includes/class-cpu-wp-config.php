@@ -28,6 +28,24 @@ class WPEPP_CPU_WP_Config {
 	];
 
 	/**
+	 * Initialize and return the WP filesystem adapter.
+	 *
+	 * @return WP_Filesystem_Base|null
+	 */
+	private static function get_fs() {
+		global $wp_filesystem;
+
+		if ( ! $wp_filesystem instanceof WP_Filesystem_Base ) {
+			if ( ! function_exists( 'WP_Filesystem' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+			}
+			WP_Filesystem();
+		}
+
+		return $wp_filesystem instanceof WP_Filesystem_Base ? $wp_filesystem : null;
+	}
+
+	/**
 	 * Get the current status of all managed constants.
 	 *
 	 * Reads values directly from wp-config.php so the response reflects
@@ -43,7 +61,8 @@ class WPEPP_CPU_WP_Config {
 		$from_file   = [];
 
 		if ( ! is_wp_error( $config_path ) ) {
-			$contents = file_get_contents( $config_path );
+			$fs       = self::get_fs();
+			$contents = $fs ? $fs->get_contents( $config_path ) : false;
 			if ( false !== $contents ) {
 				$from_file = self::parse_constants( $contents );
 			}
@@ -107,7 +126,8 @@ class WPEPP_CPU_WP_Config {
 			return $config_path;
 		}
 
-		if ( ! is_writable( $config_path ) ) {
+		$fs = self::get_fs();
+		if ( ! $fs || ! $fs->is_writable( $config_path ) ) {
 			return new WP_Error(
 				'config_not_writable',
 				__( 'wp-config.php is not writable. Please check file permissions.', 'wp-edit-password-protected' ),
@@ -115,7 +135,7 @@ class WPEPP_CPU_WP_Config {
 			);
 		}
 
-		$contents = file_get_contents( $config_path );
+		$contents = $fs->get_contents( $config_path );
 		if ( false === $contents ) {
 			return new WP_Error(
 				'config_read_error',
@@ -165,10 +185,10 @@ class WPEPP_CPU_WP_Config {
 			}
 		}
 
-		// Write atomically: write to temp file then rename.
-		$temp_path = $config_path . '.wpepp-tmp';
+		// Write atomically: write to temp file then move over the original.
+		$temp_path  = $config_path . '.wpepp-tmp';
 		$orig_perms = @fileperms( $config_path ) & 0777;
-		$written   = file_put_contents( $temp_path, $contents, LOCK_EX );
+		$written    = $fs->put_contents( $temp_path, $contents, 0600 );
 
 		if ( false === $written ) {
 			return new WP_Error(
@@ -180,13 +200,13 @@ class WPEPP_CPU_WP_Config {
 
 		// Restrict the temp file to owner-only while it sits on disk so the
 		// full wp-config.php contents are never world-readable, even briefly.
-		@chmod( $temp_path, 0600 );
+		$fs->chmod( $temp_path, 0600 );
 
-		if ( ! rename( $temp_path, $config_path ) ) {
+		if ( ! $fs->move( $temp_path, $config_path, true ) ) {
 			// Ensure the temp copy never lingers; if it cannot be removed,
 			// truncate it so the credentials it holds are not exposed.
-			if ( file_exists( $temp_path ) && ! @unlink( $temp_path ) ) {
-				@file_put_contents( $temp_path, '' );
+			if ( $fs->exists( $temp_path ) && ! $fs->delete( $temp_path ) ) {
+				$fs->put_contents( $temp_path, '' );
 			}
 			return new WP_Error(
 				'config_rename_error',
@@ -197,7 +217,7 @@ class WPEPP_CPU_WP_Config {
 
 		// Restore the original file permissions after the swap.
 		if ( $orig_perms ) {
-			@chmod( $config_path, $orig_perms );
+			$fs->chmod( $config_path, $orig_perms );
 		}
 
 		return true;
@@ -238,6 +258,9 @@ class WPEPP_CPU_WP_Config {
 		if ( is_wp_error( $path ) ) {
 			return false;
 		}
-		return is_writable( $path );
+
+		$fs = self::get_fs();
+
+		return $fs ? (bool) $fs->is_writable( $path ) : false;
 	}
 }

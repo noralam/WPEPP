@@ -11,7 +11,6 @@ export const SET_SAVING = 'SET_SAVING';
 export const SET_ERROR = 'SET_ERROR';
 export const SET_PRO_STATUS = 'SET_PRO_STATUS';
 export const SET_TEMPLATES = 'SET_TEMPLATES';
-export const SET_LOGIN_LOG = 'SET_LOGIN_LOG';
 export const MARK_SAVED = 'MARK_SAVED';
 
 /**
@@ -95,16 +94,6 @@ export function setProStatus( isPro ) {
  */
 export function setTemplates( templates ) {
 	return { type: SET_TEMPLATES, templates };
-}
-
-/**
- * Set login log entries.
- *
- * @param {Array} log Log entries.
- * @return {Object} Action.
- */
-export function setLoginLog( log ) {
-	return { type: SET_LOGIN_LOG, log };
 }
 
 /**
@@ -242,23 +231,4 @@ export function* importSettings( json ) {
 	}
 
 	yield setSaving( false );
-}
-
-/**
- * Fetch login log entries.
- */
-export function* fetchLoginLog() {
-	yield setLoading( true );
-
-	try {
-		const result = yield {
-			type: 'API_FETCH',
-			request: { path: '/wpepp/v1/security/log' },
-		};
-		yield setLoginLog( Array.isArray( result ) ? result : [] );
-	} catch ( err ) {
-		yield setError( err.message || 'Failed to fetch log.' );
-	}
-
-	yield setLoading( false );
 }

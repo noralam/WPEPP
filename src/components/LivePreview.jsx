@@ -8,13 +8,14 @@ import { useState } from '@wordpress/element';
 
 const LivePreview = ( { previewUrl, css, video, settings, width = '100%' } ) => {
 	const iframeRef = useRef( null );
+	const origin = ( window.wpeppData?.homeUrl || window.location.origin ).replace( /\/$/, '' );
 	const [ isLoaded, setIsLoaded ] = useState( false );
 
 	const sendCss = useCallback( () => {
 		if ( iframeRef.current?.contentWindow && css !== undefined ) {
 			iframeRef.current.contentWindow.postMessage(
 				{ type: 'wpepp_preview_css', css },
-				'*'
+				origin
 			);
 		}
 	}, [ css ] );
@@ -23,12 +24,12 @@ const LivePreview = ( { previewUrl, css, video, settings, width = '100%' } ) => 
 		if ( iframeRef.current?.contentWindow && video ) {
 			iframeRef.current.contentWindow.postMessage(
 				{ type: 'wpepp_preview_video', video },
-				'*'
+				origin
 			);
 		} else if ( iframeRef.current?.contentWindow && ! video ) {
 			iframeRef.current.contentWindow.postMessage(
 				{ type: 'wpepp_preview_video', video: null },
-				'*'
+				origin
 			);
 		}
 	}, [ video ] );
@@ -37,7 +38,7 @@ const LivePreview = ( { previewUrl, css, video, settings, width = '100%' } ) => 
 		if ( iframeRef.current?.contentWindow && settings ) {
 			iframeRef.current.contentWindow.postMessage(
 				{ type: 'wpepp_preview_settings', settings },
-				'*'
+				origin
 			);
 		}
 	}, [ settings ] );

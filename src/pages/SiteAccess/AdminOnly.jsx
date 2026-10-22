@@ -4,15 +4,14 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	PanelBody,
-	PanelRow,
-	ToggleControl,
 	SelectControl,
 	TextControl,
 	TextareaControl,
 	Notice,
 	Spinner,
 } from '@wordpress/components';
+import Card from '../../components/Card';
+import ToggleCard from '../../components/ToggleCard';
 import { useMemo, useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 import { SITE_ACCESS_DEFAULTS } from '../../utils/defaults';
@@ -55,27 +54,27 @@ const AdminOnly = () => {
 		<div className="wpepp-admin-only-settings">
 			<h3>{ __( 'Admin Only Mode', 'wp-edit-password-protected' ) }</h3>
 
-			<PanelBody title={ __( 'Admin Only Site', 'wp-edit-password-protected' ) } initialOpen>
-				<PanelRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Enable Admin Only Mode', 'wp-edit-password-protected' ) }
-						help={ __( 'When enabled, only logged-in users can view the site. All other visitors will be required to log in.', 'wp-edit-password-protected' ) }
+			<Card title={ __( 'Admin Only Site', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid">
+					<ToggleCard
+						title={ __( 'Enable Admin Only Mode', 'wp-edit-password-protected' ) }
+						description={ __( 'When enabled, only logged-in users can view the site. All other visitors will be required to log in.', 'wp-edit-password-protected' ) }
 						checked={ !! s.admin_only_enabled }
 						onChange={ ( v ) => update( 'admin_only_enabled', v ) }
 					/>
-				</PanelRow>
+				</div>
 
 				{ !! s.admin_only_enabled && (
-					<>
-						<Notice status="info" isDismissible={ false }>
-							{ __( 'Your entire site will be hidden from non-logged-in visitors. They will either be redirected to the login page or shown a login popup depending on your selection below.', 'wp-edit-password-protected' ) }
-						</Notice>
+					<div className="wpepp-form-grid" style={ { marginTop: 16 } }>
+						<div className="wpepp-form-grid__full">
+							<Notice status="info" isDismissible={ false }>
+								{ __( 'Your entire site will be hidden from non-logged-in visitors. They will either be redirected to the login page or shown a login popup depending on your selection below.', 'wp-edit-password-protected' ) }
+							</Notice>
+						</div>
 
-						<PanelRow>
+						<div className="wpepp-form-grid__full">
 							<SelectControl
 								__next40pxDefaultSize
-								__nextHasNoMarginBottom
 								label={
 									<>
 										{ __( 'Action for Non-Logged-In Users', 'wp-edit-password-protected' ) }
@@ -96,20 +95,20 @@ const AdminOnly = () => {
 									update( 'admin_only_action', v );
 								} }
 							/>
-						</PanelRow>
+						</div>
 
 						{ isPro && s.admin_only_action === 'popup' && (
 							<>
-								<PanelRow>
+								<div className="wpepp-form-grid__full">
 									<TextControl
 										label={ __( 'Popup Header', 'wp-edit-password-protected' ) }
 										help={ __( 'Header text displayed on the login popup.', 'wp-edit-password-protected' ) }
 										value={ s.admin_only_header || '' }
 										onChange={ ( v ) => update( 'admin_only_header', v ) }
 									/>
-								</PanelRow>
+								</div>
 
-								<PanelRow>
+								<div className="wpepp-form-grid__full">
 									<TextareaControl
 										label={ __( 'Custom Message', 'wp-edit-password-protected' ) }
 										help={ __( 'Message displayed to visitors when the popup is shown.', 'wp-edit-password-protected' ) }
@@ -117,24 +116,26 @@ const AdminOnly = () => {
 										onChange={ ( v ) => update( 'admin_only_message', v ) }
 										rows={ 3 }
 									/>
-								</PanelRow>
+								</div>
+
+								<div className="wpepp-form-grid__full">
+									<Notice status="info" isDismissible={ false }>
+										{ __( 'The login popup will blur the page content and overlay a login form — the same style used by the Content Lock popup feature.', 'wp-edit-password-protected' ) }
+									</Notice>
+								</div>
 							</>
 						) }
 
-						{ isPro && s.admin_only_action === 'popup' && (
-							<Notice status="info" isDismissible={ false }>
-								{ __( 'The login popup will blur the page content and overlay a login form — the same style used by the Content Lock popup feature.', 'wp-edit-password-protected' ) }
-							</Notice>
-						) }
-
 						{ s.admin_only_action === 'redirect' && (
-							<Notice status="info" isDismissible={ false }>
-								{ __( 'Visitors will be redirected to the WordPress login page. After logging in, they will be sent back to the page they originally tried to visit.', 'wp-edit-password-protected' ) }
-							</Notice>
+							<div className="wpepp-form-grid__full">
+								<Notice status="info" isDismissible={ false }>
+									{ __( 'Visitors will be redirected to the WordPress login page. After logging in, they will be sent back to the page they originally tried to visit.', 'wp-edit-password-protected' ) }
+								</Notice>
+							</div>
 						) }
-					</>
+					</div>
 				) }
-			</PanelBody>
+			</Card>
 		</div>
 	);
 };

@@ -4,8 +4,6 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	PanelBody,
-	PanelRow,
 	ToggleControl,
 	TextControl,
 	TextareaControl,
@@ -14,6 +12,8 @@ import {
 	Notice,
 	Spinner,
 } from '@wordpress/components';
+import Card from '../../components/Card';
+import ToggleCard from '../../components/ToggleCard';
 import { useMemo, useCallback } from '@wordpress/element';
 import ProBadge from '../../components/ProBadge';
 import { useSaveBar } from '../../components/SaveBar';
@@ -55,188 +55,170 @@ const RegistrationProtection = () => {
 		<div className="wpepp-registration-protection">
 			<h3>{ __( 'Registration Protection', 'wp-edit-password-protected' ) }</h3>
 
-			{ /* --- Registration Honeypot (Free) --- */ }
-			<PanelBody title={ __( 'Registration Honeypot', 'wp-edit-password-protected' ) } initialOpen>
-				<PanelRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Enable Registration Honeypot', 'wp-edit-password-protected' ) }
+		{ /* --- Registration Honeypot (Free) --- */ }
+			<Card title={ __( 'Registration Honeypot', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid">
+					<ToggleCard
+						title={ __( 'Enable Registration Honeypot', 'wp-edit-password-protected' ) }
+						description={ __( 'An invisible field is added to the registration form. Bots that auto-fill it will be blocked. Real users never see this field.', 'wp-edit-password-protected' ) }
 						checked={ !! s.reg_honeypot_enabled }
 						onChange={ ( v ) => update( 'reg_honeypot_enabled', v ) }
 					/>
-				</PanelRow>
-				{ s.reg_honeypot_enabled && (
-					<Notice status="info" isDismissible={ false }>
-						{ __( 'An invisible field is added to the registration form. Bots that auto-fill it will be blocked. Real users never see this field.', 'wp-edit-password-protected' ) }
-					</Notice>
-				) }
-			</PanelBody>
+				</div>
+			</Card>
 
 			{ /* --- Registration Rate Limiter (Free) --- */ }
-			<PanelBody title={ __( 'Registration Rate Limiter', 'wp-edit-password-protected' ) } initialOpen={ false }>
-				<PanelRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Enable Registration Rate Limiter', 'wp-edit-password-protected' ) }
+			<Card title={ __( 'Registration Rate Limiter', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid">
+					<ToggleCard
+						title={ __( 'Enable Registration Rate Limiter', 'wp-edit-password-protected' ) }
+						description={ __( 'Limits the number of registrations from the same IP address within a time window.', 'wp-edit-password-protected' ) }
 						checked={ !! s.reg_rate_limit_enabled }
 						onChange={ ( v ) => update( 'reg_rate_limit_enabled', v ) }
 					/>
-				</PanelRow>
+				</div>
 				{ s.reg_rate_limit_enabled && (
-					<>
-						<Notice status="info" isDismissible={ false }>
-							{ __( 'Limits the number of registrations from the same IP address within a time window.', 'wp-edit-password-protected' ) }
-						</Notice>
-						<PanelRow>
-							<RangeControl
-								label={ __( 'Max Registrations Per IP', 'wp-edit-password-protected' ) }
-								value={ s.reg_rate_limit_max || 3 }
-								onChange={ ( v ) => update( 'reg_rate_limit_max', v ) }
-								min={ 1 }
-								max={ 20 }
-							/>
-						</PanelRow>
-						<PanelRow>
-							<RangeControl
-								label={ __( 'Time Window (minutes)', 'wp-edit-password-protected' ) }
-								value={ s.reg_rate_limit_window || 60 }
-								onChange={ ( v ) => update( 'reg_rate_limit_window', v ) }
-								min={ 5 }
-								max={ 1440 }
-							/>
-						</PanelRow>
-					</>
+					<div className="wpepp-form-grid" style={ { marginTop: 16 } }>
+						<RangeControl
+							label={ __( 'Max Registrations Per IP', 'wp-edit-password-protected' ) }
+							value={ s.reg_rate_limit_max || 3 }
+							onChange={ ( v ) => update( 'reg_rate_limit_max', v ) }
+							min={ 1 }
+							max={ 20 }
+						/>
+						<RangeControl
+							label={ __( 'Time Window (minutes)', 'wp-edit-password-protected' ) }
+							value={ s.reg_rate_limit_window || 60 }
+							onChange={ ( v ) => update( 'reg_rate_limit_window', v ) }
+							min={ 5 }
+							max={ 1440 }
+						/>
+					</div>
 				) }
-			</PanelBody>
+			</Card>
 
 			{ /* --- reCAPTCHA on Registration (Pro) --- */ }
-			<PanelBody title={ __( 'reCAPTCHA on Registration', 'wp-edit-password-protected' ) } initialOpen={ false }>
-				<PanelRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={
+			<Card title={ __( 'reCAPTCHA on Registration', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid">
+					<ToggleCard
+						title={
 							<span>
 								{ __( 'Enable reCAPTCHA on Registration', 'wp-edit-password-protected' ) }
 								{ ! isPro && <ProBadge /> }
 							</span>
 						}
-						checked={ isPro && !! s.reg_recaptcha_enabled }
-						onChange={ ( v ) => update( 'reg_recaptcha_enabled', v ) }
+						checked={ isPro && !! s.reg_captcha_enabled }
+						onChange={ ( v ) => update( 'reg_captcha_enabled', v ) }
 						disabled={ ! isPro }
 					/>
-				</PanelRow>
-				{ isPro && s.reg_recaptcha_enabled && (
+				</div>
+				{ isPro && s.reg_captcha_enabled && (
 					<>
 						{ ( ! s.recaptcha_site_key || ! s.recaptcha_secret_key ) ? (
-							<Notice status="warning" isDismissible={ false }>
+							<Notice status="warning" isDismissible={ false } style={ { marginTop: 16 } }>
 								{ __( 'reCAPTCHA keys are not configured. Please set them in the Login Protection → reCAPTCHA section first.', 'wp-edit-password-protected' ) }
 							</Notice>
 						) : (
-							<Notice status="info" isDismissible={ false }>
+							<Notice status="info" isDismissible={ false } style={ { marginTop: 16 } }>
 								{ __( 'reCAPTCHA will appear on the registration form using the same keys configured in Login Protection.', 'wp-edit-password-protected' ) }
 							</Notice>
 						) }
 					</>
 				) }
-			</PanelBody>
+			</Card>
 
 			{ /* --- Disposable Email Blocker (Pro) --- */ }
-			<PanelBody title={ __( 'Disposable Email Blocker', 'wp-edit-password-protected' ) } initialOpen={ false }>
-				<PanelRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={
+			<Card title={ __( 'Disposable Email Blocker', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid">
+					<ToggleCard
+						title={
 							<span>
 								{ __( 'Block Disposable Email Addresses', 'wp-edit-password-protected' ) }
 								{ ! isPro && <ProBadge /> }
 							</span>
 						}
+						description={ __( 'Registrations from known disposable/temporary email services (Mailinator, Guerrilla Mail, YOPmail, etc.) will be blocked. The list covers 200+ domains.', 'wp-edit-password-protected' ) }
 						checked={ isPro && !! s.reg_block_disposable_emails }
 						onChange={ ( v ) => update( 'reg_block_disposable_emails', v ) }
 						disabled={ ! isPro }
 					/>
-				</PanelRow>
-				{ isPro && s.reg_block_disposable_emails && (
-					<Notice status="info" isDismissible={ false }>
-						{ __( 'Registrations from known disposable/temporary email services (Mailinator, Guerrilla Mail, YOPmail, etc.) will be blocked. The list covers 200+ domains.', 'wp-edit-password-protected' ) }
-					</Notice>
-				) }
-			</PanelBody>
+				</div>
+			</Card>
 
 			{ /* --- Email Domain Whitelist / Blacklist (Pro) --- */ }
-			<PanelBody title={ __( 'Email Domain Whitelist / Blacklist', 'wp-edit-password-protected' ) } initialOpen={ false }>
-				<PanelRow>
-					<SelectControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={
-							<span>
-								{ __( 'Email Domain Filter', 'wp-edit-password-protected' ) }
-								{ ! isPro && <ProBadge /> }
-							</span>
-						}
-						value={ isPro ? ( s.reg_email_domain_mode || 'off' ) : 'off' }
-						options={ [
-							{ label: __( 'Off', 'wp-edit-password-protected' ), value: 'off' },
-							{ label: __( 'Whitelist — Only allow these domains', 'wp-edit-password-protected' ), value: 'whitelist' },
-							{ label: __( 'Blacklist — Block these domains', 'wp-edit-password-protected' ), value: 'blacklist' },
-						] }
-						onChange={ ( v ) => update( 'reg_email_domain_mode', v ) }
-						disabled={ ! isPro }
-					/>
-				</PanelRow>
-				{ isPro && 'off' !== s.reg_email_domain_mode && (
-					<>
-						{ 'whitelist' === s.reg_email_domain_mode && (
-							<Notice status="info" isDismissible={ false }>
-								{ __( 'Only users with email addresses from the domains listed below can register.', 'wp-edit-password-protected' ) }
-							</Notice>
-						) }
-						{ 'blacklist' === s.reg_email_domain_mode && (
-							<Notice status="info" isDismissible={ false }>
-								{ __( 'Users with email addresses from the domains listed below will be blocked from registering.', 'wp-edit-password-protected' ) }
-							</Notice>
-						) }
-						<PanelRow>
-							<TextareaControl
-								label={ __( 'Email Domains', 'wp-edit-password-protected' ) }
-								help={ __( 'Enter one domain per line (e.g., gmail.com, company.com). Do not include the @ symbol.', 'wp-edit-password-protected' ) }
-								value={ s.reg_email_domain_list || '' }
-								onChange={ ( v ) => update( 'reg_email_domain_list', v ) }
-								rows={ 6 }
-							/>
-						</PanelRow>
-					</>
-				) }
-			</PanelBody>
+			<Card title={ __( 'Email Domain Whitelist / Blacklist', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-form-grid">
+					<div className="wpepp-form-grid__full">
+						<SelectControl
+							__next40pxDefaultSize
+							label={
+								<span>
+									{ __( 'Email Domain Filter', 'wp-edit-password-protected' ) }
+									{ ! isPro && <ProBadge /> }
+								</span>
+							}
+							value={ isPro ? ( s.reg_email_domain_mode || 'off' ) : 'off' }
+							options={ [
+								{ label: __( 'Off', 'wp-edit-password-protected' ), value: 'off' },
+								{ label: __( 'Whitelist — Only allow these domains', 'wp-edit-password-protected' ), value: 'whitelist' },
+								{ label: __( 'Blacklist — Block these domains', 'wp-edit-password-protected' ), value: 'blacklist' },
+							] }
+							onChange={ ( v ) => update( 'reg_email_domain_mode', v ) }
+							disabled={ ! isPro }
+						/>
+					</div>
+					{ isPro && 'off' !== s.reg_email_domain_mode && (
+						<>
+							{ 'whitelist' === s.reg_email_domain_mode && (
+								<div className="wpepp-form-grid__full">
+									<Notice status="info" isDismissible={ false }>
+										{ __( 'Only users with email addresses from the domains listed below can register.', 'wp-edit-password-protected' ) }
+									</Notice>
+								</div>
+							) }
+							{ 'blacklist' === s.reg_email_domain_mode && (
+								<div className="wpepp-form-grid__full">
+									<Notice status="info" isDismissible={ false }>
+										{ __( 'Users with email addresses from the domains listed below will be blocked from registering.', 'wp-edit-password-protected' ) }
+									</Notice>
+								</div>
+							) }
+							<div className="wpepp-form-grid__full">
+								<TextareaControl
+									label={ __( 'Email Domains', 'wp-edit-password-protected' ) }
+									help={ __( 'Enter one domain per line (e.g., gmail.com, company.com). Do not include the @ symbol.', 'wp-edit-password-protected' ) }
+									value={ s.reg_email_domain_list || '' }
+									onChange={ ( v ) => update( 'reg_email_domain_list', v ) }
+									rows={ 6 }
+								/>
+							</div>
+						</>
+					) }
+				</div>
+			</Card>
 
 			{ /* --- Admin Approval (Pro) --- */ }
-			<PanelBody title={ __( 'Admin Approval for New Users', 'wp-edit-password-protected' ) } initialOpen={ false }>
-				<PanelRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={
+			<Card title={ __( 'Admin Approval for New Users', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid">
+					<ToggleCard
+						title={
 							<span>
 								{ __( 'Require Admin Approval', 'wp-edit-password-protected' ) }
 								{ ! isPro && <ProBadge /> }
 							</span>
 						}
+						description={ __( 'New users will not be able to log in until an administrator approves their account. An email notification is sent to the site admin for each new registration.', 'wp-edit-password-protected' ) }
 						checked={ isPro && !! s.reg_admin_approval }
 						onChange={ ( v ) => update( 'reg_admin_approval', v ) }
 						disabled={ ! isPro }
 					/>
-				</PanelRow>
+				</div>
 				{ isPro && s.reg_admin_approval && (
-					<>
-						<Notice status="warning" isDismissible={ false }>
-							{ __( 'New users will not be able to log in until an administrator approves their account. An email notification is sent to the site admin for each new registration.', 'wp-edit-password-protected' ) }
-						</Notice>
-						<Notice status="info" isDismissible={ false }>
-							{ __( 'To approve pending users, go to Users → All Users and look for users with the "Pending" meta. Remove the pending flag to grant access.', 'wp-edit-password-protected' ) }
-						</Notice>
-					</>
+					<Notice status="info" isDismissible={ false } style={ { marginTop: 16 } }>
+						{ __( 'To approve pending users, go to Users → All Users and look for users with the "Pending" meta. Remove the pending flag to grant access.', 'wp-edit-password-protected' ) }
+					</Notice>
 				) }
-			</PanelBody>
+			</Card>
 		</div>
 	);
 };

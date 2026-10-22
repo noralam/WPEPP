@@ -4,9 +4,6 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	PanelBody,
-	PanelRow,
-	ToggleControl,
 	SelectControl,
 	TextControl,
 	TextareaControl,
@@ -14,6 +11,8 @@ import {
 	Notice,
 	Spinner,
 } from '@wordpress/components';
+import Card from '../../components/Card';
+import ToggleCard from '../../components/ToggleCard';
 import { useMemo, useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 import { SITE_ACCESS_DEFAULTS } from '../../utils/defaults';
@@ -87,20 +86,19 @@ const CountryRestriction = () => {
 		<div className="wpepp-country-restriction-settings">
 			<h3>{ __( 'Country Restriction', 'wp-edit-password-protected' ) }</h3>
 
-			<PanelBody title={ __( 'Restrict Site by Country', 'wp-edit-password-protected' ) } initialOpen>
-				<PanelRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Enable Country Restriction', 'wp-edit-password-protected' ) }
-						help={ __( 'Hide your site from — or restrict it to — visitors in specific countries, based on their IP address.', 'wp-edit-password-protected' ) }
+			<Card title={ __( 'Restrict Site by Country', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid" style={ { gridTemplateColumns: '1fr' } }>
+					<ToggleCard
+						title={ __( 'Enable Country Restriction', 'wp-edit-password-protected' ) }
+						description={ __( 'Hide your site from — or restrict it to — visitors in specific countries, based on their IP address.', 'wp-edit-password-protected' ) }
 						checked={ !! s.country_restriction_enabled }
 						onChange={ ( v ) => update( 'country_restriction_enabled', v ) }
 					/>
-				</PanelRow>
+				</div>
 
 				{ !! s.country_restriction_enabled && (
-					<>
-						<PanelRow>
+					<div className="wpepp-form-grid wpepp-form-grid--stack" style={ { marginTop: 16 } }>
+						<div className="wpepp-form-grid__full">
 							<SelectControl
 								__next40pxDefaultSize
 								__nextHasNoMarginBottom
@@ -116,10 +114,9 @@ const CountryRestriction = () => {
 								] }
 								onChange={ ( v ) => update( 'country_restriction_mode', v ) }
 							/>
-						</PanelRow>
+						</div>
 
-						<PanelRow>
-							<div style={ { width: '100%' } }>
+						<div style={ { width: '100%' } }>
 								<FormTokenField
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
@@ -143,7 +140,7 @@ const CountryRestriction = () => {
 									}
 								</p>
 							</div>
-						</PanelRow>
+						
 
 						{ atLimit && (
 							<Notice status="warning" isDismissible={ false }>
@@ -151,8 +148,7 @@ const CountryRestriction = () => {
 							</Notice>
 						) }
 
-						<PanelRow>
-							<TextControl
+													<TextControl
 								__next40pxDefaultSize
 								__nextHasNoMarginBottom
 								label={ __( 'Block Page Title', 'wp-edit-password-protected' ) }
@@ -160,10 +156,9 @@ const CountryRestriction = () => {
 								value={ s.country_restriction_title || '' }
 								onChange={ ( v ) => update( 'country_restriction_title', v ) }
 							/>
-						</PanelRow>
+						
 
-						<PanelRow>
-							<TextareaControl
+													<TextareaControl
 								__nextHasNoMarginBottom
 								label={ __( 'Block Page Message', 'wp-edit-password-protected' ) }
 								help={ __( 'Message shown to blocked visitors.', 'wp-edit-password-protected' ) }
@@ -171,14 +166,14 @@ const CountryRestriction = () => {
 								onChange={ ( v ) => update( 'country_restriction_message', v ) }
 								rows={ 3 }
 							/>
-						</PanelRow>
+						
 
 						<Notice status="info" isDismissible={ false }>
 							{ __( 'How it works: country is detected from the visitor IP (Cloudflare header when available, otherwise the ipapi.co lookup service — visitor IPs are sent to it). Administrators are never blocked. If the country cannot be determined, the visitor is allowed through, so a lookup outage never takes your whole site offline.', 'wp-edit-password-protected' ) }
 						</Notice>
-					</>
+					</div>
 				) }
-			</PanelBody>
+			</Card>
 		</div>
 	);
 };

@@ -9,53 +9,65 @@
 $sidebar-width: 240px;
 $header-height: 60px;
 
-// Dark palette
-$bg-body:       #0a0e27;
-$bg-sidebar:    #0d1137;
-$bg-surface:    #111640;
-$bg-card:       #151a47;
-$bg-card-hover: #1a2050;
-$bg-input:      #0d1137;
+// Dynamic palette mapped to CSS custom properties
+$bg-body:       var(--wpepp-canvas, #0a0e27);
+$bg-sidebar:    var(--wpepp-sidebar, #0d1137);
+$bg-surface:    var(--wpepp-surface, #111640);
+$bg-card:       var(--wpepp-card, #151a47);
+$bg-card-hover: var(--wpepp-card-hover, #1a2050);
+$bg-input:      var(--wpepp-input, #0d1137);
 
-$border-color:  rgba(255, 255, 255, 0.06);
-$border-active: rgba(99, 132, 255, 0.4);
+$border-color:  var(--wpepp-border, rgba(255, 255, 255, 0.07));
+$border-active: var(--wpepp-border-strong, rgba(99, 132, 255, 0.4));
 
-$primary:       #6366f1;
-$primary-light: #818cf8;
-$primary-glow:  rgba(99, 102, 241, 0.25);
-$accent-green:  #22c55e;
-$accent-cyan:   #06b6d4;
-$accent-orange: #f59e0b;
-$accent-red:    #ef4444;
-$pro-gradient:  linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+$primary:       var(--wpepp-accent, #6366f1);
+$primary-light: var(--wpepp-accent-strong, #818cf8);
+$primary-glow:  rgba(var(--wpepp-accent-rgb, 99, 102, 241), 0.25);
+$accent-green:  var(--wpepp-accent, #22c55e);
+$accent-cyan:   var(--wpepp-info, #06b6d4);
+$accent-orange: var(--wpepp-warning, #f59e0b);
+$accent-red:    var(--wpepp-danger, #ef4444);
+$pro-gradient:  var(--wpepp-pro-gradient, linear-gradient(135deg, #6366f1 0%, #a855f7 100%));
 
-$text-primary:   rgba(255, 255, 255, 0.92);
-$text-secondary: rgba(255, 255, 255, 0.5);
-$text-muted:     rgba(255, 255, 255, 0.3);
+$text-primary:   var(--wpepp-text, rgba(255, 255, 255, 0.92));
+$text-secondary: var(--wpepp-text-2, rgba(255, 255, 255, 0.65));
+$text-muted:     var(--wpepp-text-3, rgba(255, 255, 255, 0.45));
 
 $radius:        12px;
 $radius-sm:     8px;
-$shadow-card:   0 2px 12px rgba(0, 0, 0, 0.25);
-$shadow-glow:   0 0 20px rgba(99, 102, 241, 0.15);
+$shadow-card:   var(--wpepp-shadow, 0 2px 12px rgba(0, 0, 0, 0.25));
+$shadow-glow:   var(--wpepp-shadow-lift, 0 0 20px rgba(99, 102, 241, 0.15));
 $transition:    0.2s ease;
 
 /* ==========================================
    WP Admin Overrides — force dark bg on our page
    ========================================== */
 body.toplevel_page_wpepp-settings {
-	background: $bg-body !important;
+	background: var(--wpepp-canvas, #0b0d12) !important;
 
 	#wpwrap,
 	#wpcontent,
 	#wpbody,
 	#wpbody-content {
-		background: $bg-body !important;
+		background: var(--wpepp-canvas, #0b0d12) !important;
+	}
+
+	&.wpepp-theme-light,
+	&:has(.wpepp-admin-wrap[data-theme="light"]) {
+		background: #f5f7fa !important;
+
+		#wpwrap,
+		#wpcontent,
+		#wpbody,
+		#wpbody-content {
+			background: #f5f7fa !important;
+		}
 	}
 }
 
 #wpbody-content:has(#wpepp-admin-root) {
 	padding: 0 !important;
-	background: $bg-body;
+	background: transparent;
 
 	.notice:not(.wpepp-notices *) {
 		margin: 0 20px;
@@ -71,8 +83,8 @@ body.toplevel_page_wpepp-settings {
 	font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 	font-size: 14px;
 	line-height: 1.6;
-	color: $text-primary;
-	background: $bg-body;
+	color: var(--wpepp-text, $text-primary);
+	background: var(--wpepp-canvas, $bg-body);
 	-webkit-font-smoothing: antialiased;
 
 	*, *::before, *::after {
@@ -81,20 +93,20 @@ body.toplevel_page_wpepp-settings {
 
 	// All headings
 	h1, h2, h3, h4, h5, h6 {
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 	}
 
 	// Paragraphs / descriptions
 	p {
-		color: $text-secondary;
+		color: var(--wpepp-text-2, $text-secondary);
 	}
 
 	// Links
 	a {
-		color: $primary-light;
+		color: var(--wpepp-accent, $primary-light);
 
 		&:hover {
-			color: #fff;
+			color: var(--wpepp-accent-strong, #fff);
 		}
 	}
 
@@ -121,7 +133,7 @@ body.toplevel_page_wpepp-settings {
 		background: transparent;
 
 		h3 {
-			color: #fff;
+			color: var(--wpepp-text, #fff);
 			font-size: 15px;
 			font-weight: 600;
 			margin: 0;
@@ -145,16 +157,16 @@ body.toplevel_page_wpepp-settings {
 			button,
 			button.components-button,
 			button.components-panel__body-toggle {
-				color: $text-primary;
+				color: var(--wpepp-text, $text-primary);
 				font-weight: 600;
-				background: $bg-card !important;
+				background: var(--wpepp-card, $bg-card) !important;
 				box-shadow: none !important;
 				outline: none !important;
 
 				&:hover,
 				&:hover:not(:disabled) {
-					color: #fff;
-					background: rgba(255, 255, 255, 0.06) !important;
+					color: var(--wpepp-text, #fff);
+					background: var(--wpepp-hover, rgba(255, 255, 255, 0.06)) !important;
 				}
 
 				&:focus,
@@ -181,8 +193,8 @@ body.toplevel_page_wpepp-settings {
 			> .components-panel__body-title button,
 			> .components-panel__body-title button.components-button,
 			> .components-panel__body-title button.components-panel__body-toggle {
-				color: #fff;
-				background: rgba(99, 102, 241, 0.12) !important;
+				color: var(--wpepp-text, #fff);
+				background: rgba(var(--wpepp-accent-rgb, 99, 102, 241), 0.12) !important;
 
 				&:hover,
 				&:hover:not(:disabled) {
@@ -236,20 +248,20 @@ body.toplevel_page_wpepp-settings {
 	input[type="password"],
 	textarea,
 	select {
-		background: $bg-input !important;
-		border: 1px solid $border-color !important;
-		color: $text-primary !important;
+		background: var(--wpepp-input, $bg-input) !important;
+		border: 1px solid var(--wpepp-border-strong, $border-color) !important;
+		color: var(--wpepp-text, $text-primary) !important;
 		border-radius: $radius-sm !important;
 		padding: 8px 12px !important;
 		width: 100% !important;
 
 		&::placeholder {
-			color: $text-muted !important;
+			color: var(--wpepp-text-3, $text-muted) !important;
 		}
 
 		&:focus {
-			border-color: $primary !important;
-			box-shadow: 0 0 0 1px $primary !important;
+			border-color: var(--wpepp-accent, $primary) !important;
+			box-shadow: 0 0 0 1px var(--wpepp-accent, $primary) !important;
 			outline: none !important;
 		}
 	}
@@ -308,22 +320,23 @@ body.toplevel_page_wpepp-settings {
 	// Toggle controls
 	.components-form-toggle {
 		.components-form-toggle__track {
-			border-color: rgba(255, 255, 255, 0.15);
-			background: rgba(255, 255, 255, 0.08);
+			border: 2px solid var(--wpepp-border-strong, rgba(255, 255, 255, 0.25)) !important;
+			background-color: var(--wpepp-track, rgba(255, 255, 255, 0.1)) !important;
+			box-sizing: border-box !important;
 		}
 
 		.components-form-toggle__thumb {
-			background: $text-secondary;
+			background-color: var(--wpepp-text-3, $text-secondary) !important;
 		}
 
 		&.is-checked {
 			.components-form-toggle__track {
-				background: $primary;
-				border-color: $primary;
+				background-color: var(--wpepp-accent, $primary) !important;
+				border-color: var(--wpepp-accent, $primary) !important;
 			}
 
 			.components-form-toggle__thumb {
-				background: #fff;
+				background-color: #fff !important;
 			}
 		}
 	}
@@ -360,8 +373,8 @@ body.toplevel_page_wpepp-settings {
 
 	// Country Restriction — FormTokenField + matching select width
 	.wpepp-country-restriction-settings {
-		// Make the mode select and the country field the same width.
-		.components-base-control,
+		// Make the mode select and the country field full width inside form grid
+		.wpepp-form-grid .components-base-control,
 		.components-form-token-field {
 			width: 100% !important;
 		}
@@ -627,11 +640,11 @@ body.toplevel_page_wpepp-settings {
 
 		&.is-tertiary,
 		&.is-link {
-			color: $primary-light;
+			color: var(--wpepp-accent, $primary-light);
 			background: transparent;
 
 			&:hover {
-				color: #fff;
+				color: var(--wpepp-accent-strong, #fff);
 			}
 		}
 	}
@@ -654,26 +667,26 @@ body.toplevel_page_wpepp-settings {
 
 	// WP widefat table override (used with .wpepp-table)
 	table.widefat {
-		background: $bg-card;
-		border-color: $border-color;
+		background: var(--wpepp-card, $bg-card) !important;
+		border-color: var(--wpepp-border, $border-color) !important;
 
 		thead th {
-			background: $bg-surface;
-			color: $text-secondary;
-			border-bottom-color: $border-color;
+			background: var(--wpepp-surface, $bg-surface) !important;
+			color: var(--wpepp-text-2, $text-secondary) !important;
+			border-bottom-color: var(--wpepp-border, $border-color) !important;
 		}
 
 		td, th {
-			color: $text-primary;
-			border-color: $border-color;
+			color: var(--wpepp-text, $text-primary) !important;
+			border-color: var(--wpepp-border, $border-color) !important;
 		}
 
 		tbody tr:hover td {
-			background: rgba(255, 255, 255, 0.02);
+			background: var(--wpepp-card-hover, rgba(255, 255, 255, 0.02)) !important;
 		}
 
-		&.striped tbody tr:nth-child(odd) {
-			background: rgba(255, 255, 255, 0.01);
+		&.striped tbody tr:nth-child(odd) td {
+			background: var(--wpepp-hover-soft, rgba(255, 255, 255, 0.01)) !important;
 		}
 	}
 }
@@ -684,6 +697,8 @@ body.toplevel_page_wpepp-settings {
 .wpepp-admin-wrap {
 	display: flex;
 	min-height: calc(100vh - 32px);
+	background: var(--wpepp-canvas, $bg-body);
+	color: var(--wpepp-text, $text-primary);
 }
 
 .wpepp-admin-main {
@@ -691,12 +706,13 @@ body.toplevel_page_wpepp-settings {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
-	background: $bg-body;
+	background: var(--wpepp-canvas, $bg-body) !important;
 }
 
 .wpepp-admin-content {
 	flex: 1;
 	padding: 28px;
+	background: var(--wpepp-canvas, $bg-body) !important;
 }
 
 /* ==========================================
@@ -721,11 +737,11 @@ body.toplevel_page_wpepp-settings {
 		margin-bottom: 12px;
 		font-size: 15px;
 		font-weight: 700;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		letter-spacing: -0.2px;
 
 		svg {
-			fill: $primary-light;
+			fill: var(--wpepp-accent, $primary-light);
 		}
 	}
 
@@ -745,7 +761,7 @@ body.toplevel_page_wpepp-settings {
 		gap: 12px;
 		padding: 10px 14px;
 		border-radius: $radius-sm;
-		color: $text-secondary;
+		color: var(--wpepp-text-2, $text-secondary);
 		text-decoration: none;
 		font-size: 13.5px;
 		font-weight: 500;
@@ -753,17 +769,23 @@ body.toplevel_page_wpepp-settings {
 		position: relative;
 
 		&:hover {
-			background: rgba(255, 255, 255, 0.04);
-			color: $text-primary;
+			background: var(--wpepp-surface, rgba(255, 255, 255, 0.04));
+			color: var(--wpepp-text, #fff) !important;
+
+			svg {
+				opacity: 1;
+				fill: currentColor;
+			}
 		}
 
 		&.is-active {
-			background: rgba(99, 102, 241, 0.12);
-			color: #fff;
-			box-shadow: inset 3px 0 0 $primary;
+			background: rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.12);
+			color: var(--wpepp-text, #fff) !important;
+			box-shadow: inset 3px 0 0 var(--wpepp-accent, $primary);
 
 			svg {
-				fill: $primary-light;
+				fill: var(--wpepp-accent, $primary);
+				opacity: 1;
 			}
 		}
 
@@ -772,7 +794,7 @@ body.toplevel_page_wpepp-settings {
 			height: 20px;
 			fill: currentColor;
 			flex-shrink: 0;
-			opacity: 0.7;
+			opacity: 0.75;
 		}
 	}
 
@@ -801,7 +823,7 @@ body.toplevel_page_wpepp-settings {
 		font-size: 18px;
 		font-weight: 700;
 		margin: 0;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 	}
 
 	.wpepp-header__actions {
@@ -910,14 +932,14 @@ body.toplevel_page_wpepp-settings {
 	h2 {
 		font-size: 22px;
 		font-weight: 700;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		margin: 0 0 4px;
 	}
 
 	h3 {
 		font-size: 16px;
 		font-weight: 700;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		margin: 0 0 16px;
 	}
 
@@ -951,7 +973,7 @@ body.toplevel_page_wpepp-settings {
 		}
 
 		&.is-free {
-			background: rgba(255, 255, 255, 0.08);
+			background: var(--wpepp-hover, rgba(255, 255, 255, 0.08));
 			color: $text-secondary;
 			border: 1px solid $border-color;
 		}
@@ -1021,9 +1043,10 @@ body.toplevel_page_wpepp-settings {
    Stat Cards
    ========================================== */
 .wpepp-stat-card {
-	background: $bg-card;
-	border: 1px solid $border-color;
+	background: var(--wpepp-card, $bg-card);
+	border: 1px solid var(--wpepp-border, $border-color);
 	border-radius: $radius;
+	box-shadow: var(--wpepp-shadow);
 	display: flex;
 	align-items: center;
 	gap: 14px;
@@ -1032,8 +1055,9 @@ body.toplevel_page_wpepp-settings {
 	cursor: pointer;
 
 	&:hover {
-		border-color: $border-active;
-		box-shadow: $shadow-glow;
+		border-color: var(--wpepp-border-strong, $border-active);
+		background: var(--wpepp-card-hover, $bg-card-hover);
+		box-shadow: var(--wpepp-shadow-lift);
 		transform: translateY(-1px);
 	}
 
@@ -1059,7 +1083,7 @@ body.toplevel_page_wpepp-settings {
 	.wpepp-stat-card__value {
 		font-size: 20px;
 		font-weight: 700;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		min-height: 24px;
 		display: flex;
 		align-items: center;
@@ -1067,7 +1091,7 @@ body.toplevel_page_wpepp-settings {
 
 	.wpepp-stat-card__label {
 		font-size: 12px;
-		color: $text-secondary;
+		color: var(--wpepp-text-2, $text-secondary);
 		font-weight: 500;
 	}
 
@@ -1145,18 +1169,18 @@ body.toplevel_page_wpepp-settings {
 	align-items: center;
 	gap: 12px;
 	padding: 14px 16px;
-	background: $bg-card;
-	border: 1px solid $border-color;
+	background: var(--wpepp-card, $bg-card);
+	border: 1px solid var(--wpepp-border, $border-color);
 	border-radius: $radius-sm;
 	cursor: pointer;
 	transition: all $transition;
 	text-align: left;
-	color: $text-primary;
+	color: var(--wpepp-text, $text-primary);
 	width: 100%;
 
 	&:hover {
-		border-color: $border-active;
-		background: $bg-card-hover;
+		border-color: var(--wpepp-border-strong, $border-active);
+		background: var(--wpepp-card-hover, $bg-card-hover);
 	}
 
 	&__icon {
@@ -1178,7 +1202,7 @@ body.toplevel_page_wpepp-settings {
 	&__name {
 		font-size: 13px;
 		font-weight: 600;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		display: flex;
 		align-items: center;
 		gap: 6px;
@@ -1199,7 +1223,7 @@ body.toplevel_page_wpepp-settings {
 
 	&__desc {
 		font-size: 11.5px;
-		color: $text-secondary;
+		color: var(--wpepp-text-2, $text-secondary);
 		line-height: 1.4;
 		white-space: nowrap;
 		overflow: hidden;
@@ -1214,18 +1238,22 @@ body.toplevel_page_wpepp-settings {
 		border-radius: 20px;
 
 		&.is-on {
-			background: rgba(34, 197, 94, 0.12);
-			color: $accent-green;
+			background: rgba(var(--wpepp-accent-rgb, 34, 197, 94), 0.14);
+			color: var(--wpepp-accent, $accent-green);
+			border: 1px solid rgba(var(--wpepp-accent-rgb, 34, 197, 94), 0.3);
 		}
 
 		&.is-off {
-			background: rgba(255, 255, 255, 0.06);
-			color: $text-muted;
+			background: var(--wpepp-surface, rgba(0, 0, 0, 0.05));
+			color: var(--wpepp-text-3, $text-muted);
+			border: 1px solid var(--wpepp-border, rgba(0, 0, 0, 0.08));
 		}
 	}
 
 	&.is-on {
-		border-left: 3px solid $accent-green;
+		background: rgba(var(--wpepp-accent-rgb, 34, 197, 94), 0.06);
+		box-shadow: inset 0 0 0 1px rgba(var(--wpepp-accent-rgb, 34, 197, 94), 0.28);
+		border-left: 3px solid var(--wpepp-accent, $accent-green);
 	}
 
 	&.is-locked {
@@ -1255,19 +1283,20 @@ body.toplevel_page_wpepp-settings {
 		align-items: center;
 		text-align: center;
 		padding: 24px 16px;
-		background: $bg-card;
-		border: 1px solid $border-color;
+		background: var(--wpepp-card, $bg-card);
+		border: 1px solid var(--wpepp-border, $border-color);
 		border-radius: $radius;
+		box-shadow: var(--wpepp-shadow);
 		cursor: pointer;
 		transition: all $transition;
-		color: $text-primary;
+		color: var(--wpepp-text, $text-primary);
 		width: 100%;
 
 		&:hover {
-			border-color: $primary;
-			background: $bg-card-hover;
+			border-color: var(--wpepp-accent, $primary);
+			background: var(--wpepp-card-hover, $bg-card-hover);
 			transform: translateY(-2px);
-			box-shadow: $shadow-glow;
+			box-shadow: var(--wpepp-shadow-lift, $shadow-glow);
 		}
 	}
 
@@ -1280,13 +1309,13 @@ body.toplevel_page_wpepp-settings {
 	&__title {
 		font-size: 14px;
 		font-weight: 600;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		margin-bottom: 4px;
 	}
 
 	&__desc {
 		font-size: 12px;
-		color: $text-secondary;
+		color: var(--wpepp-text-2, $text-secondary);
 		line-height: 1.4;
 	}
 }
@@ -1377,7 +1406,7 @@ body.toplevel_page_wpepp-settings {
 		font-size: 14px;
 		font-weight: 600;
 		margin: 0 0 8px;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 	}
 
 	p {
@@ -1443,7 +1472,7 @@ body.toplevel_page_wpepp-settings {
 	}
 
 	h3 {
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		margin: 0;
 		font-size: 18px;
 	}
@@ -1518,7 +1547,7 @@ body.toplevel_page_wpepp-settings {
 
 		h2 {
 			margin: 0;
-			color: #fff;
+			color: var(--wpepp-text, #fff);
 			font-weight: 700;
 		}
 	}
@@ -1588,7 +1617,7 @@ body.toplevel_page_wpepp-settings {
 		margin: 0;
 		font-size: 14px;
 		font-weight: 600;
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 	}
 
 	.components-button {
@@ -1819,7 +1848,7 @@ body.toplevel_page_wpepp-settings {
    ========================================== */
 .wpepp-password-form {
 	h2, h3 {
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		font-weight: 700;
 	}
 }
@@ -1931,10 +1960,10 @@ body.toplevel_page_wpepp-settings {
 .wpepp-site-password-settings,
 .wpepp-country-restriction-settings,
 .wpepp-ai-crawler-blocker {
-	max-width: 800px;
+	max-width: 100%;
 
 	h2, h3 {
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		font-weight: 700;
 		margin-top: 0;
 	}
@@ -2052,7 +2081,7 @@ body.toplevel_page_wpepp-settings {
 	max-width: 100%;
 
 	h3 {
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		font-weight: 700;
 		margin-top: 0;
 	}
@@ -2125,7 +2154,7 @@ body.toplevel_page_wpepp-settings {
 	}
 
 	&__value {
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		font-size: 28px;
 		font-weight: 700;
 		margin-bottom: 4px;
@@ -2147,7 +2176,7 @@ body.toplevel_page_wpepp-settings {
 
 .wpepp-cpu-summary {
 	h4 {
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		font-weight: 600;
 		margin-bottom: 12px;
 	}
@@ -2221,8 +2250,11 @@ body.toplevel_page_wpepp-settings {
 	margin-top: 24px;
 
 	h4 {
-		color: #fff;
+		color: var(--wpepp-text, #fff);
 		font-weight: 600;
 		margin-bottom: 12px;
 	}
 }
+
+@import './sentinel.scss';
+

@@ -1,0 +1,1035 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WPEPP – WordPress Login Security & Password Protect Plugin | Limit Login, Hide Login &amp; Login Customizer</title>
+<meta name="description" content="WPEPP is an all-in-one WordPress security plugin: limit login attempts, hide the login URL, block AI crawlers, add 2FA &amp; reCAPTCHA, password-protect content, restrict by country, monitor CPU and customize your login page — 5 plugins in 1, zero external scripts." />
+<meta name="keywords" content="wordpress login security, limit login attempts, password protect wordpress, hide wp-login, login page customizer, wordpress 2fa, block ai crawlers, country restriction wordpress, content protection plugin, brute force protection, wordpress login limiter, recaptcha login" />
+<meta name="author" content="Noor alam" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+<meta name="theme-color" content="#16140f" />
+<link rel="canonical" href="https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/" />
+<!-- Open Graph -->
+<meta property="og:title" content="WPEPP — All-in-One WordPress Login Security &amp; Password Protection" />
+<meta property="og:description" content="Login limiter, hide login URL, AI-crawler blocker, 2FA, reCAPTCHA, content lock, country restriction, CPU monitor &amp; a live-preview login customizer. One dashboard. Zero bloat." />
+<meta property="og:type" content="product" />
+<meta property="og:url" content="https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/" />
+<meta property="og:image" content="og-image.png" />
+<meta property="og:image:alt" content="WPEPP — WordPress login security and password protection plugin dashboard" />
+<meta property="og:site_name" content="WPEPP" />
+<meta property="og:locale" content="en_US" />
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="WPEPP — All-in-One WordPress Login Security &amp; Password Protection" />
+<meta name="twitter:description" content="Limit login attempts, hide login, block AI crawlers, 2FA, content lock, country restriction, CPU monitor &amp; login customizer. 5 plugins in 1." />
+<meta name="twitter:image" content="og-image.png" />
+<meta name="twitter:image:alt" content="WPEPP WordPress security plugin" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============ UNIQUE THEME: "PAPER VAULT" — editorial soft-brutalism ============ */
+:root{
+  --paper:#f4efe6;        /* warm cream */
+  --paper-2:#ece4d6;
+  --ink:#16140f;          /* near-black ink */
+  --ink-soft:#3b372e;
+  --amber:#ff6a2b;        /* signal amber */
+  --amber-deep:#e2480f;
+  --moss:#1f6f54;         /* deep green accent */
+  --sky:#2b5cff;          /* electric blue accent */
+  --lilac:#7c5cff;
+  --line:#16140f;
+  --muted:#6b6353;
+  --card:#fffdf8;
+  --shadow:6px 6px 0 var(--ink);
+  --shadow-sm:3px 3px 0 var(--ink);
+  --r:18px;
+  --maxw:1200px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.55;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* paper grain + dotted field */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background-image:radial-gradient(var(--ink) 0.6px, transparent 0.6px);
+  background-size:22px 22px;opacity:.05;pointer-events:none;
+}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:'Fraunces',serif;line-height:1.02;letter-spacing:-.02em}
+.mono{font-family:'Spline Sans Mono',monospace}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.amber{color:var(--amber-deep)}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:12px;top:12px;background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:8px;z-index:999}
+
+/* ---- buttons ---- */
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-weight:600;font-size:1rem;padding:14px 24px;
+  border:2.5px solid var(--ink);border-radius:50px;
+  background:var(--card);color:var(--ink);cursor:pointer;
+  box-shadow:var(--shadow-sm);transition:transform .12s, box-shadow .12s;
+  position:relative;overflow:hidden;
+}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--ink)}
+.btn-amber{background:var(--amber);color:var(--ink)}
+.btn-ink{background:var(--ink);color:var(--paper)}
+.btn-amber::after{
+  content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+  transform:skewX(-20deg);animation:shine 3.6s ease-in-out infinite;
+}
+@keyframes shine{0%,60%{left:-120%}80%,100%{left:170%}}
+
+/* ---- nav ---- */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:.25s}
+nav .bar{display:flex;align-items:center;justify-content:space-between;
+  margin:14px auto;max-width:var(--maxw);padding:10px 18px;
+  border:2.5px solid transparent;border-radius:50px;transition:.25s}
+nav.scrolled .bar{background:rgba(255,253,248,.85);backdrop-filter:blur(10px);
+  border-color:var(--ink);box-shadow:var(--shadow-sm)}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem}
+.logo .mark{width:34px;height:34px;display:grid;place-items:center;background:var(--ink);color:var(--amber);
+  border-radius:9px;transition:.25s;flex-shrink:0}
+nav.scrolled .logo .mark{transform:rotate(-8deg)}
+.navlinks{display:flex;gap:28px;font-weight:500;font-size:.96rem}
+.navlinks a{position:relative;padding:4px 0}
+.navlinks a::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:2px;background:var(--amber);transition:.22s}
+.navlinks a:hover::after{width:100%}
+.nav-cta{display:flex;align-items:center;gap:12px}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:2.5px solid var(--ink);
+  border-radius:10px;padding:9px;cursor:pointer}
+.burger span{width:22px;height:2.5px;background:var(--ink);border-radius:2px;transition:.25s}
+
+/* ---- mobile overlay ---- */
+.mobile-menu{position:fixed;inset:0;z-index:101;background:rgba(244,239,230,.97);backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  font-family:'Fraunces',serif;font-size:1.7rem;transform:translateX(100%);transition:.35s cubic-bezier(.7,0,.2,1)}
+.mobile-menu.open{transform:translateX(0)}
+.mobile-menu a{border-bottom:3px solid transparent}
+.mobile-menu a:active{border-color:var(--amber)}
+.mobile-close{position:absolute;top:26px;right:26px;font-size:2rem;background:none;border:none;cursor:pointer}
+
+/* ---- hero ---- */
+header.hero{padding:150px 0 60px;position:relative;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;z-index:-1;animation:drift 18s ease-in-out infinite}
+.blob.b1{width:420px;height:420px;background:var(--amber);top:-80px;right:-60px}
+.blob.b2{width:340px;height:340px;background:var(--sky);bottom:-120px;left:-80px;animation-delay:-6s}
+.blob.b3{width:260px;height:260px;background:var(--moss);top:40%;left:50%;animation-delay:-11s;opacity:.3}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.1)}66%{transform:translate(-30px,30px) scale(.95)}}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;
+  background:var(--ink);color:var(--paper);padding:7px 15px;border-radius:50px;letter-spacing:.02em}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+h1.head{font-size:clamp(2.7rem,6vw,4.6rem);font-weight:700;margin:22px 0 0;letter-spacing:-.03em}
+h1.head em{font-style:italic;color:var(--amber-deep);position:relative;white-space:nowrap}
+.type{font-family:'Spline Sans Mono',monospace;font-size:clamp(1rem,2.2vw,1.3rem);font-weight:500;
+  margin-top:20px;min-height:1.6em;color:var(--ink-soft)}
+.type .cursor{display:inline-block;width:9px;height:1.1em;background:var(--amber);margin-left:3px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.benefit{margin-top:18px;font-size:1.08rem;color:var(--muted);max-width:36ch}
+.hero-cta{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+.trust{display:flex;align-items:center;gap:18px;margin-top:28px;flex-wrap:wrap;font-size:.88rem;font-weight:500;color:var(--ink-soft)}
+.trust .stars{color:var(--amber-deep);letter-spacing:1px}
+.trust .sep{width:5px;height:5px;border-radius:50%;background:var(--muted)}
+
+/* hero mockup — CSS dashboard */
+.mock{position:relative;z-index:2;padding:26px 20px}
+.window{background:var(--card);border:2.5px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);
+  overflow:hidden;animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.win-top{display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:2.5px solid var(--ink);background:var(--paper-2)}
+.win-top i{width:12px;height:12px;border-radius:50%;background:var(--ink);display:inline-block}
+.win-top i:nth-child(1){background:var(--amber)}
+.win-top i:nth-child(2){background:var(--moss)}
+.win-top .wt{margin-left:8px;font-family:'Spline Sans Mono',monospace;font-size:.74rem;color:var(--muted)}
+.win-body{padding:16px}
+.dash-row{display:flex;gap:10px;margin-bottom:12px}
+.dash-stat{flex:1;border:2px solid var(--ink);border-radius:12px;padding:11px;background:var(--paper)}
+.dash-stat .k{font-family:'Spline Sans Mono',monospace;font-size:.68rem;color:var(--muted);text-transform:uppercase}
+.dash-stat .v{font-family:'Fraunces',serif;font-weight:700;font-size:1.45rem}
+.dash-stat .v.g{color:var(--moss)}
+.dash-stat .v.a{color:var(--amber-deep)}
+.toggle-line{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:2px solid var(--ink);
+  border-radius:11px;margin-bottom:9px;font-size:.85rem;font-weight:500;background:var(--card)}
+.tg{width:38px;height:21px;border-radius:50px;background:var(--ink);position:relative;flex-shrink:0}
+.tg.on{background:var(--moss)}
+.tg::after{content:"";position:absolute;top:2.5px;left:2.5px;width:15px;height:15px;border-radius:50%;background:var(--paper);transition:.2s}
+.tg.on::after{left:20px}
+.float-badge{position:absolute;z-index:6;background:var(--card);border:2.5px solid var(--ink);border-radius:50px;
+  padding:9px 15px;font-weight:600;font-size:.84rem;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.fb1{top:-30px;left:0;animation:floaty 5s ease-in-out infinite}
+.fb2{bottom:2px;right:0;animation:floaty 5.5s ease-in-out infinite;animation-delay:-2s}
+.fb-ico{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--amber);font-size:.8rem}
+.fb2 .fb-ico{background:var(--sky)}
+
+/* ---- marquee ---- */
+.marquee{border-top:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);background:var(--ink);color:var(--paper);
+  padding:14px 0;overflow:hidden;margin-top:60px;white-space:nowrap}
+.marquee .track{display:inline-flex;gap:42px;animation:scroll calc(26s / var(--mq-boost,1)) linear infinite;font-family:'Spline Sans Mono',monospace;font-size:.95rem;font-weight:500}
+.marquee .track span{display:inline-flex;align-items:center;gap:42px}
+.marquee .track b{color:var(--amber)}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---- section scaffolding ---- */
+section{padding:96px 0;overflow:hidden}
+.eyebrow{font-family:'Spline Sans Mono',monospace;font-size:.82rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--amber-deep);display:inline-flex;align-items:center;gap:9px;margin-bottom:14px}
+.eyebrow::before{content:"";width:26px;height:2.5px;background:var(--amber-deep)}
+.sec-head{font-size:clamp(2rem,4.4vw,3.2rem);font-weight:700;max-width:18ch}
+.sec-sub{margin-top:14px;color:var(--muted);font-size:1.08rem;max-width:52ch}
+.center{text-align:center}
+.center .sec-head,.center .sec-sub{margin-left:auto;margin-right:auto}
+.center .eyebrow{justify-content:center}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(38px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.fl{transform:translateX(-52px)}
+.reveal.fr{transform:translateX(52px)}
+.reveal.sc{transform:scale(.88)}
+.reveal.rot{transform:translateY(30px) rotate(-3deg)}
+.reveal[data-d]{transition-delay:var(--d)}
+/* scroll progress */
+#progress{position:fixed;top:0;left:0;height:4px;width:0;z-index:200;background:var(--amber);box-shadow:2px 0 0 var(--ink)}
+/* parallax hooks */
+.blob{will-change:transform}
+
+/* ---- stats strip ---- */
+.stats{background:var(--ink);color:var(--paper);border-top:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink)}
+.stats .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px;justify-content:center}
+.stat-card{text-align:center;padding:20px;border:2px dashed rgba(244,239,230,.3);border-radius:16px}
+.stat-card .num{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(2.2rem,5vw,3.4rem);color:var(--amber)}
+.stat-card .lbl{font-family:'Spline Sans Mono',monospace;font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:var(--paper-2);margin-top:4px}
+
+/* ---- tabs ---- */
+.tabs{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:38px 0 40px}
+.tab{font-weight:600;font-size:.95rem;padding:11px 20px;border:2.5px solid var(--ink);border-radius:50px;
+  background:var(--card);cursor:pointer;box-shadow:var(--shadow-sm);transition:.15s}
+.tab:hover{transform:translateY(-2px)}
+.tab.active{background:var(--ink);color:var(--paper)}
+.panel{display:none;animation:fadeUp .5s ease}
+.panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.fcard{background:var(--card);border:2.5px solid var(--ink);border-radius:var(--r);padding:22px;
+  box-shadow:var(--shadow-sm);transition:.18s;position:relative}
+.fcard:hover{transform:translate(-3px,-5px);box-shadow:7px 9px 0 var(--ink)}
+.fcard .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:var(--paper-2);
+  border:2px solid var(--ink);font-size:1.3rem;margin-bottom:14px}
+.fcard h3{font-size:1.18rem;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fcard p{margin-top:7px;color:var(--muted);font-size:.94rem}
+.badge{font-family:'Spline Sans Mono',monospace;font-size:.62rem;font-weight:600;padding:3px 9px;border-radius:50px;
+  border:1.5px solid var(--ink);text-transform:uppercase;letter-spacing:.04em}
+.badge.free{background:var(--moss);color:var(--paper);border-color:var(--moss)}
+.badge.pro{background:var(--amber);color:var(--ink)}
+.fcard.is-pro{border-color:var(--amber-deep)}
+.fcard.is-pro .ico{background:#ffe9dd}
+
+/* ---- why / bento ---- */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.bcard{border:2.5px solid var(--ink);border-radius:var(--r);padding:30px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.b-tall{grid-column:span 3}
+.b-wide{grid-column:span 6}
+.b-half{grid-column:span 3}
+.bcard h3{font-size:1.7rem;font-weight:700;margin-bottom:10px}
+.bcard p{color:var(--muted);font-size:.98rem}
+.bcard.dark{background:var(--ink);color:var(--paper)}
+.bcard.dark p{color:var(--paper-2)}
+.bcard.amber{background:var(--amber);color:var(--ink)}
+.bcard.amber p{color:var(--ink-soft)}
+.bcard.amber .meter{border-color:var(--ink)}
+.bcard.amber .meter-lbl{color:var(--ink)}
+.bcard.sky{background:var(--sky);color:var(--paper)}
+.bcard.sky p{color:#dce4ff}
+.bignum{font-family:'Fraunces',serif;font-weight:700;font-size:4.4rem;line-height:1}
+/* merge illustration */
+.merge{display:flex;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+.merge .old{width:38px;height:38px;border:2px solid currentColor;border-radius:10px;display:grid;place-items:center;
+  font-size:.9rem;opacity:.55;animation:wobble 3s ease-in-out infinite}
+.merge .arrow{font-size:1.4rem}
+.merge .one{width:54px;height:54px;border:2.5px solid currentColor;border-radius:14px;display:grid;place-items:center;
+  font-weight:700;font-family:'Fraunces',serif;background:rgba(255,255,255,.15)}
+@keyframes wobble{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* perf meter */
+.meter{height:14px;border:2px solid var(--ink);border-radius:50px;margin-top:18px;overflow:hidden;background:var(--paper)}
+.meter span{display:block;height:100%;width:0;background:var(--moss);border-radius:50px;transition:width 1.6s cubic-bezier(.2,.8,.2,1)}
+.meter-lbl{display:flex;justify-content:space-between;font-family:'Spline Sans Mono',monospace;font-size:.78rem;margin-top:8px;font-weight:600}
+
+/* ---- templates ---- */
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px}
+.tpl{border:2.5px solid var(--ink);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm);transition:.18s;background:var(--card)}
+.tpl:hover{transform:translateY(-6px);box-shadow:5px 9px 0 var(--ink)}
+.tpl .swatch{height:84px;position:relative;border-bottom:2.5px solid var(--ink);display:grid;place-items:center}
+.tpl .swatch svg{width:34px;height:34px;opacity:.92;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+.tpl .meta{padding:11px 13px;display:flex;align-items:center;justify-content:space-between}
+.tpl .meta b{font-size:.92rem;font-weight:600}
+
+/* ---- pricing ---- */
+.ptoggle{display:inline-flex;border:2.5px solid var(--ink);border-radius:50px;padding:5px;background:var(--card);
+  box-shadow:var(--shadow-sm);position:relative;margin:0 auto;gap:2px}
+.ptoggle button{position:relative;z-index:2;border:none;background:none;font-weight:600;font-size:.92rem;
+  padding:10px 22px;border-radius:50px;cursor:pointer;color:var(--ink);transition:color .25s}
+.ptoggle button.active{color:var(--paper)}
+.ptoggle .slider{position:absolute;z-index:1;top:5px;bottom:5px;border-radius:50px;background:var(--ink);transition:.3s cubic-bezier(.6,0,.2,1)}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:46px;align-items:stretch}
+.pcard{background:var(--card);border:2.5px solid var(--ink);border-radius:22px;padding:30px;box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;position:relative;transition:.2s}
+.pcard.feat{background:var(--ink);color:var(--paper);box-shadow:var(--shadow);transform:scale(1.03)}
+.pcard.feat .muted2{color:var(--paper-2)}
+.ptag{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-family:'Spline Sans Mono',monospace;
+  font-size:.7rem;font-weight:600;background:var(--amber);color:var(--ink);border:2.5px solid var(--ink);
+  padding:5px 14px;border-radius:50px;white-space:nowrap}
+.pname{font-family:'Spline Sans Mono',monospace;font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:.85rem}
+.pprice{font-family:'Fraunces',serif;font-weight:700;font-size:3.2rem;line-height:1;margin:12px 0 2px;display:flex;align-items:baseline;gap:6px}
+.pprice .per{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:500;color:var(--muted)}
+.pcard.feat .pprice .per{color:var(--paper-2)}
+.was{font-family:'Spline Sans Mono',monospace;font-size:.85rem;text-decoration:line-through;color:var(--muted);min-height:1.2em}
+.plist{list-style:none;margin:20px 0 24px;display:flex;flex-direction:column;gap:10px;font-size:.92rem;flex:1}
+.plist li{display:flex;gap:9px;align-items:flex-start}
+.plist li .ck{color:var(--moss);font-weight:700;flex-shrink:0}
+.pcard.feat .plist li .ck{color:var(--amber)}
+.muted2{color:var(--muted);font-size:.88rem}
+.guarantee{text-align:center;margin-top:32px;font-weight:600;font-family:'Spline Sans Mono',monospace;font-size:.9rem}
+
+/* ---- faq ---- */
+.faq-list{max-width:780px;margin:42px auto 0;display:flex;flex-direction:column;gap:14px}
+.faq{border:2.5px solid var(--ink);border-radius:16px;background:var(--card);overflow:hidden;box-shadow:var(--shadow-sm)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 22px;cursor:pointer;font-weight:600;font-size:1.05rem}
+.faq-q .chev{flex-shrink:0;transition:.3s;font-size:1.3rem;color:var(--amber-deep)}
+.faq.open .chev{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.faq-a p{padding:0 22px 20px;color:var(--muted)}
+
+/* ---- final cta ---- */
+.final{background:var(--ink);color:var(--paper);border-top:2.5px solid var(--ink);position:relative;overflow:hidden}
+.final .blob{opacity:.35}
+.final h2{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:700}
+.final p{color:var(--paper-2);font-size:1.12rem;margin-top:14px}
+.final .hero-cta{justify-content:center;margin-top:32px}
+.tbadges{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px;font-family:'Spline Sans Mono',monospace;font-size:.82rem;color:var(--paper-2)}
+.tbadges span{display:inline-flex;align-items:center;gap:7px;border:1.5px solid rgba(244,239,230,.3);padding:7px 14px;border-radius:50px}
+
+/* ---- footer ---- */
+footer{background:var(--paper-2);border-top:2.5px solid var(--ink);padding:64px 0 28px}
+.fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+.fcol h4{font-family:'Spline Sans Mono',monospace;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;color:var(--muted)}
+.fcol ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:.94rem}
+.fcol ul a{color:var(--ink-soft)}
+.fcol ul a:hover{color:var(--amber-deep)}
+.fdesc{color:var(--muted);font-size:.94rem;margin:14px 0 18px;max-width:34ch}
+.fsoc{display:flex;gap:10px}
+.fsoc a{width:38px;height:38px;border:2.5px solid var(--ink);border-radius:11px;display:grid;place-items:center;
+  box-shadow:var(--shadow-sm);transition:.15s;background:var(--card);font-weight:700}
+.fsoc a:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+.fbot{margin-top:0;padding-top:0;display:flex;justify-content:space-between;
+  align-items:center;gap:14px;flex-wrap:wrap;font-size:.88rem;color:var(--muted);font-family:'Spline Sans Mono',monospace}
+
+/* ---- responsive ---- */
+@media(max-width:980px){
+  .hero-grid{grid-template-columns:1fr;gap:60px}
+  .mock{max-width:440px;margin:0 auto}
+  .bento{grid-template-columns:1fr}
+  .b-tall,.b-wide,.b-half{grid-column:span 1;grid-row:span 1}
+  .price-grid{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}
+  .pcard.feat{transform:none}
+  .fgrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .navlinks,.nav-cta .btn{display:none}
+  .burger{display:flex}
+  section{padding:70px 0;overflow:hidden}
+  header.hero{padding:120px 0 40px}
+  .cmp{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .cmp table{min-width:500px}
+  .bcard{padding:22px}
+  .bignum{font-size:3.2rem}
+  .merge .old{width:34px;height:34px}
+  .merge .one{width:48px;height:48px}
+  .reveal.fr,.reveal.fl{transform:none}
+}
+@media(max-width:480px){
+  .wrap{padding:0 14px}
+  h1.head{font-size:clamp(2rem,8vw,2.7rem)}
+  nav .bar{padding:8px 12px}
+  .float-badge{font-size:.65rem;padding:5px 9px}
+  .fb1{top:-8px;left:2px}
+  .fb2{bottom:-8px;right:2px}
+  .dash-row{flex-direction:column;gap:7px}
+  .mock{padding:20px 6px}
+  .hero-cta .btn{font-size:.88rem;padding:12px 16px}
+  .trust{font-size:.8rem;gap:10px}
+  .ptoggle button{font-size:.78rem;padding:7px 12px}
+  .fgrid{grid-template-columns:1fr}
+  .bcard{padding:18px}
+  .bcard h3{font-size:1.3rem}
+  .bignum{font-size:2.8rem}
+  .merge .old{width:30px;height:30px;font-size:.75rem}
+  .merge .one{width:42px;height:42px;font-size:.9rem}
+  .merge .arrow{font-size:1.1rem}
+  .pcard{padding:22px}
+  .pprice{font-size:2.6rem}
+  .fcard{padding:16px}
+  .fcard .ico{width:38px;height:38px;font-size:1.1rem}
+  .sec-head{font-size:clamp(1.6rem,6vw,2.2rem)}
+}
+@media(max-width:380px){
+  .hero-cta{flex-direction:column;align-items:stretch}
+  .trust .sep{display:none}
+  .stat-card{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+
+<a class="skip" href="#features">Skip to content</a>
+<div id="progress"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="bar">
+    <a class="logo" href="#top"><span class="mark">🔐</span> WPEPP</a>
+    <div class="navlinks">
+      <a href="#features">Features</a>
+      <a href="#why">Why WPEPP</a>
+      <a href="#templates">Templates</a>
+      <a href="#compare">Compare</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#pricing" class="btn btn-amber">Get Pro →</a>
+      <button class="burger" id="burger" aria-label="Open menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mClose" aria-label="Close menu">×</button>
+  <a href="#features">Features</a>
+  <a href="#why">Why WPEPP</a>
+  <a href="#templates">Templates</a>
+  <a href="#compare">Compare</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#faq">FAQ</a>
+  <a href="#pricing" class="btn btn-amber">Get Pro →</a>
+</div>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-left">
+      <span class="pill"><span class="dot"></span> v2.0.5 — React dashboard + Country Restriction</span>
+      <h1 class="head"><span class="sr-only">WordPress Login Security &amp; Password Protection Plugin — </span>Lock it. Style it.<br><em>Forget about it.</em></h1>
+      <p class="type" id="type"></p>
+      <p class="benefit">Replace five plugins with one. Brute-force protection, content locking, AI-crawler blocking, a CPU monitor, and a live-preview login customizer — zero external scripts on your front end.</p>
+      <div class="hero-cta">
+        <a href="#features" class="btn btn-amber">Explore features →</a>
+        <a href="#pricing" class="btn">See pricing</a>
+      </div>
+      <div class="trust">
+        <span class="stars">★★★★★</span><span>4.9 / 5</span>
+        <span class="sep"></span><span>Trusted by 10,000+ sites</span>
+        <span class="sep"></span><span>No credit card to start</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="mock">
+        <div class="float-badge fb1"><span class="fb-ico">🛡️</span> 50M+ attacks blocked</div>
+        <div class="float-badge fb2"><span class="fb-ico">⚡</span> 0 external scripts</div>
+        <div class="window">
+          <div class="win-top"><i></i><i></i><i></i><span class="wt">wp-admin / wpepp-security</span></div>
+          <div class="win-body">
+            <div class="dash-row">
+              <div class="dash-stat"><div class="k">Health</div><div class="v g">Good</div></div>
+              <div class="dash-stat"><div class="k">CPU load</div><div class="v">0.42</div></div>
+              <div class="dash-stat"><div class="k">Lockouts</div><div class="v a">17</div></div>
+            </div>
+            <div class="toggle-line">Limit login attempts <span class="tg on"></span></div>
+            <div class="toggle-line">Block AI crawlers (GPTBot, CCBot) <span class="tg on"></span></div>
+            <div class="toggle-line">Two-factor authentication <span class="tg on"></span></div>
+            <div class="toggle-line">Hide login page <span class="tg"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    <span>Login Limiter <b>✦</b> AI Crawler Blocker <b>✦</b> 2FA TOTP <b>✦</b> Country Restriction <b>✦</b> Content Lock <b>✦</b> CPU Monitor <b>✦</b> Login Customizer <b>✦</b> Honeypots <b>✦</b> Site Password <b>✦</b> Conditional Display <b>✦</b></span>
+    <span>Login Limiter <b>✦</b> AI Crawler Blocker <b>✦</b> 2FA TOTP <b>✦</b> Country Restriction <b>✦</b> Content Lock <b>✦</b> CPU Monitor <b>✦</b> Login Customizer <b>✦</b> Honeypots <b>✦</b> Site Password <b>✦</b> Conditional Display <b>✦</b></span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats" style="padding:64px 0">
+  <div class="wrap">
+    <div class="grid">
+      <div class="stat-card reveal"><div class="num" data-count="3000" data-suffix="+">0</div><div class="lbl">Active installs</div></div>
+      <div class="stat-card reveal"><div class="num" data-count="4.9" data-dec="1">0</div><div class="lbl">Average rating</div></div>
+      <div class="stat-card reveal"><div class="num" data-count="50" data-suffix="M+">0</div><div class="lbl">Attacks blocked</div></div>
+      <div class="stat-card reveal"><div class="num" data-count="40" data-suffix="+">0</div><div class="lbl">Features in one</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES (tabbed) -->
+<section id="features">
+  <div class="wrap center">
+    <span class="eyebrow">The whole toolkit</span>
+    <h2 class="sec-head">One dashboard. Five jobs. Zero compromises.</h2>
+    <p class="sec-sub">Stop bolting together a login limiter, a content gate, a bot blocker, a customizer, and a health monitor. WPEPP ships them as one tidy React panel.</p>
+  </div>
+  <div class="wrap">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="sec">🔐 Login Security</button>
+      <button class="tab" data-tab="prot">🛡️ Site Protection</button>
+      <button class="tab" data-tab="lock">🔒 Content Locking</button>
+      <button class="tab" data-tab="cust">🎨 Login Customizer</button>
+      <button class="tab" data-tab="cpu">📊 CPU Monitor</button>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="panel active" data-panel="sec">
+      <div class="cards">
+        <div class="fcard"><div class="ico">🚫</div><h3>Login Limiter <span class="badge free">Free</span></h3><p>Auto-lock any IP after repeated failed logins. Set max attempts and lockout minutes — brute force stops cold.</p></div>
+        <div class="fcard"><div class="ico">🍯</div><h3>Login Honeypot <span class="badge free">Free</span></h3><p>Invisible trap field catches automated login bots instantly — humans never see it.</p></div>
+        <div class="fcard"><div class="ico">📝</div><h3>Registration Honeypot <span class="badge free">Free</span></h3><p>Hidden trap on the signup form blocks fake registrations before they hit your database.</p></div>
+        <div class="fcard"><div class="ico">⏱️</div><h3>Registration Rate Limiter <span class="badge free">Free</span></h3><p>Per-IP throttle kills mass signup spam without lifting a finger.</p></div>
+        <div class="fcard is-pro"><div class="ico">🤖</div><h3>reCAPTCHA <span class="badge pro">Pro</span></h3><p>Drop Google reCAPTCHA on login and register forms — bots out before they try.</p></div>
+        <div class="fcard is-pro"><div class="ico">🔑</div><h3>2FA (TOTP) <span class="badge pro">Pro</span></h3><p>RFC-6238 two-factor with QR setup, 8 recovery codes, and role-based enforcement.</p></div>
+        <div class="fcard is-pro"><div class="ico">📋</div><h3>Login Activity Log <span class="badge pro">Pro</span></h3><p>Every success, failure, and lockout — with IP, user-agent, timestamp, and filtering.</p></div>
+        <div class="fcard is-pro"><div class="ico">🚦</div><h3>IP Allow / Block List <span class="badge pro">Pro</span></h3><p>Manually allow trusted IPs or ban abusive ones at the door.</p></div>
+        <div class="fcard is-pro"><div class="ico">📧</div><h3>Disposable Email Blocker <span class="badge pro">Pro</span></h3><p>Reject temp-mail signups and whitelist/blacklist whole email domains.</p></div>
+      </div>
+    </div>
+
+    <!-- PROTECTION -->
+    <div class="panel" data-panel="prot">
+      <div class="cards">
+        <div class="fcard is-pro"><div class="ico">🥷</div><h3>Hide Login Page <span class="badge pro">Pro</span></h3><p>Move <span class="mono">wp-login.php</span> to a secret URL. The old one returns 404 — invisible to attackers.</p></div>
+        <div class="fcard"><div class="ico">🤖</div><h3>AI Crawler Blocker <span class="badge free">Free</span></h3><p>One-click toggle to block GPTBot, CCBot, Google-Extended & more via robots.txt + 403 at the server.</p></div>
+        <div class="fcard"><div class="ico">🌍</div><h3>Country Restriction <span class="badge free">Free 2</span></h3><p>Block or allow visitors by country. Cloudflare header with ipapi.co fallback. Unlimited on Pro.</p></div>
+        <div class="fcard"><div class="ico">📡</div><h3>Disable XML-RPC <span class="badge free">Free</span></h3><p>Shut the <span class="mono">xmlrpc.php</span> endpoint bots use for brute-force and DDoS amplification.</p></div>
+        <div class="fcard"><div class="ico">🫥</div><h3>Hide WP Version <span class="badge free">Free</span></h3><p>Strip the generator tag and version query strings so attackers can't fingerprint you.</p></div>
+        <div class="fcard"><div class="ico">🛂</div><h3>REST API Protection <span class="badge free">Free</span></h3><p>Block <span class="mono">/wp/v2/users</span> enumeration to stop username discovery.</p></div>
+        <div class="fcard is-pro"><div class="ico">🔗</div><h3>Auto-Login Links <span class="badge pro">Pro</span></h3><p>Secure one-time login tokens with per-IP rate limiting and auto-expiry pruning.</p></div>
+        <div class="fcard is-pro"><div class="ico">✅</div><h3>Admin Approval <span class="badge pro">Pro</span></h3><p>Hold new registrations for manual admin approval before they can log in.</p></div>
+      </div>
+    </div>
+
+    <!-- LOCKING -->
+    <div class="panel" data-panel="lock">
+      <div class="cards">
+        <div class="fcard"><div class="ico">🔒</div><h3>Site-Wide Password <span class="badge free">Free</span></h3><p>Gate the whole site behind one shared password with a configurable cookie duration. Admins bypass automatically.</p></div>
+        <div class="fcard"><div class="ico">👤</div><h3>Admin-Only Mode <span class="badge free">Free</span></h3><p>Lock the front end to logged-in users — perfect for staging and intranets.</p></div>
+        <div class="fcard is-pro"><div class="ico">📄</div><h3>Per-Post Content Lock <span class="badge pro">Pro</span></h3><p>Lock any post, page, or CPT from the editor — login link, inline form, blurred popup, or redirect.</p></div>
+        <div class="fcard is-pro"><div class="ico">🎭</div><h3>Role-Based Locking <span class="badge pro">Pro</span></h3><p>Restrict content to specific roles — subscribers, members, anything you define.</p></div>
+        <div class="fcard"><div class="ico">🔀</div><h3>Conditional Display <span class="badge free">Free 2</span></h3><p>Show/hide content by login status free; unlock 12 conditions (role, device, time, browser, referrer…) on Pro.</p></div>
+        <div class="fcard"><div class="ico">👥</div><h3>Member-Only Template <span class="badge free">Free</span></h3><p>Assign a page template — visitors see a login form, members see the content. Zero config.</p></div>
+        <div class="fcard is-pro"><div class="ico">⏳</div><h3>Auto-Expiry Unlock <span class="badge pro">Pro</span></h3><p>Schedule locked content to open automatically at a date and time you set.</p></div>
+      </div>
+    </div>
+
+    <!-- CUSTOMIZER -->
+    <div class="panel" data-panel="cust">
+      <div class="cards">
+        <div class="fcard"><div class="ico">👁️</div><h3>Live Preview <span class="badge free">Free</span></h3><p>Change a color, see it instantly. No save-and-reload loop — every tweak renders in real time.</p></div>
+        <div class="fcard"><div class="ico">🖼️</div><h3>Background Options <span class="badge free">Free</span></h3><p>Solid color, CSS gradient, image, or video with overlay — your login page, your stage.</p></div>
+        <div class="fcard"><div class="ico">🏷️</div><h3>Logo & Form Styling <span class="badge free">Free</span></h3><p>Upload a logo or use a text logo; style form background, border, width, padding, and shadow.</p></div>
+        <div class="fcard"><div class="ico">🔘</div><h3>Button & Field Styling <span class="badge free">Free</span></h3><p>Control input colors, focus states, button radius, hover — pixel-level, no CSS needed.</p></div>
+        <div class="fcard is-pro"><div class="ico">📋</div><h3>Register & Lost-Pass <span class="badge pro">Pro</span></h3><p>The same visual editor for the register and lost-password screens, plus custom CSS.</p></div>
+        <div class="fcard"><div class="ico">🎨</div><h3>Password Form Styles <span class="badge free">Free 2</span></h3><p>4 branded password-form designs (2 free), social icons, custom labels & error text.</p></div>
+        <div class="fcard"><div class="ico">⚡</div><h3>10+ Templates <span class="badge free">3 Free</span></h3><p>One-click designs — Minimal, Modern Dark, Corporate, Gradient Wave and more.</p></div>
+      </div>
+    </div>
+
+    <!-- CPU -->
+    <div class="panel" data-panel="cpu">
+      <div class="cards">
+        <div class="fcard"><div class="ico">📈</div><h3>CPU & Memory Stats <span class="badge free">Free</span></h3><p>Live CPU %, core count, 1/5/15-min load averages, PHP memory and peak usage.</p></div>
+        <div class="fcard"><div class="ico">🐢</div><h3>Slow Query Logger <span class="badge free">Free</span></h3><p>Log DB queries past a threshold you set, with a SAVEQUERIES toggle baked in.</p></div>
+        <div class="fcard"><div class="ico">⏰</div><h3>Cron Manager <span class="badge free">Free</span></h3><p>View, run, or delete WP cron events and spot overdue jobs that got stuck.</p></div>
+        <div class="fcard"><div class="ico">🔌</div><h3>Plugin Performance <span class="badge free">Free</span></h3><p>See which plugins eat the most resources — and deactivate the sluggish ones.</p></div>
+        <div class="fcard"><div class="ico">🧹</div><h3>Options Bloat Analyzer <span class="badge free">Free</span></h3><p>Inspect autoloaded option size and clear expired transients in one click.</p></div>
+        <div class="fcard is-pro"><div class="ico">📜</div><h3>Error Log Viewer <span class="badge pro">Pro</span></h3><p>Parse and read PHP/WordPress error entries by type, right inside the dashboard.</p></div>
+        <div class="fcard"><div class="ico">⚙️</div><h3>WP Config Manager <span class="badge free">Free</span></h3><p>Toggle WP_DEBUG, WP_DEBUG_LOG & SAVEQUERIES without ever editing a file.</p></div>
+        <div class="fcard"><div class="ico">💚</div><h3>Health Score <span class="badge free">Free</span></h3><p>Instant green/yellow/red badge from CPU, memory, and cron status at a glance.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY / BENTO -->
+<section id="why" style="background:var(--paper-2);border-top:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink)">
+  <div class="wrap center" style="margin-bottom:46px">
+    <span class="eyebrow">Why WPEPP</span>
+    <h2 class="sec-head">Less plugins. Less weight. Less worry.</h2>
+  </div>
+  <div class="wrap">
+    <div class="bento">
+      <div class="bcard b-half dark reveal">
+        <div class="bignum amber" style="color:var(--amber)">5→1</div>
+        <h3>Replace 5 plugins with 1</h3>
+        <p>One unified dashboard for login limiting, security hardening, content protection, login styling, and health monitoring. One settings panel. Zero compatibility headaches.</p>
+        <div class="merge">
+          <span class="old">L</span><span class="old">S</span><span class="old">P</span><span class="old">C</span><span class="old">M</span>
+          <span class="arrow">→</span><span class="one">W</span>
+        </div>
+      </div>
+      <div class="bcard b-half amber reveal">
+        <h3>Zero external scripts</h3>
+        <p>Nothing third-party loads on your front end. Your PageSpeed score stays exactly where it is.</p>
+        <div class="meter"><span data-w="98"></span></div>
+        <div class="meter-lbl"><span>Lighthouse</span><span>98 / 100</span></div>
+      </div>
+      <div class="bcard b-half sky reveal">
+        <h3>Conditional asset loading</h3>
+        <p>CSS and JS load only on the pages that actually need them. Your visitors never feel it — attackers do.</p>
+      </div>
+      <div class="bcard b-half reveal">
+        <h3>Modern React dashboard, real-time preview</h3>
+        <p>No confusing settings sprawl. A fast React admin with live preview — change a color and watch it update instantly. Apply a template, done. Every setting saves over the REST API, no page reloads.</p>
+      </div>
+      <div class="bcard b-wide reveal">
+        <h3>Settings survive updates</h3>
+        <p>A built-in migration system carries every customization across versions — even the v1 → v2 jump. Nothing lost.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEMPLATES -->
+<section id="templates">
+  <div class="wrap center" style="margin-bottom:42px">
+    <span class="eyebrow">Templates gallery</span>
+    <h2 class="sec-head">10+ designs. One click away.</h2>
+    <p class="sec-sub">Skip the styling work. Import a finished look for your login and password forms, then tweak in live preview.</p>
+  </div>
+  <div class="wrap">
+    <div class="tpl-grid">
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#f4efe6,#d8cfbe)"><svg viewBox="0 0 24 24" fill="none" stroke="#16140f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><line x1="4" y1="10" x2="20" y2="10"/></svg></div><div class="meta"><b>Minimal</b><span class="badge free">Free</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#16140f,#3b372e)"><svg viewBox="0 0 24 24" fill="none" stroke="#f4efe6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></div><div class="meta"><b>Modern Dark</b><span class="badge free">Free</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#2b5cff,#0f3460)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><div class="meta"><b>Corporate</b><span class="badge free">Free</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#1f6f54,#7bd389)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c5-3 7-7 7-11a7 7 0 0 0-14 0c0 4 2 8 7 11z"/><path d="M12 10v11"/></svg></div><div class="meta"><b>Nature</b><span class="badge pro">Pro</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#ff6a2b,#7c5cff)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 18c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></svg></div><div class="meta"><b>Gradient Wave</b><span class="badge pro">Pro</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#2d3436,#b2bec3)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5z"/></svg></div><div class="meta"><b>Elegant</b><span class="badge pro">Pro</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#e94560,#ff9a8b)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4l5 5L9 20l-5 1 1-5z"/><line x1="13" y1="6" x2="18" y2="11"/></svg></div><div class="meta"><b>Creative</b><span class="badge pro">Pro</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#ff7e5f,#feb47b)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="4"/><path d="M12 3v3M4.5 8.5l1.5 1.5M19.5 8.5L18 10M3 18h18"/></svg></div><div class="meta"><b>Sunset</b><span class="badge pro">Pro</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#0f3460,#2b5cff)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/></svg></div><div class="meta"><b>Tech Blue</b><span class="badge pro">Pro</span></div></div>
+      <div class="tpl reveal"><div class="swatch" style="background:linear-gradient(135deg,#fffdf8,#ece4d6)"><svg viewBox="0 0 24 24" fill="none" stroke="#16140f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6-6.3 4.6L7.9 13.8 2 9.4h7.6z"/></svg></div><div class="meta"><b>Starter</b><span class="badge free">Free</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FREE VS PRO -->
+<section id="compare">
+  <style>
+    .cmp{max-width:820px;margin:42px auto 0;border:2.5px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);background:var(--card)}
+    .cmp table{width:100%;border-collapse:collapse;font-size:.96rem}
+    .cmp th,.cmp td{padding:15px 18px;text-align:left;border-bottom:2px solid var(--paper-2)}
+    .cmp thead th{font-family:'Spline Sans Mono',monospace;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;background:var(--ink);color:var(--paper)}
+    .cmp thead th:nth-child(3){background:var(--amber-deep)}
+    .cmp td.c,.cmp th.c{text-align:center;width:112px}
+    .cmp tbody tr:hover{background:var(--paper)}
+    .cmp .yes{color:var(--moss);font-weight:700;font-size:1.1rem}
+    .cmp .no{color:#c9c1b0;font-weight:700}
+    .cmp .feat{font-weight:500}
+    .cmp tr:last-child td{border-bottom:none}
+    .cmp .procol{background:rgba(255,106,43,.06)}
+  </style>
+  <div class="wrap center">
+    <span class="eyebrow">Free vs Pro</span>
+    <h2 class="sec-head">Start free. Upgrade for the heavy artillery.</h2>
+    <p class="sec-sub">The free plugin is genuinely useful. Pro unlocks the features agencies and busy owners lean on.</p>
+  </div>
+  <div class="wrap">
+    <div class="cmp reveal">
+      <table>
+        <thead><tr><th>Feature</th><th class="c">Free</th><th class="c">Pro</th></tr></thead>
+        <tbody>
+          <tr><td class="feat">Limit login attempts + IP lockout</td><td class="c"><span class="yes">✓</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Login & registration honeypots</td><td class="c"><span class="yes">✓</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">AI crawler blocker (GPTBot, CCBot…)</td><td class="c"><span class="yes">✓</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Site password + admin-only mode</td><td class="c"><span class="yes">✓</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Login page customizer + live preview</td><td class="c"><span class="yes">✓</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">CPU monitor + cron manager</td><td class="c"><span class="yes">✓</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Country restriction</td><td class="c">2 max</td><td class="c procol"><span class="yes">Unlimited</span></td></tr>
+          <tr><td class="feat">Conditional display rules</td><td class="c">2</td><td class="c procol"><span class="yes">12</span></td></tr>
+          <tr><td class="feat">Password form templates</td><td class="c">3</td><td class="c procol"><span class="yes">10+</span></td></tr>
+          <tr><td class="feat">Two-factor authentication (2FA)</td><td class="c"><span class="no">—</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">reCAPTCHA (login + register)</td><td class="c"><span class="no">—</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Hide login page / custom URL</td><td class="c"><span class="no">—</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Per-post & role-based content lock</td><td class="c"><span class="no">—</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Login activity log + IP allow/block</td><td class="c"><span class="no">—</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Register / lost-password styling</td><td class="c"><span class="no">—</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+          <tr><td class="feat">Error log viewer + priority support</td><td class="c"><span class="no">—</span></td><td class="c procol"><span class="yes">✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="center" style="margin-top:24px"><a href="#pricing" class="btn btn-amber">Compare plans & pricing →</a></p>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="background:var(--paper-2);border-top:2.5px solid var(--ink)">
+  <div class="wrap center">
+    <span class="eyebrow">Pricing</span>
+    <h2 class="sec-head">Start free. Upgrade when you need teeth.</h2>
+    <p class="sec-sub" style="margin-bottom:30px">Every plan, one-time or yearly, comes with a 30-day money-back guarantee.</p>
+    <div class="ptoggle" id="ptoggle">
+      <span class="slider" id="pslider"></span>
+      <button class="active" data-plan="year">Yearly</button>
+      <button data-plan="life">Lifetime · best deal</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="price-grid">
+      <!-- 1 SITE -->
+      <div class="pcard reveal">
+        <div class="pname">1 Site</div>
+        <div class="pprice"><span class="cur">$</span><span data-y="21" data-l="99">21</span><span class="per" data-yper="/year" data-lper="one-time">/year</span></div>
+        <div class="was">&nbsp;</div>
+        <p class="muted2">Perfect for a single WordPress site.</p>
+        <ul class="plist">
+          <li><span class="ck">✓</span> Everything in Free</li>
+          <li><span class="ck">✓</span> Advanced login attempt limiter</li>
+          <li><span class="ck">✓</span> Two-factor authentication (TOTP)</li>
+          <li><span class="ck">✓</span> Custom login URL (hide wp-login)</li>
+          <li><span class="ck">✓</span> Per-post / page content lock</li>
+          <li><span class="ck">✓</span> All 12 conditional display rules</li>
+          <li><span class="ck">✓</span> All password form templates</li>
+          <li><span class="ck">✓</span> Priority email support</li>
+        </ul>
+        <a href="https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/?add-to-cart=17636" data-cart-y="17636" data-cart-l="17638" class="btn">Buy 1 Site →</a>
+      </div>
+      <!-- 5 SITES (featured) -->
+      <div class="pcard feat reveal">
+        <div class="ptag">⭐ Most Popular</div>
+        <div class="pname">5 Sites</div>
+        <div class="pprice"><span class="cur">$</span><span data-y="49" data-l="149">49</span><span class="per" data-yper="/year" data-lper="one-time">/year</span></div>
+        <div class="was">&nbsp;</div>
+        <p class="muted2">Best value for freelancers & agencies.</p>
+        <ul class="plist">
+          <li><span class="ck">✓</span> Everything in 1 Site, ×5</li>
+          <li><span class="ck">✓</span> 2FA + reCAPTCHA</li>
+          <li><span class="ck">✓</span> Login activity log + IP lists</li>
+          <li><span class="ck">✓</span> Role-based content lock</li>
+          <li><span class="ck">✓</span> Country restriction (unlimited)</li>
+          <li><span class="ck">✓</span> Register / lost-password styling</li>
+          <li><span class="ck">✓</span> Template export / import</li>
+          <li><span class="ck">✓</span> Priority support &lt; 24h</li>
+        </ul>
+        <a href="https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/?add-to-cart=17635" data-cart-y="17635" data-cart-l="17639" class="btn btn-amber">Buy 5 Sites →</a>
+      </div>
+      <!-- UNLIMITED -->
+      <div class="pcard reveal">
+        <div class="ptag" style="background:var(--moss);color:var(--paper)">🏆 Unlimited</div>
+        <div class="pname">Unlimited Sites</div>
+        <div class="pprice"><span class="cur">$</span><span data-y="99" data-l="299">99</span><span class="per" data-yper="/year" data-lper="one-time">/year</span></div>
+        <div class="was">&nbsp;</div>
+        <p class="muted2">Every site you build, now and later.</p>
+        <ul class="plist">
+          <li><span class="ck">✓</span> Everything in 5 Sites</li>
+          <li><span class="ck">✓</span> Unlimited site activations</li>
+          <li><span class="ck">✓</span> Error log viewer</li>
+          <li><span class="ck">✓</span> Disposable email blocker</li>
+          <li><span class="ck">✓</span> Admin registration approval</li>
+          <li><span class="ck">✓</span> Email domain white/blacklist</li>
+          <li><span class="ck">✓</span> Auto-login links + expiry</li>
+          <li><span class="ck">✓</span> Priority support</li>
+        </ul>
+        <a href="https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/?add-to-cart=17637" data-cart-y="17637" data-cart-l="17640" class="btn btn-ink">Buy Unlimited →</a>
+      </div>
+    </div>
+    <p class="guarantee">🛡️ 30-Day Money-Back Guarantee · No auto-renewal tricks · Cancel anytime</p>
+    <p class="center muted2" style="margin-top:12px">Just testing the waters? <a href="https://wordpress.org/plugins/wp-edit-password-protected/" style="color:var(--amber-deep);font-weight:600;text-decoration:underline">Install the free version →</a></p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap center">
+    <span class="eyebrow">Questions</span>
+    <h2 class="sec-head">Answers before you ask.</h2>
+  </div>
+  <div class="wrap">
+    <div class="faq-list" id="faqList">
+      <div class="faq"><div class="faq-q">Does WPEPP slow down my website? <span class="chev">+</span></div><div class="faq-a"><p>No. WPEPP loads zero external scripts on the front end. CSS and JS load conditionally — only on pages that need them. The React admin runs solely inside wp-admin, so your public site speed is untouched.</p></div></div>
+      <div class="faq"><div class="faq-q">Is it compatible with caching plugins? <span class="chev">+</span></div><div class="faq-a"><p>Yes — WP Super Cache, W3 Total Cache, LiteSpeed Cache, WP Rocket and others. Password-protected and member-only pages are excluded from caching in most setups. For site-wide password, exclude the password-check page in your cache plugin.</p></div></div>
+      <div class="faq"><div class="faq-q">Can I use WPEPP with WooCommerce? <span class="chev">+</span></div><div class="faq-a"><p>Yes. Use conditional display on product pages, restrict the shop, or password-protect individual products. The login customizer styles the default WordPress login that WooCommerce also uses.</p></div></div>
+      <div class="faq"><div class="faq-q">Will my settings survive an update? <span class="chev">+</span></div><div class="faq-a"><p>Yes. A built-in migration system preserves all settings across versions, including the v1.x → v2.0 upgrade. Your customizations, security rules, and styling are never lost.</p></div></div>
+      <div class="faq"><div class="faq-q">Does it work on multisite? <span class="chev">+</span></div><div class="faq-a"><p>Yes. WPEPP runs on WordPress multisite networks. Each sub-site keeps its own independent settings, and network-wide activation is supported.</p></div></div>
+      <div class="faq"><div class="faq-q">What happens if I downgrade Pro → Free? <span class="chev">+</span></div><div class="faq-a"><p>Pro features simply become inactive — your data stays in your database. No lock-in, nothing destroyed. Re-activate any time.</p></div></div>
+      <div class="faq"><div class="faq-q">Is my data safe? <span class="chev">+</span></div><div class="faq-a"><p>All data lives in your own WordPress database. The only external calls are optional telemetry via the Appsero SDK — and that only runs after you explicitly opt in. No passwords or content are ever collected.</p></div></div>
+      <div class="faq"><div class="faq-q">How do I get support? <span class="chev">+</span></div><div class="faq-a"><p>Free users get the WordPress.org support forum. Pro users get priority ticket support with a typical response under 24 hours.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="wrap center" style="position:relative;z-index:2">
+    <h2>Ready to lock down your<br>WordPress site?</h2>
+    <p>Join 10,000+ owners who replaced five plugins with one — and finally sleep easy.</p>
+    <div class="hero-cta">
+      <a href="https://wordpress.org/plugins/wp-edit-password-protected/" class="btn btn-amber">Get started free</a>
+      <a href="#pricing" class="btn" style="background:transparent;color:var(--paper);border-color:var(--paper)">View pricing</a>
+    </div>
+    <div class="tbadges">
+      <span>🔒 Secure checkout</span><span>🚚 Instant download</span><span>🛡️ 30-day guarantee</span><span>⚡ 0 external scripts</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="fbot">
+      <span>© 2026 WPEPP Security · <a href="https://wpthemespace.com/" target="_blank" rel="noopener noreferrer">wpthemespace.com</a></span>
+      <span>Made with ❤ for WordPress</span>
+    </div>
+  </div>
+</footer>
+
+<!-- SEO: structured data — SoftwareApplication + FAQPage for rich results -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"SoftwareApplication",
+      "name":"WPEPP – WordPress Login Security & Password Protect",
+      "operatingSystem":"WordPress 5.0+",
+      "applicationCategory":"SecurityApplication",
+      "softwareVersion":"2.0.5",
+      "author":{"@type":"Person","name":"Noor alam"},
+      "description":"All-in-one WordPress security plugin: limit login attempts, hide login URL, block AI crawlers, 2FA, reCAPTCHA, password-protect content, country restriction, CPU monitor and a live-preview login page customizer.",
+      "url":"https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/",
+      "featureList":["Limit login attempts","Hide login URL","AI crawler blocker","Two-factor authentication (2FA)","reCAPTCHA","Password-protect content","Country restriction","CPU usage monitor","Login page customizer","Conditional content display"],
+      "offers":[
+        {"@type":"Offer","price":"0","priceCurrency":"USD","name":"Free"},
+        {"@type":"Offer","price":"21","priceCurrency":"USD","name":"Pro (1 Site / Yearly)"}
+      ],
+      "aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","bestRating":"5","ratingCount":"128"}
+    },
+    {
+      "@type":"FAQPage",
+      "mainEntity":[
+        {"@type":"Question","name":"Does WPEPP slow down my website?","acceptedAnswer":{"@type":"Answer","text":"No. WPEPP loads zero external scripts on the front end. CSS and JS load conditionally — only on pages that need them. The React admin runs solely inside wp-admin, so your public site speed is untouched."}},
+        {"@type":"Question","name":"Is it compatible with caching plugins?","acceptedAnswer":{"@type":"Answer","text":"Yes — WP Super Cache, W3 Total Cache, LiteSpeed Cache, WP Rocket and others. Password-protected and member-only pages are excluded from caching in most setups."}},
+        {"@type":"Question","name":"Can I use WPEPP with WooCommerce?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use conditional display on product pages, restrict the shop, or password-protect individual products. The login customizer styles the default WordPress login that WooCommerce also uses."}},
+        {"@type":"Question","name":"Will my settings survive an update?","acceptedAnswer":{"@type":"Answer","text":"Yes. A built-in migration system preserves all settings across versions, including the v1.x to v2.0 upgrade. Your customizations, security rules, and styling are never lost."}},
+        {"@type":"Question","name":"Does it work on multisite?","acceptedAnswer":{"@type":"Answer","text":"Yes. WPEPP runs on WordPress multisite networks. Each sub-site keeps its own independent settings, and network-wide activation is supported."}},
+        {"@type":"Question","name":"What happens if I downgrade Pro to Free?","acceptedAnswer":{"@type":"Answer","text":"Pro features simply become inactive — your data stays in your database. No lock-in, nothing destroyed. Re-activate any time."}},
+        {"@type":"Question","name":"Is my data safe?","acceptedAnswer":{"@type":"Answer","text":"All data lives in your own WordPress database. The only external calls are optional telemetry via the Appsero SDK — and that only runs after you explicitly opt in. No passwords or content are ever collected."}},
+        {"@type":"Question","name":"How do I get support?","acceptedAnswer":{"@type":"Answer","text":"Free users get the WordPress.org support forum. Pro users get priority ticket support with a typical response under 24 hours."}}
+      ]
+    }
+  ]
+}
+</script>
+
+<script>
+/* ===== typewriter ===== */
+(function(){
+  var el=document.getElementById('type');
+  var phrases=['Limit login attempts.','Block GPTBot & AI crawlers.','Lock content by role.','Restrict by country.','Customize the login page.','Watch your CPU load.'];
+  var p=0,c=0,del=false;
+  function tick(){
+    var t=phrases[p];
+    c+=del?-1:1;
+    el.innerHTML=t.substring(0,c)+'<span class="cursor"></span>';
+    var sp=del?40:75;
+    if(!del&&c===t.length){sp=1500;del=true;}
+    else if(del&&c===0){del=false;p=(p+1)%phrases.length;sp=300;}
+    setTimeout(tick,sp);
+  }
+  tick();
+})();
+
+/* ===== nav scroll ===== */
+var nav=document.getElementById('nav');
+addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>80);});
+
+/* ===== mobile menu ===== */
+var mm=document.getElementById('mobileMenu');
+document.getElementById('burger').onclick=function(){mm.classList.toggle('open');};
+document.getElementById('mClose').onclick=function(){mm.classList.remove('open');};
+mm.querySelectorAll('a').forEach(function(a){a.onclick=function(){mm.classList.remove('open');};});
+
+/* ===== reveal + counters + meter ===== */
+// auto-tag feature cards / templates / bento for staggered directional reveal
+document.querySelectorAll('.cards').forEach(function(grid){
+  grid.querySelectorAll('.fcard').forEach(function(c,i){
+    c.classList.add('reveal');if(i%3===0)c.classList.add('fl');else if(i%3===2)c.classList.add('fr');else c.classList.add('sc');
+    c.style.setProperty('--d',(i%3)*90+'ms');c.setAttribute('data-d','');
+  });
+});
+document.querySelectorAll('.tpl-grid .tpl').forEach(function(c,i){c.style.setProperty('--d',(i%5)*70+'ms');c.setAttribute('data-d','');c.classList.add('sc');});
+document.querySelectorAll('.bento .bcard').forEach(function(c,i){c.classList.add(i%2?'fr':'fl');});
+document.querySelectorAll('.price-grid .pcard').forEach(function(c,i){c.style.setProperty('--d',i*110+'ms');c.setAttribute('data-d','');});
+
+var io=new IntersectionObserver(function(es){
+  es.forEach(function(e){
+    if(!e.isIntersecting)return;
+    e.target.classList.add('in');
+    if(e.target.classList.contains('stat-card'))countUp(e.target.querySelector('[data-count]'));
+    e.target.querySelectorAll&&e.target.querySelectorAll('.meter span[data-w]').forEach(function(m){m.style.width=m.dataset.w+'%';});
+    io.unobserve(e.target);
+  });
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+/* ===== scroll progress bar ===== */
+var prog=document.getElementById('progress');
+/* ===== blob parallax + section drift ===== */
+var blobs=[].slice.call(document.querySelectorAll('.blob'));
+var ticking=false;
+function onScroll(){
+  if(ticking)return;ticking=true;
+  requestAnimationFrame(function(){
+    var y=scrollY,h=document.documentElement.scrollHeight-innerHeight;
+    prog.style.width=(h>0?(y/h)*100:0)+'%';
+    blobs.forEach(function(b,i){b.style.transform='translateY('+(y*(i%2?-.12:.16))+'px)';});
+    ticking=false;
+  });
+}
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+function countUp(node){
+  if(!node)return;
+  var target=parseFloat(node.dataset.count),dec=parseInt(node.dataset.dec||0),suf=node.dataset.suffix||'';
+  var start=null,dur=1600;
+  function step(ts){
+    if(!start)start=ts;
+    var pr=Math.min((ts-start)/dur,1),ease=1-Math.pow(1-pr,3),val=target*ease;
+    node.textContent=(dec?val.toFixed(dec):Math.floor(val).toLocaleString())+suf;
+    if(pr<1)requestAnimationFrame(step);else node.textContent=(dec?target.toFixed(dec):target.toLocaleString())+suf;
+  }
+  requestAnimationFrame(step);
+}
+
+/* ===== tabs ===== */
+document.getElementById('tabs').addEventListener('click',function(e){
+  var t=e.target.closest('.tab');if(!t)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+  t.classList.add('active');
+  var id=t.dataset.tab;
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p.dataset.panel===id);});
+});
+
+/* ===== pricing toggle ===== */
+(function(){
+  var box=document.getElementById('ptoggle'),slider=document.getElementById('pslider');
+  var btns=box.querySelectorAll('button');
+  var CART='https://wpthemespace.com/product/wpepp-login-security-password-protect-login-page-customizer/?add-to-cart=';
+  function place(b){slider.style.left=b.offsetLeft+'px';slider.style.width=b.offsetWidth+'px';}
+  place(btns[0]);
+  addEventListener('resize',function(){place(box.querySelector('.active'));});
+  function apply(plan){
+    document.querySelectorAll('.pcard').forEach(function(card){
+      var num=card.querySelector('[data-y]'),per=card.querySelector('.per'),link=card.querySelector('.btn');
+      if(num){num.textContent=(plan==='life')?num.dataset.l:num.dataset.y;}
+      if(per){per.textContent=(plan==='life')?per.dataset.lper:per.dataset.yper;}
+      if(link){link.href=CART+((plan==='life')?link.dataset.cartL:link.dataset.cartY);}
+    });
+  }
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    btns.forEach(function(x){x.classList.remove('active');});
+    b.classList.add('active');place(b);
+    var grid=document.querySelector('.price-grid');
+    grid.style.opacity=.35;grid.style.transform='translateY(10px)';grid.style.transition='.2s';
+    setTimeout(function(){apply(b.dataset.plan);grid.style.opacity=1;grid.style.transform='none';},170);
+  });
+})();
+
+/* ===== faq ===== */
+document.getElementById('faqList').addEventListener('click',function(e){
+  var q=e.target.closest('.faq-q');if(!q)return;
+  var item=q.parentElement,a=item.querySelector('.faq-a'),open=item.classList.contains('open');
+  document.querySelectorAll('.faq').forEach(function(f){f.classList.remove('open');f.querySelector('.faq-a').style.maxHeight=null;});
+  if(!open){item.classList.add('open');a.style.maxHeight=a.scrollHeight+'px';}
+});
+
+/* ===== magnetic CTAs ===== */
+document.querySelectorAll('.btn-amber').forEach(function(b){
+  b.addEventListener('mousemove',function(e){
+    var r=b.getBoundingClientRect();
+    b.style.transform='translate('+((e.clientX-r.left-r.width/2)*.18)+'px,'+((e.clientY-r.top-r.height/2)*.3-2)+'px)';
+  });
+  b.addEventListener('mouseleave',function(){b.style.transform='';});
+});
+</script>
+
+<!-- ===== GSAP advanced + infinite animation ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha512-onMTRKJBKz8M1TnqqDuGBlowlH0ohFzMXYRNebz+yOcc5TQr/zAKsthzhuv0hiyUKEiQEQXEynnXCvNTOk50dg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+(function(){
+  if(typeof gsap==='undefined'){return;} // CDN blocked → CSS fallback keeps page alive
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(window.ScrollTrigger){gsap.registerPlugin(ScrollTrigger);}
+
+  /* ---- INFINITE loops (run always, cheap, GPU) ---- */
+  // rotating background blobs
+  gsap.utils.toArray('.blob').forEach(function(el,i){
+    gsap.to(el,{rotation:(i%2?-360:360),repeat:-1,duration:38+i*7,ease:'none',transformOrigin:'50% 50%'});
+    gsap.to(el,{scale:1.12,repeat:-1,yoyo:true,duration:6+i*1.5,ease:'sine.inOut'});
+  });
+  // floating hero badges — perpetual bob + tilt, staggered
+  gsap.utils.toArray('.float-badge').forEach(function(el,i){
+    gsap.to(el,{y:'+=14',rotation:(i%2?2.5:-2.5),repeat:-1,yoyo:true,duration:2.6+i*0.35,ease:'sine.inOut',delay:i*0.2});
+  });
+  // logo lock heartbeat
+  gsap.to('.logo .mark',{scale:1.18,repeat:-1,yoyo:true,duration:1.4,ease:'power1.inOut'});
+  // featured pricing card breathing shadow-lift
+  gsap.to('.pcard.feat',{y:'-=6',repeat:-1,yoyo:true,duration:2.2,ease:'sine.inOut'});
+  // amber CTA endless glow pulse
+  gsap.to('.final .btn-amber',{boxShadow:'0 0 0 6px rgba(255,106,43,.22),6px 6px 0 var(--ink)',repeat:-1,yoyo:true,duration:1.6,ease:'sine.inOut'});
+
+  if(reduce||!window.ScrollTrigger){return;}
+
+  /* ---- SCROLL-driven ---- */
+  // parallax blobs on scroll
+  gsap.utils.toArray('.blob').forEach(function(el,i){
+    gsap.to(el,{yPercent:(i%2?-30:30),ease:'none',
+      scrollTrigger:{trigger:document.body,start:'top top',end:'bottom bottom',scrub:1}});
+  });
+  // section heading rise+fade in
+  gsap.utils.toArray('section h2').forEach(function(h){
+    gsap.from(h,{y:40,autoAlpha:0,duration:.8,ease:'power3.out',
+      scrollTrigger:{trigger:h,start:'top 85%'}});
+  });
+  // template cards + compare rows are reveal-managed by IntersectionObserver (CSS .reveal.in);
+  // GSAP must NOT set inline opacity on them (inline wins over the class → stuck hidden).
+  // marquee speed reacts to scroll velocity (infinite base = CSS)
+  var mq=document.querySelector('.marquee');
+  if(mq){
+    ScrollTrigger.create({trigger:document.body,start:'top top',end:'bottom bottom',
+      onUpdate:function(self){
+        var v=Math.min(Math.abs(self.getVelocity()/300),4)+1;
+        mq.style.setProperty('--mq-boost',v.toFixed(2));
+      }});
+  }
+  ScrollTrigger.refresh();
+})();
+</script>
+

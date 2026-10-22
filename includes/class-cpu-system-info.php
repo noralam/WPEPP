@@ -16,9 +16,16 @@ class WPEPP_CPU_System_Info {
 	/**
 	 * Get server load averages.
 	 *
+	 * Not available on Windows (sys_getloadavg is a no-op there) — callers
+	 * treat an empty array as "N/A".
+	 *
 	 * @return array{load_1: float, load_5: float, load_15: float}|array{}
 	 */
 	public static function get_load_average() {
+		if ( PHP_OS_FAMILY === 'Windows' ) {
+			return [];
+		}
+
 		if ( function_exists( 'sys_getloadavg' ) ) {
 			$load = sys_getloadavg();
 			if ( is_array( $load ) && count( $load ) >= 3 ) {
@@ -35,11 +42,12 @@ class WPEPP_CPU_System_Info {
 	/**
 	 * Estimate CPU usage percentage based on load average and core count.
 	 *
-	 * Uses the 5-minute load average for stability (1-min spikes with each
-	 * REST request and gives misleading readings on shared hosts).
-	 * Result is cached for 30 seconds to avoid self-inflicted spikes.
+	 * Prefers a real measurement (procfs sampling on Linux, WMI on Windows)
+	 * and only falls back to the load-average heuristic when neither is
+	 * available. Result is cached for 30 seconds to avoid self-inflicted
+	 * spikes.
 	 *
-	 * @return int Percentage (0–100+).
+	 * @return int Percentage (0–100), or -1 when unknown.
 	 */
 	public static function get_cpu_percent() {
 		$cached = get_transient( 'wpepp_cpu_percent' );
@@ -47,22 +55,133 @@ class WPEPP_CPU_System_Info {
 			return (int) $cached;
 		}
 
-		$load = self::get_load_average();
-		if ( empty( $load ) ) {
-			return -1;
-		}
+		$percent = self::measure_cpu_percent();
 
-		$cores = self::get_cpu_cores();
-		if ( $cores < 1 ) {
-			$cores = 1;
-		}
+		if ( -1 === $percent ) {
+			// Heuristic fallback: load average vs core count.
+			$load = self::get_load_average();
+			if ( empty( $load ) ) {
+				return -1;
+			}
 
-		// Use 5-minute average instead of 1-minute for stable readings.
-		$percent = (int) round( ( $load['load_5'] / $cores ) * 100 );
+			$cores = self::get_cpu_cores();
+			if ( $cores < 1 ) {
+				$cores = 1;
+			}
+
+			// Use 5-minute average instead of 1-minute for stable readings.
+			$percent = max( 0, (int) round( ( $load['load_5'] / $cores ) * 100 ) );
+		}
 
 		set_transient( 'wpepp_cpu_percent', $percent, 30 );
 
 		return $percent;
+	}
+
+	/**
+	 * Measure real CPU utilisation for the current platform.
+	 *
+	 * @return int Percentage (0–100), or -1 when no native source exists.
+	 */
+	private static function measure_cpu_percent() {
+		if ( PHP_OS_FAMILY === 'Windows' ) {
+			return self::windows_cpu_percent();
+		}
+
+		if ( PHP_OS_FAMILY === 'Linux' ) {
+			return self::linux_cpu_percent();
+		}
+
+		return -1;
+	}
+
+	/**
+	 * CPU usage on Windows via WMI (Win32_Processor.LoadPercentage).
+	 *
+	 * @return int Percentage (0–100), or -1 when unavailable.
+	 */
+	private static function windows_cpu_percent() {
+		if ( class_exists( 'COM' ) ) {
+			try {
+				$wmi = new COM( 'winmgmts:{impersonationLevel=impersonate}!\\\\.\\root\\CIMV2' ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- COM is the only WMI bridge in PHP.
+				foreach ( $wmi->ExecQuery( 'SELECT LoadPercentage FROM Win32_Processor' ) as $cpu ) {
+					$pct = (int) $cpu->LoadPercentage;
+					if ( $pct >= 0 ) {
+						return min( 100, $pct );
+					}
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Squiz.Commenting -- COM can throw when the extension is disabled.
+				// Fall through to wmic.
+			}
+		}
+
+		if ( function_exists( 'exec' ) ) {
+			$out = [];
+			@exec( 'wmic cpu get loadpercentage 2>nul', $out, $code ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- Last-resort local probe.
+			if ( 0 === $code ) {
+				foreach ( $out as $line ) {
+					$line = trim( (string) $line );
+					if ( '' !== $line && ctype_digit( $line ) ) {
+						return min( 100, (int) $line );
+					}
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * CPU usage on Linux via two /proc/stat samples (busy / total delta).
+	 *
+	 * @return int Percentage (0–100), or -1 when procfs is unavailable.
+	 */
+	private static function linux_cpu_percent() {
+		$snap = static function () {
+			if ( ! is_readable( '/proc/stat' ) ) {
+				return null;
+			}
+
+			$line = (string) file_get_contents( '/proc/stat' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local kernel file.
+			$line = (string) strtok( $line, "\n" );
+
+			$parts = preg_split( '/\s+/', trim( substr( $line, 4 ) ) );
+			if ( empty( $parts ) ) {
+				return null;
+			}
+
+			// user nice system idle iowait irq softirq steal ...
+			$fields = array_map( 'intval', $parts );
+			$idle   = ( $fields[3] ?? 0 ) + ( $fields[4] ?? 0 );
+			$total  = array_sum( $fields );
+
+			if ( $total <= 0 ) {
+				return null;
+			}
+
+			return [ $idle, $total ];
+		};
+
+		$a = $snap();
+		if ( null === $a ) {
+			return -1;
+		}
+
+		usleep( 120000 );
+
+		$b = $snap();
+		if ( null === $b ) {
+			return -1;
+		}
+
+		$d_total = $b[1] - $a[1];
+		$d_idle  = $b[0] - $a[0];
+
+		if ( $d_total <= 0 ) {
+			return -1;
+		}
+
+		return (int) round( ( ( $d_total - $d_idle ) / $d_total ) * 100 );
 	}
 
 	/**

@@ -32,7 +32,7 @@ class WPEPP_Password_Customizer {
 		$style      = sanitize_text_field( $settings['active_style'] ?? 'one' );
 		$allowed    = [ 'one', 'two', 'three', 'four' ];
 		if ( ! in_array( $style, $allowed, true ) ) {
-			$style = 'four';
+			$style = 'one';
 		}
 
 		// Styles 3-4 require Pro.
@@ -157,7 +157,7 @@ class WPEPP_Password_Customizer {
 		$style   = sanitize_text_field( $settings['active_style'] ?? 'one' );
 		$allowed = [ 'one', 'two', 'three', 'four' ];
 		if ( ! in_array( $style, $allowed, true ) ) {
-			$style = 'four';
+			$style = 'one';
 		}
 
 		if ( in_array( $style, [ 'three', 'four' ], true ) && ! wpepp_has_pro_check() ) {
@@ -335,8 +335,8 @@ class WPEPP_Password_Customizer {
 						'<img src="%s" alt="%s" style="width:%dpx;height:%dpx;object-fit:contain;">',
 						esc_url( $logo_url ),
 						esc_attr( get_bloginfo( 'name' ) ),
-						$width,
-						$height
+						esc_attr( $width ),
+						esc_attr( $height )
 					);
 				}
 			} else {
@@ -346,26 +346,26 @@ class WPEPP_Password_Customizer {
 				);
 			}
 		} elseif ( 'custom' === $type ) {
-			$image = esc_url( $settings['logo_image'] ?? '' );
+			$image = (string) ( $settings['logo_image'] ?? '' );
 			if ( $image ) {
 				printf(
 					'<img src="%s" alt="%s" style="width:%dpx;height:%dpx;object-fit:contain;">',
-					$image,
+					esc_url( $image ),
 					esc_attr( get_bloginfo( 'name' ) ),
-					$width,
-					$height
+					esc_attr( $width ),
+					esc_attr( $height )
 				);
 			}
 		} elseif ( 'text' === $type ) {
-			$text      = esc_html( $settings['logo_text'] ?? '' );
+			$text      = (string) ( $settings['logo_text'] ?? '' );
 			$font_size = absint( $settings['logo_text_font_size'] ?? 24 );
 			$color     = self::sanitize_color( $settings['logo_text_color'] ?? '#1e1e1e' );
 			if ( $text ) {
 				printf(
 					'<span class="wpepp-form-logo-text" style="font-size:%dpx;color:%s;">%s</span>',
-					$font_size,
-					$color,
-					$text
+					esc_attr( $font_size ),
+					esc_attr( $color ),
+					esc_html( $text )
 				);
 			}
 		}
@@ -405,16 +405,6 @@ class WPEPP_Password_Customizer {
 	 */
 	private static function css_value( $val ) {
 		return trim( str_replace( [ ';', '{', '}', '<', '>', '@', '\\' ], '', wp_strip_all_tags( (string) $val ) ) );
-	}
-
-	/**
-	 * Sanitize a value placed inside a quoted CSS string (e.g. content:"...").
-	 *
-	 * @param mixed $val Raw value.
-	 * @return string
-	 */
-	private static function css_string( $val ) {
-		return str_replace( [ '"', '\\', '<', '>', "\n", "\r" ], '', wp_strip_all_tags( (string) $val ) );
 	}
 
 	/**

@@ -93,7 +93,7 @@ class WPEPP_CPU_Cron_Monitor {
 		$event = $crons[ $timestamp ][ $hook ][ $sig ];
 		$args  = $event['args'] ?? [];
 
-		do_action_ref_array( $hook, $args );
+		do_action_ref_array( $hook, $args ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Runs existing registered cron hook.
 
 		return true;
 	}

@@ -1,13 +1,17 @@
 /**
  * Dashboard page — overview stats, feature status, and quick navigation.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { useNavigate } from 'react-router-dom';
 import apiFetch from '@wordpress/api-fetch';
+import { Button } from '@wordpress/components';
 import { SECURITY_DEFAULTS } from '../utils/defaults';
 import { SITE_ACCESS_DEFAULTS } from '../utils/defaults';
+import ScoreRing from '../components/ScoreRing';
+import SetupWizard from '../components/SetupWizard';
+import AuditReportModal from '../components/AuditReportModal';
 
 const Dashboard = () => {
 	const navigate = useNavigate();
@@ -22,6 +26,24 @@ const Dashboard = () => {
 
 	const security  = { ...SECURITY_DEFAULTS, ...( settings?.security || {} ) };
 	const siteAccess = { ...SITE_ACCESS_DEFAULTS, ...( settings?.site_access || {} ) };
+
+	/* ── Security score ── */
+	const [ scoreData, setScoreData ] = useState( null );
+	const [ wizardOpen, setWizardOpen ] = useState( false );
+	const [ auditOpen, setAuditOpen ] = useState( false );
+
+	const loadScore = () => {
+		apiFetch( { path: '/wpepp/v1/security/score' } )
+			.then( ( data ) => setScoreData( data ) )
+			.catch( () => setScoreData( null ) );
+	};
+
+	useEffect( loadScore, [] );
+
+	const undoneItems = ( scoreData?.items || [] )
+		.filter( ( item ) => ! item.done )
+		.sort( ( a, b ) => b.weight - a.weight )
+		.slice( 0, 4 );
 
 	/* ── Feature Status Helpers ── */
 	const features = [
@@ -47,7 +69,7 @@ const Dashboard = () => {
 			desc: __( 'Limit failed login attempts to prevent brute-force.', 'wp-edit-password-protected' ),
 			icon: '🚫',
 			active: security.login_limit_enabled !== false,
-			route: '/security',
+			route: '/logins',
 		},
 		{
 			key: 'honeypot',
@@ -55,7 +77,7 @@ const Dashboard = () => {
 			desc: __( 'Invisible bot trap on the login form.', 'wp-edit-password-protected' ),
 			icon: '🍯',
 			active: security.honeypot_enabled !== false,
-			route: '/security',
+			route: '/logins',
 		},
 		{
 			key: 'reg-honeypot',
@@ -63,7 +85,7 @@ const Dashboard = () => {
 			desc: __( 'Invisible bot trap on the registration form.', 'wp-edit-password-protected' ),
 			icon: '📝',
 			active: security.reg_honeypot_enabled !== false,
-			route: '/security',
+			route: '/logins',
 		},
 		{
 			key: 'xmlrpc',
@@ -71,7 +93,7 @@ const Dashboard = () => {
 			desc: __( 'Block XML-RPC requests to reduce attack surface.', 'wp-edit-password-protected' ),
 			icon: '🔌',
 			active: !! security.disable_xmlrpc,
-			route: '/security',
+			route: '/logins',
 		},
 		{
 			key: 'hide-version',
@@ -79,25 +101,24 @@ const Dashboard = () => {
 			desc: __( 'Remove WordPress version from source code.', 'wp-edit-password-protected' ),
 			icon: '👁️',
 			active: !! security.hide_wp_version,
-			route: '/security',
+			route: '/logins',
 		},
 		{
 			key: '2fa',
 			label: __( 'Two-Factor Auth', 'wp-edit-password-protected' ),
 			desc: __( 'TOTP-based 2FA for selected user roles.', 'wp-edit-password-protected' ),
 			icon: '📱',
-			active: isPro && !! security.two_factor_enabled,
-			pro: true,
-			route: '/security',
+			active: !! security.two_factor_enabled,
+			route: '/logins',
 		},
 		{
 			key: 'recaptcha',
 			label: __( 'reCAPTCHA', 'wp-edit-password-protected' ),
-			desc: __( 'Google reCAPTCHA on login/registration forms.', 'wp-edit-password-protected' ),
+			desc: __( 'CAPTCHA on login/registration forms.', 'wp-edit-password-protected' ),
 			icon: '🤖',
-			active: isPro && !! security.recaptcha_enabled,
+			active: isPro && ( !! security.captcha_enabled || !! security.recaptcha_enabled ),
 			pro: true,
-			route: '/security',
+			route: '/logins',
 		},
 		{
 			key: 'ai-crawler',
@@ -131,7 +152,7 @@ const Dashboard = () => {
 			icon: '📊',
 			active: isPro && security.login_log_enabled !== false,
 			pro: true,
-			route: '/security',
+			route: '/logins',
 		},
 	];
 
@@ -165,7 +186,7 @@ const Dashboard = () => {
 			icon: '🔒',
 			title: __( 'Security', 'wp-edit-password-protected' ),
 			desc: __( 'Login protection, 2FA, IP management.', 'wp-edit-password-protected' ),
-			route: '/security',
+			route: '/logins',
 		},
 		{
 			icon: '📄',
@@ -216,9 +237,83 @@ const Dashboard = () => {
 				</div>
 			</div>
 
-			{ /* ── Summary Stats ── */ }
+			{ /* ── Security Score ── */ }
+		<div className="wpepp-dashboard__section wpepp-score-card">
+			<ScoreRing
+				score={ scoreData?.score ?? 0 }
+				grade={ scoreData?.grade ?? '—' }
+			/>
+
+			<div className="wpepp-score-card__body">
+				<h3>
+					{ __( 'Security Score', 'wp-edit-password-protected' ) }
+					{ scoreData && (
+						<span className="wpepp-score-card__count">
+							{ sprintf(
+								/* translators: 1: passed checks, 2: total checks */
+								__( '%1$d of %2$d checks passing', 'wp-edit-password-protected' ),
+								scoreData.passed,
+								scoreData.total
+							) }
+						</span>
+					) }
+				</h3>
+
+				{ undoneItems.length > 0 ? (
+					<>
+						<ul className="wpepp-score-card__items">
+							{ undoneItems.map( ( item ) => (
+								<li key={ item.id }>
+									<button type="button" onClick={ () => navigate( item.route ) }>
+										<span className="wpepp-score-card__item-label">{ item.label }</span>
+										<span className="wpepp-score-card__item-fix">{ __( 'Fix →', 'wp-edit-password-protected' ) }</span>
+									</button>
+								</li>
+							) ) }
+						</ul>
+						<div style={ { display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' } }>
+							<Button variant="primary" onClick={ () => setWizardOpen( true ) }>
+								🪄 { __( 'Run Setup Wizard', 'wp-edit-password-protected' ) }
+							</Button>
+							<Button variant="secondary" onClick={ () => setAuditOpen( true ) }>
+								📋 { __( 'Site Health Audit Report', 'wp-edit-password-protected' ) }
+							</Button>
+						</div>
+					</>
+				) : (
+					<>
+						<p className="wpepp-score-card__perfect">
+							✅ { __( 'All security checks are passing. Great job!', 'wp-edit-password-protected' ) }
+						</p>
+						<div style={ { display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' } }>
+							<Button variant="secondary" onClick={ () => setWizardOpen( true ) }>
+								🪄 { __( 'Re-run Setup Wizard', 'wp-edit-password-protected' ) }
+							</Button>
+							<Button variant="secondary" onClick={ () => setAuditOpen( true ) }>
+								📋 { __( 'Site Health Audit Report', 'wp-edit-password-protected' ) }
+							</Button>
+						</div>
+					</>
+				) }
+			</div>
+		</div>
+
+		{ wizardOpen && (
+			<SetupWizard
+				onClose={ () => setWizardOpen( false ) }
+				onComplete={ loadScore }
+			/>
+		) }
+
+		{ auditOpen && (
+			<AuditReportModal
+				onClose={ () => setAuditOpen( false ) }
+			/>
+		) }
+
+		{ /* ── Summary Stats ── */ }
 			<div className="wpepp-dashboard__stats">
-				<div className="wpepp-stat-card is-active" onClick={ () => navigate( '/security' ) } role="button" tabIndex={ 0 }>
+				<div className="wpepp-stat-card is-active" onClick={ () => navigate( '/logins' ) } role="button" tabIndex={ 0 }>
 					<div className="wpepp-stat-card__icon-wrap">🟢</div>
 					<div className="wpepp-stat-card__info">
 						<span className="wpepp-stat-card__value">{ activeCount }</span>
@@ -232,21 +327,21 @@ const Dashboard = () => {
 						<span className="wpepp-stat-card__label">{ __( 'AI Bots Blocked', 'wp-edit-password-protected' ) }</span>
 					</div>
 				</div>
-				<div className="wpepp-stat-card is-success" onClick={ () => navigate( '/security/login-log' ) } role="button" tabIndex={ 0 }>
+				<div className="wpepp-stat-card is-success" onClick={ () => navigate( '/tools/log' ) } role="button" tabIndex={ 0 }>
 					<div className="wpepp-stat-card__icon-wrap">✅</div>
 					<div className="wpepp-stat-card__info">
 						<span className="wpepp-stat-card__value"><StatValue value={ dashStats?.login_success_30d } /></span>
 						<span className="wpepp-stat-card__label">{ __( 'Logins (30d)', 'wp-edit-password-protected' ) }</span>
 					</div>
 				</div>
-				<div className="wpepp-stat-card is-failed" onClick={ () => navigate( '/security/login-log' ) } role="button" tabIndex={ 0 }>
+				<div className="wpepp-stat-card is-failed" onClick={ () => navigate( '/tools/log' ) } role="button" tabIndex={ 0 }>
 					<div className="wpepp-stat-card__icon-wrap">⚠️</div>
 					<div className="wpepp-stat-card__info">
 						<span className="wpepp-stat-card__value"><StatValue value={ dashStats?.login_failed_30d } /></span>
 						<span className="wpepp-stat-card__label">{ __( 'Failed (30d)', 'wp-edit-password-protected' ) }</span>
 					</div>
 				</div>
-				<div className="wpepp-stat-card" onClick={ () => navigate( '/security/login-log' ) } role="button" tabIndex={ 0 }>
+				<div className="wpepp-stat-card" onClick={ () => navigate( '/tools/log' ) } role="button" tabIndex={ 0 }>
 					<div className="wpepp-stat-card__icon-wrap">📊</div>
 					<div className="wpepp-stat-card__info">
 						<span className="wpepp-stat-card__value"><StatValue value={ dashStats?.logins_today } /></span>

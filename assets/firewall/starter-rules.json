@@ -1,0 +1,421 @@
+{
+    "pack": "wpepp-starter",
+    "version": "1.0.0",
+    "updated": "2026-01-01",
+    "rules": [
+        {
+            "id": "recon_wp_config",
+            "name": "wp-config probing",
+            "category": "recon",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#(wp-config\\.(php|bak|txt|old)|\\.wp-config\\.swp)#i"
+                }
+            ]
+        },
+        {
+            "id": "recon_dotenv",
+            "name": ".env / secrets exposure",
+            "category": "recon",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#/(\\.env|\\.env\\.[a-z]+|config\\.json|credentials|id_rsa)(\\.|$)#i"
+                }
+            ]
+        },
+        {
+            "id": "recon_git",
+            "name": ".git directory exposure",
+            "category": "recon",
+            "severity": 2,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#/\\.git(/|$)|HEAD$#i"
+                },
+                {
+                    "type": "method",
+                    "value": "GET"
+                }
+            ]
+        },
+        {
+            "id": "recon_uploads_php",
+            "name": "PHP shell in uploads",
+            "category": "backdoor",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#/wp-content/uploads/.+\\.php($|\\?)#i"
+                }
+            ]
+        },
+        {
+            "id": "recon_adminer",
+            "name": "Adminer / DB tool probe",
+            "category": "backdoor",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#(adminer|sqlmanager|phpmyadmin)\\d*\\.php#i"
+                }
+            ]
+        },
+        {
+            "id": "shell_eval_param",
+            "name": "eval() injection in query",
+            "category": "rce",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#\\b(eval|assert)\\s*\\(|base64_decode\\s*\\(|gzinflate\\s*\\(|str_rot13\\s*\\(#i"
+                }
+            ]
+        },
+        {
+            "id": "shell_eval_body",
+            "name": "eval() injection in body",
+            "category": "rce",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "body_regex",
+                    "value": "#\\b(eval|assert)\\s*\\(|base64_decode\\s*\\(|system\\s*\\(|passthru\\s*\\(|shell_exec\\s*\\(#i"
+                }
+            ]
+        },
+        {
+            "id": "shell_file_wrapper",
+            "name": "PHP stream wrapper in params",
+            "category": "lfi",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#(php|data|zip|phar|file)://#i"
+                }
+            ]
+        },
+        {
+            "id": "lfi_traversal",
+            "name": "Path traversal attempt",
+            "category": "lfi",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#\\.\\./|%2e%2e%2f|\\.\\.%2f#i"
+                }
+            ]
+        },
+        {
+            "id": "lfi_proc",
+            "name": "/proc or /etc access",
+            "category": "lfi",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#(/proc/self|/etc/passwd|/etc/shadow|windows/win\\.ini)#i"
+                }
+            ]
+        },
+        {
+            "id": "sqli_union_query",
+            "name": "SQLi UNION SELECT",
+            "category": "sqli",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#\\bunion\\b.{0,40}\\bselect\\b#i"
+                }
+            ]
+        },
+        {
+            "id": "sqli_union_post",
+            "name": "SQLi UNION in POST",
+            "category": "sqli",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "method",
+                    "value": "POST"
+                },
+                {
+                    "type": "body_regex",
+                    "value": "#\\bunion\\b.{0,40}\\bselect\\b#i"
+                }
+            ]
+        },
+        {
+            "id": "sqli_sleep_benchmark",
+            "name": "Blind SQLi time-based",
+            "category": "sqli",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#\\b(sleep|benchmark|waitfor)\\s*\\(|pg_sleep\\s*\\(#i"
+                }
+            ]
+        },
+        {
+            "id": "sqli_or_tautology",
+            "name": "SQLi tautology (OR 1=1)",
+            "category": "sqli",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#('|%27)?\\s*(or|and)\\s+['\"]?\\d+['\"]?\\s*=\\s*['\"]?\\d+#i"
+                }
+            ]
+        },
+        {
+            "id": "sqli_information_schema",
+            "name": "SQLi information_schema",
+            "category": "sqli",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#information_schema\\.(tables|columns|schemata)#i"
+                }
+            ]
+        },
+        {
+            "id": "xss_script_tag",
+            "name": "XSS <script> in query",
+            "category": "xss",
+            "severity": 2,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#(?:<script\\b|javascript:|onerror\\s*=\\s*[\"']?\\w|)i"
+                }
+            ]
+        },
+        {
+            "id": "xss_svg_onload",
+            "name": "XSS SVG/event handler",
+            "category": "xss",
+            "severity": 2,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#<(svg|img|iframe|embed|object)\\b[^>]*\\bon(load|error|click|mouseover)\\s*=#i"
+                }
+            ]
+        },
+        {
+            "id": "xss_document_cookie",
+            "name": "XSS cookie exfil",
+            "category": "xss",
+            "severity": 2,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#document\\.(cookie|location|write)#i"
+                }
+            ]
+        },
+        {
+            "id": "tool_sqlmap",
+            "name": "sqlmap scanner",
+            "category": "scanner",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "ua_regex",
+                    "value": "#sqlmap|w3af|havij|minifuzz#i"
+                }
+            ]
+        },
+        {
+            "id": "tool_nikto",
+            "name": "Nikto scanner",
+            "category": "scanner",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "ua_regex",
+                    "value": "#nikto|nessus|openvas|acunetix|netsparker|qualys#i"
+                }
+            ]
+        },
+        {
+            "id": "tool_masscan",
+            "name": "Port/mass scanner",
+            "category": "scanner",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "ua_regex",
+                    "value": "#masscan|zgrab|nmap scripting engine#i"
+                }
+            ]
+        },
+        {
+            "id": "tool_wp_scan",
+            "name": "WP-specific scanners",
+            "category": "scanner",
+            "severity": 2,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "ua_regex",
+                    "value": "#wpscan|wfuzz|dirbuster|gobuster|ffuf|feroxbuster#i"
+                }
+            ]
+        },
+        {
+            "id": "probe_setup_php",
+            "name": "install/setup file probes",
+            "category": "recon",
+            "severity": 2,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#(setup\\.php|install\\.php)$#i"
+                },
+                {
+                    "type": "method",
+                    "value": "GET"
+                },
+                {
+                    "type": "query_regex",
+                    "value": "#step=#i"
+                }
+            ]
+        },
+        {
+            "id": "probe_xmlrpc_pingback_only",
+            "name": "xmlrpc pingback abuse pattern",
+            "category": "abuse",
+            "severity": 1,
+            "action": "log",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#/xmlrpc\\.php$#i"
+                },
+                {
+                    "type": "body_regex",
+                    "value": "#pingback\\.ping#i"
+                }
+            ]
+        },
+        {
+            "id": "probe_rest_users_flood",
+            "name": "REST users enumeration burst",
+            "category": "recon",
+            "severity": 1,
+            "action": "log",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#/wp-json/wp/v2/users#i"
+                },
+                {
+                    "type": "method",
+                    "value": "GET"
+                }
+            ]
+        },
+        {
+            "id": "probe_readme",
+            "name": "readme/changelog recon",
+            "category": "recon",
+            "severity": 1,
+            "action": "log",
+            "matchers": [
+                {
+                    "type": "path_regex",
+                    "value": "#/(readme|changelog|licen[cs]e)\\.(html|txt)$#i"
+                }
+            ]
+        },
+        {
+            "id": "cmd_injection_query",
+            "name": "OS command injection in query",
+            "category": "rce",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#;\\s*(wget|curl|nc|bash|sh|perl|python)\\b|`[^`]+`|\\$\\([^)]+\\)#i"
+                }
+            ]
+        },
+        {
+            "id": "ssti_jinja",
+            "name": "Template injection probe",
+            "category": "rce",
+            "severity": 2,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#\\{\\{.*?\\}\\}|\\{%.*?%\\}#i"
+                }
+            ]
+        },
+        {
+            "id": "xxe_doctype",
+            "name": "XXE DOCTYPE probe",
+            "category": "xxe",
+            "severity": 2,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "body_regex",
+                    "value": "#<!DOCTYPE[^>]*\\[|SYSTEM\\s+[\"']file:#i"
+                }
+            ]
+        },
+        {
+            "id": "deser_php_object",
+            "name": "PHP object injection probe",
+            "category": "rce",
+            "severity": 3,
+            "action": "block",
+            "matchers": [
+                {
+                    "type": "query_regex",
+                    "value": "#O:\\d+:\\\\?\"#i"
+                }
+            ]
+        }
+    ]
+}

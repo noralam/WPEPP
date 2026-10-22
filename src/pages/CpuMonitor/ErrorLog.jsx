@@ -8,9 +8,13 @@ import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { Button, Spinner, ToggleControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
+import Pagination from '../../components/Pagination';
+
+const PAGE_SIZE = 15;
 
 const ErrorLog = () => {
 	const [ entries, setEntries ] = useState( [] );
+	const [ page, setPage ] = useState( 1 );
 	const [ loading, setLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
 	const [ debugLog, setDebugLog ] = useState( false );
@@ -121,6 +125,7 @@ const ErrorLog = () => {
 			) }
 
 			{ wpDebug && entries.length > 0 && (
+				<>
 				<table className="wpepp-table widefat striped">
 					<thead>
 						<tr>
@@ -132,7 +137,7 @@ const ErrorLog = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{ entries.map( ( entry, idx ) => (
+						{ entries.slice( ( page - 1 ) * PAGE_SIZE, page * PAGE_SIZE ).map( ( entry, idx ) => (
 							<tr key={ idx }>
 								<td>
 									<span className={ `wpepp-status wpepp-status--${ entry.type === 'fatal' ? 'failed' : 'lockout' }` }>
@@ -149,6 +154,14 @@ const ErrorLog = () => {
 						) ) }
 					</tbody>
 				</table>
+				<Pagination
+					currentPage={ page }
+					totalItems={ entries.length }
+					pageSize={ PAGE_SIZE }
+					onPageChange={ setPage }
+					itemName={ __( 'error entries', 'wp-edit-password-protected' ) }
+				/>
+				</>
 			) }
 		</div>
 	);

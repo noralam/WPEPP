@@ -56,7 +56,7 @@ class WPEPP_CPU_Query_Monitor {
 					$limit
 				)
 			);
-			wp_cache_set( $cache_key, $results, 'wpepp' );
+			wp_cache_set( $cache_key, $results, 'wpepp', 120 );
 		}
 
 		return $results ?: [];
@@ -125,7 +125,7 @@ class WPEPP_CPU_Query_Monitor {
 		$table   = self::table_name();
 		$cutoff  = gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) );
 
-		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare( 'DELETE FROM %i WHERE recorded_at < %s', $table, $cutoff )
 		);
 
@@ -158,7 +158,7 @@ class WPEPP_CPU_Query_Monitor {
 			$wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table )
 		);
 
-		wp_cache_set( 'wpepp_slow_queries_count', $count, 'wpepp' );
+		wp_cache_set( 'wpepp_slow_queries_count', $count, 'wpepp', 120 );
 
 		return $count;
 	}
@@ -173,7 +173,7 @@ class WPEPP_CPU_Query_Monitor {
 
 		$table = self::table_name();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
 	}
 }

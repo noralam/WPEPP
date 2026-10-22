@@ -11,7 +11,6 @@ import {
 	SET_ERROR,
 	SET_PRO_STATUS,
 	SET_TEMPLATES,
-	SET_LOGIN_LOG,
 	MARK_SAVED,
 } from './actions';
 
@@ -22,7 +21,6 @@ const DEFAULT_STATE = {
 	error: null,
 	isPro: window.wpeppData?.isPro || false,
 	templates: null,
-	loginLog: [],
 	hasChanges: false,
 };
 
@@ -95,9 +93,6 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 
 		case SET_TEMPLATES:
 			return { ...state, templates: action.templates };
-
-		case SET_LOGIN_LOG:
-			return { ...state, loginLog: action.log };
 
 		case MARK_SAVED:
 			return { ...state, hasChanges: false };

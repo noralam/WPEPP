@@ -522,8 +522,8 @@ class WPEPP_Frontend {
 		<div class="wpepp-password-form wpepp-style-<?php echo esc_attr( $style ); ?>" id="wpepp-pw-preview">
 			<!-- Logo -->
 			<div class="wpepp-form-logo" id="wpepp-form-logo" style="<?php echo $logo_show ? '' : 'display:none;'; ?>">
-				<img id="wpepp-logo-img" src="<?php echo $logo_img_src ? esc_url( $logo_img_src ) : ''; ?>" alt="" style="<?php echo $logo_img_show ? '' : 'display:none;'; ?>object-fit:contain;<?php echo $logo_img_show ? 'width:' . $logo_width . 'px;height:' . $logo_height . 'px;' : ''; ?>" data-has-src="<?php echo $logo_img_src ? '1' : '0'; ?>">
-				<span id="wpepp-logo-text" class="wpepp-form-logo-text" style="<?php echo $logo_txt_show ? '' : 'display:none;'; ?>font-size:<?php echo $logo_txt_fs; ?>px;color:<?php echo $logo_txt_color; ?>;"><?php echo esc_html( $logo_txt_val ); ?></span>
+				<img id="wpepp-logo-img" src="<?php echo $logo_img_src ? esc_url( $logo_img_src ) : ''; ?>" alt="" style="<?php echo $logo_img_show ? '' : 'display:none;'; ?>object-fit:contain;<?php echo $logo_img_show ? 'width:' . esc_attr( $logo_width ) . 'px;height:' . esc_attr( $logo_height ) . 'px;' : ''; ?>" data-has-src="<?php echo $logo_img_src ? '1' : '0'; ?>">
+				<span id="wpepp-logo-text" class="wpepp-form-logo-text" style="<?php echo $logo_txt_show ? '' : 'display:none;'; ?>font-size:<?php echo esc_attr( $logo_txt_fs ); ?>px;color:<?php echo esc_attr( $logo_txt_color ); ?>;"><?php echo esc_html( $logo_txt_val ); ?></span>
 			</div>
 
 			<!-- Error top -->

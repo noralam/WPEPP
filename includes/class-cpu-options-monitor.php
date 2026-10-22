@@ -54,7 +54,7 @@ class WPEPP_CPU_Options_Monitor {
 
 		// Autoloaded options total size.
 		$autoload_size = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->prepare(
+			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 				"SELECT COALESCE( SUM( LENGTH( option_value ) ), 0 ) FROM {$wpdb->options} WHERE autoload IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				...$autoload_values
 			)
@@ -62,7 +62,7 @@ class WPEPP_CPU_Options_Monitor {
 
 		// Autoloaded options count.
 		$autoload_count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->prepare(
+			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 				"SELECT COUNT(*) FROM {$wpdb->options} WHERE autoload IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				...$autoload_values
 			)
@@ -89,7 +89,7 @@ class WPEPP_CPU_Options_Monitor {
 		// Pro: full breakdown of top 20 autoloaded options.
 		if ( $full ) {
 			$top_options = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-				$wpdb->prepare(
+				$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 					"SELECT option_name, LENGTH( option_value ) AS size FROM {$wpdb->options} WHERE autoload IN ($placeholders) ORDER BY size DESC LIMIT 20", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					...$autoload_values
 				)
@@ -121,10 +121,9 @@ class WPEPP_CPU_Options_Monitor {
 		global $wpdb;
 
 		// Get expired timeout option names.
-		$expired = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$expired = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
-				"SELECT option_name FROM %i WHERE option_name LIKE %s AND option_value < %d",
-				$wpdb->options,
+				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s AND option_value < %d",
 				$wpdb->esc_like( '_transient_timeout_' ) . '%',
 				time()
 			)

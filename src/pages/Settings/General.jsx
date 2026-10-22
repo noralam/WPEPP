@@ -1,24 +1,24 @@
 /**
- * Settings → General — toggle features on/off.
+ * Settings → General — toggle features on/off and manage database health.
  */
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	PanelBody,
 	ToggleControl,
 	TextControl,
 	Spinner,
 } from '@wordpress/components';
+import Card from '../../components/Card';
+import DatabaseMaintenance from './DatabaseMaintenance';
 import { useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 
 const General = () => {
-	const { settings, isLoading, isSaving } = useSelect( ( select ) => {
+	const { settings, isLoading } = useSelect( ( select ) => {
 		const store = select( 'wpepp/settings' );
 		return {
 			settings: store.getSectionSettings( 'general' ),
 			isLoading: store.isLoading(),
-			isSaving: store.isSaving(),
 		};
 	} );
 
@@ -41,8 +41,10 @@ const General = () => {
 	const set = ( key, value ) => updateSetting( 'general', key, value );
 
 	return (
-		<div className="wpepp-general-settings">
-			<PanelBody title={ __( 'Miscellaneous', 'wp-edit-password-protected' ) } initialOpen>
+		<div className="wpepp-general-settings" style={ { display: 'flex', flexDirection: 'column', gap: 16 } }>
+			<DatabaseMaintenance />
+
+			<Card title={ __( 'Plugin Data & Retention Options', 'wp-edit-password-protected' ) }>
 				<TextControl
 					label={ __( 'Password Cookie Expiration (days)', 'wp-edit-password-protected' ) }
 					help={ __( 'Number of days the password cookie stays valid. Default is 10.', 'wp-edit-password-protected' ) }
@@ -55,12 +57,11 @@ const General = () => {
 				<ToggleControl
 					__nextHasNoMarginBottom
 					label={ __( 'Delete Data on Uninstall', 'wp-edit-password-protected' ) }
-					help={ __( 'Remove all plugin data when uninstalled.', 'wp-edit-password-protected' ) }
+					help={ __( 'Remove all plugin options, log tables, and transients when uninstalled.', 'wp-edit-password-protected' ) }
 					checked={ !! settings?.delete_data_on_uninstall }
 					onChange={ ( v ) => set( 'delete_data_on_uninstall', v ) }
 				/>
-			</PanelBody>
-
+			</Card>
 		</div>
 	);
 };

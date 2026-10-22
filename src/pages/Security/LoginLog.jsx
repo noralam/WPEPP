@@ -7,17 +7,19 @@ import {
 	Button,
 	Spinner,
 	ToggleControl,
-	Notice,
 } from '@wordpress/components';
 import { useState, useEffect, useMemo, useCallback } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../../components/ProBadge';
+import Pagination from '../../components/Pagination';
 import { useSaveBar } from '../../components/SaveBar';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
 
 const LoginLog = () => {
 	const [ log, setLog ] = useState( [] );
 	const [ loading, setLoading ] = useState( true );
+	const [ page, setPage ] = useState( 1 );
+	const pageSize = 15;
 
 	const { settings, isLoading, isPro } = useSelect( ( select ) => {
 		const store = select( 'wpepp/settings' );
@@ -63,6 +65,8 @@ const LoginLog = () => {
 		return <Spinner />;
 	}
 
+	const paginatedLog = log.slice( ( page - 1 ) * pageSize, page * pageSize );
+
 	return (
 		<div className="wpepp-login-log">
 			<ToggleControl
@@ -76,14 +80,13 @@ const LoginLog = () => {
 				checked={ isPro && s.login_log_enabled !== false }
 				onChange={ ( v ) => updateSetting( 'security', 'login_log_enabled', v ) }
 				disabled={ ! isPro }
-				__nextHasNoMarginBottom
 			/>
 
 			{ isPro && s.login_log_enabled !== false && (
 				<>
-					<div className="wpepp-login-log__header">
+					<div className="wpepp-login-log__header" style={ { marginTop: 16 } }>
 						<h3>{ __( 'Login Activity Log', 'wp-edit-password-protected' ) }</h3>
-						<div>
+						<div style={ { display: 'flex', gap: 8 } }>
 							<Button variant="secondary" onClick={ fetchLog }>
 								{ __( 'Refresh', 'wp-edit-password-protected' ) }
 							</Button>
@@ -96,34 +99,47 @@ const LoginLog = () => {
 					</div>
 
 					{ log.length === 0 ? (
-						<p className="wpepp-empty-state">
-							{ __( 'No login activity recorded yet.', 'wp-edit-password-protected' ) }
-						</p>
+						<div className="wpepp-empty-state">
+							<div className="wpepp-empty-state__icon">🔐</div>
+							<h4 className="wpepp-empty-state__title">{ __( 'No Login Activity Recorded Yet', 'wp-edit-password-protected' ) }</h4>
+							<p className="wpepp-empty-state__desc">
+								{ __( 'Login attempts (both successful and failed logins) will be logged here with usernames, timestamps, and IP addresses.', 'wp-edit-password-protected' ) }
+							</p>
+						</div>
 					) : (
-						<table className="wpepp-table widefat striped">
-							<thead>
-								<tr>
-									<th>{ __( 'Username', 'wp-edit-password-protected' ) }</th>
-									<th>{ __( 'IP Address', 'wp-edit-password-protected' ) }</th>
-									<th>{ __( 'Status', 'wp-edit-password-protected' ) }</th>
-									<th>{ __( 'Date', 'wp-edit-password-protected' ) }</th>
-								</tr>
-							</thead>
-							<tbody>
-								{ log.map( ( entry ) => (
-									<tr key={ entry.id }>
-										<td>{ entry.user_login }</td>
-										<td>{ entry.ip_address }</td>
-										<td>
-											<span className={ `wpepp-status wpepp-status--${ entry.status }` }>
-												{ entry.status }
-											</span>
-										</td>
-										<td>{ entry.created_at }</td>
+						<>
+							<table className="wpepp-table widefat striped" style={ { marginTop: 12 } }>
+								<thead>
+									<tr>
+										<th>{ __( 'Username', 'wp-edit-password-protected' ) }</th>
+										<th>{ __( 'IP Address', 'wp-edit-password-protected' ) }</th>
+										<th>{ __( 'Status', 'wp-edit-password-protected' ) }</th>
+										<th>{ __( 'Date', 'wp-edit-password-protected' ) }</th>
 									</tr>
-								) ) }
-							</tbody>
-						</table>
+								</thead>
+								<tbody>
+									{ paginatedLog.map( ( entry ) => (
+										<tr key={ entry.id }>
+											<td>{ entry.user_login }</td>
+											<td><code>{ entry.ip_address }</code></td>
+											<td>
+												<span className={ `wpepp-status wpepp-status--${ entry.status }` }>
+													{ entry.status }
+												</span>
+											</td>
+											<td style={ { fontVariantNumeric: 'tabular-nums' } }>{ entry.created_at }</td>
+										</tr>
+									) ) }
+								</tbody>
+							</table>
+							<Pagination
+								currentPage={ page }
+								totalItems={ log.length }
+								pageSize={ pageSize }
+								onPageChange={ setPage }
+								itemName={ __( 'logins', 'wp-edit-password-protected' ) }
+							/>
+						</>
 					) }
 				</>
 			) }

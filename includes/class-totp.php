@@ -144,14 +144,20 @@ class WPEPP_TOTP {
 	}
 
 	/**
-	 * Generate a QR code URL using Google Charts API.
+	 * Generate a QR code URL for the provisioning URI.
+	 *
+	 * @deprecated 2.1.0 Sending TOTP secrets to third-party QR services leaks
+	 * credentials. QR codes are now rendered client-side from the provisioning
+	 * URI using a bundled library (assets/js/qrcode.min.js). Kept only for
+	 * backward compatibility — always returns ''.
 	 *
 	 * @param string $provisioning_uri The otpauth:// URI.
-	 * @param int    $size             QR code image size in pixels.
-	 * @return string URL to QR code image.
+	 * @param int    $size             Unused.
+	 * @return string Always empty.
 	 */
 	public static function get_qr_code_url( $provisioning_uri, $size = 200 ) {
-		return 'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size . '&data=' . rawurlencode( $provisioning_uri );
+		unset( $provisioning_uri, $size );
+		return '';
 	}
 
 	/**
@@ -262,6 +268,16 @@ class WPEPP_TOTP {
 	/* ─── User 2FA Setup ─── */
 
 	/**
+	 * Cookie name for the 2FA "remember this device" feature.
+	 */
+	const REMEMBER_COOKIE = 'wpepp_2fa_remember';
+
+	/**
+	 * Maximum stored remember-tokens per user.
+	 */
+	const REMEMBER_MAX_TOKENS = 5;
+
+	/**
 	 * Check if a user has 2FA enabled.
 	 *
 	 * @param int $user_id User ID.
@@ -269,6 +285,123 @@ class WPEPP_TOTP {
 	 */
 	public static function is_user_enabled( $user_id ) {
 		return '1' === get_user_meta( $user_id, '_wpepp_2fa_enabled', true );
+	}
+
+	/* ─── Remember device ─── */
+
+	/**
+	 * Configured remember-window in days (0 = disabled).
+	 *
+	 * @return int
+	 */
+	public static function remember_days() {
+		$raw = json_decode( (string) get_option( 'wpepp_security_settings', '{}' ), true );
+		$s   = is_array( $raw ) ? $raw : [];
+
+		return max( 0, min( 90, absint( $s['two_fa_remember_days'] ?? 0 ) ) );
+	}
+
+	/**
+	 * Issue a remember-device cookie after a successful 2FA verification.
+	 *
+	 * Stores only hashes — the cookie value itself is useless if stolen
+	 * without the matching DB row.
+	 *
+	 * @param int $user_id Verified user.
+	 */
+	public static function issue_remember_token( $user_id ) {
+		$days = self::remember_days();
+
+		if ( $days <= 0 || headers_sent() ) {
+			return;
+		}
+
+		$token = wp_generate_password( 40, false, false );
+
+		$tokens = get_user_meta( $user_id, '_wpepp_2fa_remember_tokens', true );
+		$tokens = is_array( $tokens ) ? $tokens : [];
+		$tokens[] = [
+			'hash' => wp_hash_password( $token ),
+			'time' => time(),
+		];
+
+		// Cap stored tokens — oldest die first.
+		if ( count( $tokens ) > self::REMEMBER_MAX_TOKENS ) {
+			usort( $tokens, static function ( $a, $b ) {
+				return (int) $a['time'] <=> (int) $b['time'];
+			} );
+			$tokens = array_slice( $tokens, -self::REMEMBER_MAX_TOKENS );
+		}
+
+		update_user_meta( $user_id, '_wpepp_2fa_remember_tokens', $tokens );
+
+		setcookie(
+			self::REMEMBER_COOKIE,
+			$user_id . ':' . $token,
+			time() + $days * DAY_IN_SECONDS,
+			COOKIEPATH,
+			COOKIE_DOMAIN,
+			is_ssl(),
+			true
+		);
+	}
+
+	/**
+	 * Whether the current request carries a valid remember-device cookie.
+	 *
+	 * @param int $user_id User attempting login.
+	 * @return bool
+	 */
+	public static function has_valid_remember( $user_id ) {
+		if ( self::remember_days() <= 0 ) {
+			return false;
+		}
+
+		if ( empty( $_COOKIE[ self::REMEMBER_COOKIE ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- bearer-style device marker.
+			return false;
+		}
+
+		$value    = sanitize_text_field( wp_unslash( $_COOKIE[ self::REMEMBER_COOKIE ] ) ); // phpcs:ignore
+		$parts    = explode( ':', $value, 2 );
+
+		if ( count( $parts ) !== 2 || absint( $parts[0] ) !== absint( $user_id ) || '' === $parts[1] ) {
+			return false;
+		}
+
+		$tokens = get_user_meta( $user_id, '_wpepp_2fa_remember_tokens', true );
+		$tokens = is_array( $tokens ) ? $tokens : [];
+
+		$now = time();
+
+		foreach ( $tokens as $entry ) {
+			if ( empty( $entry['hash'] ) || empty( $entry['time'] ) ) {
+				continue;
+			}
+
+			// Expired entries are dead weight — skip (cron prunes later).
+			if ( $now - (int) $entry['time'] > self::remember_days() * DAY_IN_SECONDS ) {
+				continue;
+			}
+
+			if ( wp_check_password( $parts[1], $entry['hash'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Drop all remember-tokens for a user (called on 2FA disable).
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public static function forget_remember_tokens( $user_id ) {
+		delete_user_meta( $user_id, '_wpepp_2fa_remember_tokens' );
+
+		if ( ! headers_sent() ) {
+			setcookie( self::REMEMBER_COOKIE, '', time() - HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+		}
 	}
 
 	/**
@@ -309,6 +442,8 @@ class WPEPP_TOTP {
 		delete_user_meta( $user_id, '_wpepp_2fa_enabled' );
 		delete_user_meta( $user_id, '_wpepp_2fa_recovery_codes' );
 		delete_user_meta( $user_id, '_wpepp_2fa_pending_secret' );
+
+		self::forget_remember_tokens( $user_id );
 	}
 
 	/**

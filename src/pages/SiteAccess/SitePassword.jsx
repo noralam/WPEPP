@@ -4,8 +4,6 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	PanelBody,
-	PanelRow,
 	ToggleControl,
 	TextControl,
 	TextareaControl,
@@ -13,6 +11,8 @@ import {
 	Notice,
 	Spinner,
 } from '@wordpress/components';
+import Card from '../../components/Card';
+import ToggleCard from '../../components/ToggleCard';
 import { useMemo, useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 import { SITE_ACCESS_DEFAULTS } from '../../utils/defaults';
@@ -53,26 +53,27 @@ const SitePassword = () => {
 		<div className="wpepp-site-password-settings">
 			<h3>{ __( 'Site Password Protection', 'wp-edit-password-protected' ) }</h3>
 
-			<PanelBody title={ __( 'Password Protect Entire Site', 'wp-edit-password-protected' ) } initialOpen>
-				<PanelRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Enable Site Password', 'wp-edit-password-protected' ) }
-						help={ __( 'When enabled, all visitors must enter a password before they can view any page on the site. Logged-in administrators bypass the password.', 'wp-edit-password-protected' ) }
+			<Card title={ __( 'Password Protect Entire Site', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid">
+					<ToggleCard
+						title={ __( 'Enable Site Password', 'wp-edit-password-protected' ) }
+						description={ __( 'When enabled, all visitors must enter a password before they can view any page on the site. Logged-in administrators bypass the password.', 'wp-edit-password-protected' ) }
 						checked={ !! s.site_password_enabled }
 						onChange={ ( v ) => update( 'site_password_enabled', v ) }
 					/>
-				</PanelRow>
+				</div>
 
 				{ !! s.site_password_enabled && (
-					<>
+					<div className="wpepp-form-grid" style={ { marginTop: 16 } }>
 						{ ! s.site_password && (
-							<Notice status="warning" isDismissible={ false }>
-								{ __( 'Site password protection will not activate until you set a password.', 'wp-edit-password-protected' ) }
-							</Notice>
+							<div className="wpepp-form-grid__full">
+								<Notice status="warning" isDismissible={ false }>
+									{ __( 'Site password protection will not activate until you set a password.', 'wp-edit-password-protected' ) }
+								</Notice>
+							</div>
 						) }
 
-						<PanelRow>
+						<div className="wpepp-form-grid__full">
 							<TextControl
 								label={ __( 'Site Password', 'wp-edit-password-protected' ) }
 								help={ __( 'Enter the password visitors must provide to access the site.', 'wp-edit-password-protected' ) }
@@ -80,10 +81,11 @@ const SitePassword = () => {
 								onChange={ ( v ) => update( 'site_password', v ) }
 								type="text"
 								autoComplete="off"
+								placeholder={ s.site_password_enabled ? __( '(saved — type to replace)', 'wp-edit-password-protected' ) : '' }
 							/>
-						</PanelRow>
+						</div>
 
-						<PanelRow>
+						<div className="wpepp-form-grid__full">
 							<TextareaControl
 								label={ __( 'Custom Message', 'wp-edit-password-protected' ) }
 								help={ __( 'Message shown above the password form.', 'wp-edit-password-protected' ) }
@@ -91,9 +93,9 @@ const SitePassword = () => {
 								onChange={ ( v ) => update( 'site_password_message', v ) }
 								rows={ 3 }
 							/>
-						</PanelRow>
+						</div>
 
-						<PanelRow>
+						<div className="wpepp-form-grid__full">
 							<RangeControl
 								label={ __( 'Cookie Duration (days)', 'wp-edit-password-protected' ) }
 								help={ __( 'How many days the access cookie lasts before the visitor must re-enter the password.', 'wp-edit-password-protected' ) }
@@ -102,24 +104,27 @@ const SitePassword = () => {
 								min={ 1 }
 								max={ 365 }
 							/>
-						</PanelRow>
+						</div>
 
-						<PanelRow>
-							<ToggleControl
-								__nextHasNoMarginBottom
-								label={ __( 'Allow Logged-In Users to Bypass', 'wp-edit-password-protected' ) }
-								help={ __( 'When enabled, all logged-in users bypass the site password. When disabled, only administrators bypass it.', 'wp-edit-password-protected' ) }
-								checked={ s.site_password_bypass_logged_in !== false }
-								onChange={ ( v ) => update( 'site_password_bypass_logged_in', v ) }
-							/>
-						</PanelRow>
+						<div className="wpepp-form-grid__full">
+							<div className="wpepp-toggle-grid">
+								<ToggleCard
+									title={ __( 'Allow Logged-In Users to Bypass', 'wp-edit-password-protected' ) }
+									description={ __( 'When enabled, all logged-in users bypass the site password. When disabled, only administrators bypass it.', 'wp-edit-password-protected' ) }
+									checked={ s.site_password_bypass_logged_in !== false }
+									onChange={ ( v ) => update( 'site_password_bypass_logged_in', v ) }
+								/>
+							</div>
+						</div>
 
-						<Notice status="info" isDismissible={ false }>
-							{ __( 'Administrators always bypass the site password.', 'wp-edit-password-protected' ) }
-						</Notice>
-					</>
+						<div className="wpepp-form-grid__full">
+							<Notice status="info" isDismissible={ false }>
+								{ __( 'Administrators always bypass the site password.', 'wp-edit-password-protected' ) }
+							</Notice>
+						</div>
+					</div>
 				) }
-			</PanelBody>
+			</Card>
 		</div>
 	);
 };

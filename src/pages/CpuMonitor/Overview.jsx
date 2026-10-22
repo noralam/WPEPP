@@ -78,7 +78,7 @@ const Overview = () => {
 				</div>
 
 				<div className="wpepp-cpu-card">
-					<h4>{ __( 'Memory', 'wp-edit-password-protected' ) }</h4>
+					<h4>{ __( 'PHP Memory', 'wp-edit-password-protected' ) }</h4>
 					<div className="wpepp-cpu-card__value">
 						{ stats.memory?.usage_percent > 0 ? `${ stats.memory.usage_percent }%` : __( 'N/A', 'wp-edit-password-protected' ) }
 					</div>
@@ -86,6 +86,7 @@ const Overview = () => {
 						{ stats.memory?.limit_mb === -1
 							? `${ stats.memory?.current_mb } MB / ${ __( 'Unlimited', 'wp-edit-password-protected' ) }`
 							: `${ stats.memory?.current_mb } / ${ stats.memory?.limit_mb } MB` }
+						{ stats.memory?.peak_mb > 0 && ` · ${ __( 'peak', 'wp-edit-password-protected' ) } ${ stats.memory.peak_mb } MB` }
 					</div>
 				</div>
 

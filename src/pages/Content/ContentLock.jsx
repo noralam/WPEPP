@@ -2,13 +2,16 @@
  * Content Lock — table of locked posts with quick toggle (Pro).
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { Button, Spinner, ToggleControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
+import Pagination from '../../components/Pagination';
 
 const ContentLock = () => {
 	const [ posts, setPosts ] = useState( [] );
 	const [ loading, setLoading ] = useState( true );
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+	const pageSize = 15;
 
 	useEffect( () => {
 		apiFetch( { path: '/wpepp/v1/content-lock' } )
@@ -16,6 +19,11 @@ const ContentLock = () => {
 			.catch( () => setPosts( [] ) )
 			.finally( () => setLoading( false ) );
 	}, [] );
+
+	const paginatedPosts = useMemo( () => {
+		const start = ( currentPage - 1 ) * pageSize;
+		return posts.slice( start, start + pageSize );
+	}, [ posts, currentPage, pageSize ] );
 
 	const toggleLock = ( postId, enabled ) => {
 		// Optimistic update — toggle UI instantly.
@@ -53,35 +61,43 @@ const ContentLock = () => {
 					{ __( 'No locked posts yet. Use the Content Lock meta box in the post editor to lock individual posts.', 'wp-edit-password-protected' ) }
 				</p>
 			) : (
-				<table className="wpepp-table widefat striped">
-					<thead>
-						<tr>
-							<th>{ __( 'Title', 'wp-edit-password-protected' ) }</th>
-							<th>{ __( 'Type', 'wp-edit-password-protected' ) }</th>
-							<th>{ __( 'Locked', 'wp-edit-password-protected' ) }</th>
-						</tr>
-					</thead>
-					<tbody>
-						{ posts.map( ( post ) => (
-							<tr key={ post.id }>
-								<td>
-									<a href={ post.edit_link } target="_blank" rel="noopener noreferrer">
-										{ post.title }
-									</a>
-								</td>
-								<td>{ post.post_type }</td>
-								<td>
-									<ToggleControl
-										__nextHasNoMarginBottom
-										checked={ post.locked }
-										onChange={ ( v ) => toggleLock( post.id, v ) }
-										__nextHasNoMarginBottom
-									/>
-								</td>
+				<>
+					<table className="wpepp-table widefat striped">
+						<thead>
+							<tr>
+								<th>{ __( 'Title', 'wp-edit-password-protected' ) }</th>
+								<th>{ __( 'Type', 'wp-edit-password-protected' ) }</th>
+								<th>{ __( 'Locked', 'wp-edit-password-protected' ) }</th>
 							</tr>
-						) ) }
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{ paginatedPosts.map( ( post ) => (
+								<tr key={ post.id }>
+									<td>
+										<a href={ post.edit_link } target="_blank" rel="noopener noreferrer">
+											{ post.title }
+										</a>
+									</td>
+									<td>{ post.post_type }</td>
+									<td>
+										<ToggleControl
+											__nextHasNoMarginBottom
+											checked={ post.locked }
+											onChange={ ( v ) => toggleLock( post.id, v ) }
+										/>
+									</td>
+								</tr>
+							) ) }
+						</tbody>
+					</table>
+					<Pagination
+						currentPage={ currentPage }
+						totalItems={ posts.length }
+						pageSize={ pageSize }
+						onPageChange={ setCurrentPage }
+						itemName={ __( 'posts', 'wp-edit-password-protected' ) }
+					/>
+				</>
 			) }
 		</div>
 	);

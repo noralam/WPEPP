@@ -4,7 +4,6 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	PanelBody,
 	PanelRow,
 	TextControl,
 	TextareaControl,
@@ -12,6 +11,7 @@ import {
 	ToggleControl,
 	Button,
 } from '@wordpress/components';
+import Card from '../../components/Card';
 import { useMemo, useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 import { MEMBER_TEMPLATE_DEFAULTS } from '../../utils/defaults';
@@ -50,7 +50,7 @@ const MemberTemplate = () => {
 			<h3>{ __( 'Member-Only Template', 'wp-edit-password-protected' ) }</h3>
 			<p>{ __( 'To use this template, edit any Page and select "Member Only (Login Required)" from the Template dropdown in the sidebar. Logged-out visitors will see the gate page below instead of the page content.', 'wp-edit-password-protected' ) }</p>
 
-			<PanelBody title={ __( 'Gate Page Content', 'wp-edit-password-protected' ) } initialOpen>
+			<Card title={ __( 'Gate Page Content', 'wp-edit-password-protected' ) }>
 				<PanelRow>
 					<TextControl
 						label={ __( 'Title', 'wp-edit-password-protected' ) }
@@ -94,9 +94,9 @@ const MemberTemplate = () => {
 						onChange={ ( v ) => update( 'text_align', v ) }
 					/>
 				</PanelRow>
-			</PanelBody>
+			</Card>
 
-			<PanelBody title={ __( 'Login Options', 'wp-edit-password-protected' ) } initialOpen={ false }>
+			<Card title={ __( 'Login Options', 'wp-edit-password-protected' ) }>
 				<PanelRow>
 					<SelectControl
 						__next40pxDefaultSize
@@ -192,7 +192,7 @@ const MemberTemplate = () => {
 						) }
 					</>
 				) }
-			</PanelBody>
+			</Card>
 
 		</div>
 	);

@@ -39,7 +39,7 @@ const FormStyle = () => {
 
 			<Suspense fallback={ <Spinner /> }>
 				<Routes>
-					<Route index element={ <Navigate to="login" replace /> } />
+					<Route index element={ <Navigate to="/form-style/login" replace /> } />
 					<Route path="login" element={ <LoginForm key="login" /> } />
 					<Route
 						path="register"
@@ -76,6 +76,7 @@ const FormStyle = () => {
 						}
 					/>
 					<Route path="password" element={ <PasswordForm key="password" /> } />
+					<Route path="*" element={ <Navigate to="/form-style/login" replace /> } />
 				</Routes>
 			</Suspense>
 		</div>

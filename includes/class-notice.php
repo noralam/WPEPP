@@ -290,7 +290,7 @@ final class WPEPP_Notice {
 			return;
 		}
 
-		$review_url = 'https://wordpress.org/support/plugin/wp-edit-password-protected/reviews/?filter=5/#new-post';
+		$review_url = 'https://wordpress.org/support/plugin/wp-edit-password-protected/reviews/';
 		?>
 		<div class="wpepp-review-notice" id="wpepp-review-notice">
 			<div class="wpepp-review-notice__stars" aria-hidden="true">★★★★★</div>
@@ -344,9 +344,33 @@ final class WPEPP_Notice {
 	/* ─── Assets ────────────────────────────────────────────────── */
 
 	/**
-	 * Enqueue notice CSS + JS on all admin pages.
+	 * Whether any notice UI is currently active and needs its assets.
+	 *
+	 * Prevents loading notice CSS/JS on every wp-admin page forever —
+	 * once badges/notices are dismissed, nothing loads.
+	 *
+	 * @return bool
+	 */
+	private function needs_notice_assets() {
+		if ( ! $this->is_new_badge_dismissed() ) {
+			return true;
+		}
+
+		if ( $this->should_show_pro_notice() ) {
+			return true;
+		}
+
+		return $this->should_show_review_notice();
+	}
+
+	/**
+	 * Enqueue notice CSS + JS — only while notice UI is actually present.
 	 */
 	public function enqueue_notice_assets() {
+		if ( ! $this->needs_notice_assets() ) {
+			return;
+		}
+
 		wp_enqueue_style(
 			'wpepp-notice',
 			WPEPP_URL . '/assets/css/notice.css',

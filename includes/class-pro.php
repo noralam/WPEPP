@@ -9,16 +9,95 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Minimum WPEPP Pro version this free version integrates with.
+ *
+ * Older pro copies keep working via the legacy fallback in
+ * wpepp_has_pro_check(), but only pro builds at or above this constant get
+ * module registration through the wpepp/pro/init bridge.
+ */
+define( 'WPEPP_REQUIRED_PRO_VERSION', '3.0.0' );
+
+/**
  * Check if Pro features are unlocked.
+ *
+ * Three-layer contract:
+ *   1. License flag option 'wpepp_has_pro' must be 'yes' (set by pro license flow).
+ *   2. Pro plugin must be ACTIVE.
+ *   3. Version handshake — pro build >= WPEPP_REQUIRED_PRO_VERSION gets the
+ *      full module bridge; older pro copies fall back to legacy gating.
  *
  * @return bool
  */
 function wpepp_has_pro_check() {
+	if ( 'yes' !== get_option( 'wpepp_has_pro', 'no' ) ) {
+		return false;
+	}
+
 	if ( ! function_exists( 'is_plugin_active' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
 
-	return is_plugin_active( 'wpepp-pro/wpepp-pro.php' ) && 'yes' === get_option( 'wpepp_has_pro', 'no' );
+	if ( ! is_plugin_active( 'wpepp-pro/wpepp-pro.php' ) ) {
+		return false;
+	}
+
+	// New-style pro declares its version and passes the handshake.
+	if ( defined( 'WPEPP_PRO_VERSION' ) ) {
+		return version_compare( WPEPP_PRO_VERSION, WPEPP_REQUIRED_PRO_VERSION, '>=' );
+	}
+
+	// Legacy pro (pre-3.0) has no version constant — still honoured.
+	return true;
+}
+
+/**
+ * Feature tier map — single source of truth for what is free vs pro.
+ *
+ * Modules and UI read tiers through this filter instead of hardcoding
+ * capability checks, so retiering a feature is a one-line change here
+ * (plus optional pro-side registration).
+ *
+ * @param string $feature Feature slug.
+ * @return string 'free'|'pro'
+ */
+function wpepp_feature_tier( $feature ) {
+	$tiers = [
+		// Login security.
+		'login_limiter'        => 'free',
+		'honeypot'             => 'free',
+		'two_factor_totp'      => 'free',
+		'passkeys'             => 'pro',
+		'recaptcha'            => 'pro',
+		'custom_login_url'     => 'pro',
+		'login_log'            => 'pro',
+		'auto_login_advanced'  => 'pro',
+
+		// Hardening / shielding.
+		'username_shield'      => 'free',
+		'security_headers'     => 'free',
+		'ai_crawler_blocker'   => 'free',
+
+		// Scanner.
+		'integrity_scan'       => 'free',
+		'malware_basic'        => 'free',
+		'malware_full'         => 'pro',
+		'file_watcher_realtime' => 'pro',
+		'vuln_daily_feed'      => 'pro',
+
+		// Firewall.
+		'firewall_basic'       => 'free',
+		'firewall_extended'    => 'pro',
+
+		// Blocking.
+		'ip_single_entries'    => 'free',
+		'ip_cidr_import'       => 'pro',
+		'country_block_2'      => 'free',
+		'country_block_unlimited' => 'pro',
+	];
+
+	$tiers = apply_filters( 'wpepp/features/tiers', $tiers ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- documented public API.
+
+	return isset( $tiers[ $feature ] ) ? $tiers[ $feature ] : 'pro';
 }
 
 /**
@@ -115,12 +194,42 @@ function wpepp_enforce_pro_settings( $settings, $section ) {
 				$settings['reg_email_domain_mode'],
 				$settings['reg_email_domain_list'],
 				$settings['reg_admin_approval'],
-				$settings['two_factor_enabled'],
-				$settings['two_factor_roles'],
-				$settings['ip_blocklist'],
-				$settings['ip_allowlist'],
-				$settings['ai_crawler_custom_ua']
+				$settings['ai_crawler_custom_ua'],
+
+				// Unified CAPTCHA layer (Pro tier).
+				$settings['captcha_enabled'],
+				$settings['captcha_provider'],
+				$settings['captcha_threshold'],
+				$settings['turnstile_site_key'],
+				$settings['turnstile_secret_key'],
+
+				// Registration captcha (legacy + unified keys).
+				$settings['reg_recaptcha_enabled'],
+				$settings['reg_captcha_enabled'],
+
+				// Passkeys + live traffic (Pro modules).
+				$settings['passkeys_enabled'],
+				$settings['live_traffic_enabled']
 			);
+
+			// Breached-password check is Pro; the rest of the policy is free.
+			if ( isset( $settings['pw_breach_check'] ) ) {
+				unset( $settings['pw_breach_check'] );
+			}
+
+			// IP lists: free tier allows single IPs only — strip CIDR ranges.
+			foreach ( [ 'ip_blocklist', 'ip_allowlist' ] as $list_key ) {
+				if ( isset( $settings[ $list_key ] ) && is_string( $settings[ $list_key ] ) && false !== strpos( $settings[ $list_key ], '/' ) ) {
+					$kept = [];
+					foreach ( array_filter( array_map( 'trim', preg_split( '/[\n\r,]+/', $settings[ $list_key ] ) ) ) as $entry ) {
+						$entry = trim( preg_replace( '/#.*$/', '', $entry ) );
+						if ( '' !== $entry && false === strpos( $entry, '/' ) && filter_var( $entry, FILTER_VALIDATE_IP ) ) {
+							$kept[] = $entry;
+						}
+					}
+					$settings[ $list_key ] = implode( ', ', array_unique( $kept ) );
+				}
+			}
 			break;
 	}
 

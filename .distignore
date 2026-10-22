@@ -1,0 +1,52 @@
+# Files/directories excluded from the production zip.
+# Packaging (dist-archive / clean-zip step) must respect this list.
+# Dev environment keeps them; production never ships them.
+
+# VCS + tooling
+.git
+.github
+.claude
+.vscode
+.playwright-mcp
+.cursorrules
+.gitignore
+.phpunit.result.cache
+
+# CI / test config
+phpunit.xml.dist
+phpunit.xml
+composer.json
+composer.lock
+
+# Node dev pipeline (runtime uses build/)
+package.json
+package-lock.json
+node_modules
+src
+
+# Docs not allowed in a distributed plugin
+AGENTS.md
+LEAN-CTX.md
+plan.md
+PLUGIN-PLAN.md
+SECURITY-PLAN.md
+DESIGN.md
+STYLE-PLAN.md
+landing.md
+README.md
+
+# Marketing sources
+landing
+
+# Tests
+tests
+
+# Dev-only composer packages (keep vendor/appsero + vendor/composer for runtime)
+vendor/bin
+vendor/phpunit
+vendor/phar-io
+vendor/myclabs
+vendor/nikic
+vendor/sebastian
+vendor/theseer
+vendor/doctrine

@@ -103,13 +103,3 @@ export function getError( state ) {
 export function getTemplates( state ) {
 	return state.templates;
 }
-
-/**
- * Get login log.
- *
- * @param {Object} state Store state.
- * @return {Array}
- */
-export function getLoginLog( state ) {
-	return state.loginLog;
-}

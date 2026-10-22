@@ -27,10 +27,13 @@ const SiteAccess = () => {
 
 			<Suspense fallback={ <Spinner /> }>
 				<Routes>
-					<Route index element={ <Navigate to="admin-only" replace /> } />
+					<Route index element={ <Navigate to="/site-access/admin-only" replace /> } />
 					<Route path="admin-only" element={ <AdminOnly /> } />
 					<Route path="site-password" element={ <SitePassword /> } />
+					<Route path="password" element={ <Navigate to="/site-access/site-password" replace /> } />
 					<Route path="country-restriction" element={ <CountryRestriction /> } />
+					<Route path="country" element={ <Navigate to="/site-access/country-restriction" replace /> } />
+					<Route path="*" element={ <Navigate to="/site-access/admin-only" replace /> } />
 				</Routes>
 			</Suspense>
 		</div>

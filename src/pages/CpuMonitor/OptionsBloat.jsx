@@ -9,6 +9,9 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { Button, Spinner, Notice } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../../components/ProBadge';
+import Pagination from '../../components/Pagination';
+
+const PAGE_SIZE = 10;
 
 const formatSize = ( bytes ) => {
 	if ( bytes >= 1048576 ) {
@@ -22,6 +25,7 @@ const formatSize = ( bytes ) => {
 
 const OptionsBloat = () => {
 	const [ stats, setStats ] = useState( null );
+	const [ page, setPage ] = useState( 1 );
 	const [ loading, setLoading ] = useState( true );
 	const [ cleaning, setCleaning ] = useState( false );
 	const [ cleanResult, setCleanResult ] = useState( null );
@@ -143,14 +147,21 @@ const OptionsBloat = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{ stats.top_autoloaded.map( ( opt ) => (
-							<tr key={ opt.name }>
-								<td><code>{ opt.name }</code></td>
+							{ stats.top_autoloaded.slice( ( page - 1 ) * PAGE_SIZE, page * PAGE_SIZE ).map( ( opt ) => (
+								<tr key={ opt.name }>
+									<td><code>{ opt.name }</code></td>
 									<td>{ formatSize( opt.size ) }</td>
 								</tr>
 							) ) }
 						</tbody>
 					</table>
+					<Pagination
+						currentPage={ page }
+						totalItems={ stats.top_autoloaded.length }
+						pageSize={ PAGE_SIZE }
+						onPageChange={ setPage }
+						itemName={ __( 'options', 'wp-edit-password-protected' ) }
+					/>
 				</div>
 			) }
 

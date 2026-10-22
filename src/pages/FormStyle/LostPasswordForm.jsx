@@ -22,7 +22,6 @@ import ProBadge from '../../components/ProBadge';
 import { useSaveBar } from '../../components/SaveBar';
 import { generateLoginCss } from '../../utils/css-generator';
 import { LOGIN_DEFAULTS, mergeDefaults } from '../../utils/defaults';
-import { parseVideoUrl } from '../../utils/video';
 
 const LostPasswordForm = () => {
 	const { settings, isSaving, isPro } = useSelect( ( select ) => {
@@ -77,7 +76,7 @@ const LostPasswordForm = () => {
 	return (
 		<div className="wpepp-editor-layout">
 			<div className="wpepp-editor-controls">
-				{ /* ── Page Background ── */ }
+				{ /* â”€â”€ Page Background â”€â”€ */ }
 				<PanelBody title={ __( 'Page Background', 'wp-edit-password-protected' ) } initialOpen={ false }>
 					<PanelRow>
 						<SelectControl
@@ -208,7 +207,7 @@ const LostPasswordForm = () => {
 					) }
 				</PanelBody>
 
-				{ /* ── Logo ── */ }
+				{ /* â”€â”€ Logo â”€â”€ */ }
 				<PanelBody title={ __( 'Logo', 'wp-edit-password-protected' ) } initialOpen={ false }>
 					<PanelRow>
 						<SelectControl

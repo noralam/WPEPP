@@ -4,7 +4,6 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	PanelBody,
 	PanelRow,
 	ToggleControl,
 	CheckboxControl,
@@ -12,6 +11,7 @@ import {
 	Notice,
 	Spinner,
 } from '@wordpress/components';
+import Card from '../../components/Card';
 import { useMemo, useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
@@ -109,7 +109,7 @@ const AiCrawlerBlocker = () => {
 		<div className="wpepp-ai-crawler-blocker">
 			<h3>{ __( 'AI Crawler Blocker', 'wp-edit-password-protected' ) }</h3>
 
-			<PanelBody title={ __( 'Enable AI Crawler Blocking', 'wp-edit-password-protected' ) } initialOpen>
+			<Card title={ __( 'Enable AI Crawler Blocking', 'wp-edit-password-protected' ) }>
 				<PanelRow>
 					<ToggleControl
 						__nextHasNoMarginBottom
@@ -123,11 +123,11 @@ const AiCrawlerBlocker = () => {
 						{ __( 'When enabled, selected AI bots are blocked from crawling your site. Rules are added to your robots.txt and optionally bots are blocked with a 403 response by checking the User-Agent header.', 'wp-edit-password-protected' ) }
 					</Notice>
 				) }
-			</PanelBody>
+			</Card>
 
 			{ s.ai_crawler_blocker_enabled && (
 				<>
-					<PanelBody title={ __( 'Enforcement Method', 'wp-edit-password-protected' ) } initialOpen>
+					<Card title={ __( 'Enforcement Method', 'wp-edit-password-protected' ) }>
 						<Notice status="info" isDismissible={ false }>
 							{ __( 'robots.txt rules are always added (polite bots respect them). Enable the toggle below to also actively block bots that ignore robots.txt by returning a 403 Forbidden response.', 'wp-edit-password-protected' ) }
 						</Notice>
@@ -140,9 +140,9 @@ const AiCrawlerBlocker = () => {
 								onChange={ ( v ) => update( 'ai_crawler_block_ua', v ) }
 							/>
 						</PanelRow>
-					</PanelBody>
+					</Card>
 
-					<PanelBody title={ __( 'Select AI Bots to Block', 'wp-edit-password-protected' ) } initialOpen>
+					<Card title={ __( 'Select AI Bots to Block', 'wp-edit-password-protected' ) }>
 						<Notice status="warning" isDismissible={ false }>
 							{ blockedCount === allBotKeys.length
 								? __( 'All known AI bots are selected.', 'wp-edit-password-protected' )
@@ -181,16 +181,15 @@ const AiCrawlerBlocker = () => {
 								/>
 							) ) }
 						</div>
-					</PanelBody>
+					</Card>
 
-					<PanelBody
+					<Card
 						title={
 							<>
 								{ __( 'Custom User-Agent Strings', 'wp-edit-password-protected' ) }
 								{ ! isPro && <ProBadge /> }
 							</>
 						}
-						initialOpen={ false }
 					>
 						<ProLock isPro={ isPro } featureName={ __( 'Custom User-Agent Strings', 'wp-edit-password-protected' ) }>
 							<Notice status="info" isDismissible={ false }>
@@ -207,9 +206,9 @@ const AiCrawlerBlocker = () => {
 								/>
 							</PanelRow>
 						</ProLock>
-					</PanelBody>
+					</Card>
 
-					<PanelBody title={ __( 'Preview robots.txt Rules', 'wp-edit-password-protected' ) } initialOpen={ false }>
+					<Card title={ __( 'Preview robots.txt Rules', 'wp-edit-password-protected' ) }>
 						<Notice status="info" isDismissible={ false }>
 							{ __( 'Below is a preview of the robots.txt rules that will be appended to your site\'s robots.txt file.', 'wp-edit-password-protected' ) }
 							{ ' ' }
@@ -230,7 +229,7 @@ const AiCrawlerBlocker = () => {
 							border: '1px solid rgba(255,255,255,0.1)',
 						} }>{ '# AI Crawler Blocker — added by WPEPP\n' +
 selectedBots.map( ( bot ) => `User-agent: ${ bot }\nDisallow: /` ).join( '\n\n' ) }</pre>
-					</PanelBody>
+					</Card>
 				</>
 			) }
 		</div>

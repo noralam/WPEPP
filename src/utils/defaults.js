@@ -180,6 +180,11 @@ export const MEMBER_TEMPLATE_DEFAULTS = {
 	mode: 'login',
 	login_mode: 'form',
 	btntext: 'Login',
+	form_head: 'Login Form',
+	user_placeholder: 'Username or Email Address',
+	password_placeholder: 'Password',
+	form_remember: true,
+	formbtn_text: 'Log In',
 };
 
 export const SECURITY_DEFAULTS = {
@@ -210,6 +215,65 @@ export const SECURITY_DEFAULTS = {
 	// Two-Factor Authentication (Pro).
 	two_factor_enabled: false,
 	two_factor_roles: [ 'administrator' ],
+	two_fa_remember_days: 0,
+	passkeys_enabled: false,
+	// Password policy.
+	pw_policy_enabled: false,
+	pw_min_length: 12,
+	pw_require_mixed: true,
+	pw_require_symbol: false,
+	pw_block_common: true,
+	pw_breach_check: false,
+	// Alerts & activity.
+	alerts_enabled: true,
+	alert_email: '',
+	alert_lockout: true,
+	alert_scan_criticals: true,
+	alert_admin_login: false,
+	alert_firewall_burst: false,
+	alert_firewall_burst_min: 25,
+	alert_weekly_report: false,
+	// Database & Log Retention.
+	auto_prune_logs_enabled: true,
+	events_retention_days: 30,
+	login_log_retention_days: 30,
+	slow_queries_retention_days: 7,
+	max_log_rows_cap: 5000,
+	// Hardening headers.
+	hdr_x_frame: 'SAMEORIGIN',
+	hdr_nosniff: true,
+	hdr_referrer: 'strict-origin-when-cross-origin',
+	hdr_permissions_policy: '',
+	hdr_hsts: false,
+	hdr_hsts_subdomains: true,
+	hdr_hsts_preload: false,
+	hdr_csp_report_only: '',
+	// Unified CAPTCHA layer.
+	captcha_enabled: false,
+	captcha_provider: '',
+	captcha_threshold: 0.5,
+	turnstile_site_key: '',
+	turnstile_secret_key: '',
+	recaptcha_test_mode: false,
+	// Registration captcha (unified key; reg_recaptcha_enabled kept for legacy reads).
+	reg_captcha_enabled: false,
+	// Anti-Spam & WooCommerce Protection.
+	anti_spam_enabled: true,
+	wc_spam_protection_enabled: true,
+	wc_honeypot_enabled: true,
+	wc_disposable_email_block: true,
+	wc_rate_limit_enabled: true,
+	wc_captcha_enabled: false,
+	comment_spam_protection_enabled: true,
+	comment_honeypot_enabled: true,
+	comment_timegate_enabled: true,
+	comment_captcha_enabled: false,
+	lostpassword_honeypot_enabled: true,
+	lostpassword_captcha_enabled: false,
+	// Scanner schedule.
+	scan_schedule_enabled: false,
+	// Live Traffic (Pro module).
+	live_traffic_enabled: false,
 	// IP Management (Pro).
 	ip_blocklist: '',
 	ip_allowlist: '',

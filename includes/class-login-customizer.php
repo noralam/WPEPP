@@ -742,7 +742,7 @@ class WPEPP_Login_Customizer {
 			'wpepp-google-font-' . sanitize_title( $font_family ),
 			esc_url_raw( $font_url ),
 			[],
-			null
+			WPEPP_VERSION
 		);
 	}
 }

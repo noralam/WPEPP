@@ -22,30 +22,30 @@ const CpuMonitor = () => {
 	return (
 		<div className="wpepp-cpu-monitor-page">
 			<nav className="wpepp-inner-tabs">
-				<NavLink to="/cpu-monitor/overview" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+				<NavLink to="/tools/cpu-monitor/overview" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Overview', 'wp-edit-password-protected' ) }
 				</NavLink>
-				<NavLink to="/cpu-monitor/slow-queries" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+				<NavLink to="/tools/cpu-monitor/slow-queries" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Slow Queries', 'wp-edit-password-protected' ) }
 				</NavLink>
-				<NavLink to="/cpu-monitor/cron-jobs" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+				<NavLink to="/tools/cpu-monitor/cron-jobs" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Cron Jobs', 'wp-edit-password-protected' ) }
 				</NavLink>
-				<NavLink to="/cpu-monitor/error-log" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+				<NavLink to="/tools/cpu-monitor/error-log" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Error Log', 'wp-edit-password-protected' ) }
 					{ ! isPro && <ProBadge /> }
 				</NavLink>
-				<NavLink to="/cpu-monitor/plugin-performance" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+				<NavLink to="/tools/cpu-monitor/plugin-performance" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Plugin Performance', 'wp-edit-password-protected' ) }
 				</NavLink>
-				<NavLink to="/cpu-monitor/options-bloat" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
+				<NavLink to="/tools/cpu-monitor/options-bloat" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Options Bloat', 'wp-edit-password-protected' ) }
 				</NavLink>
 			</nav>
 
 			<Suspense fallback={ <Spinner /> }>
 				<Routes>
-					<Route index element={ <Navigate to="overview" replace /> } />
+					<Route index element={ <Navigate to="/tools/cpu-monitor/overview" replace /> } />
 					<Route path="overview" element={ <Overview /> } />
 					<Route path="slow-queries" element={ <SlowQueries /> } />
 					<Route path="cron-jobs" element={ <CronJobs /> } />
@@ -59,6 +59,7 @@ const CpuMonitor = () => {
 					/>
 					<Route path="plugin-performance" element={ <PluginPerformance /> } />
 					<Route path="options-bloat" element={ <OptionsBloat /> } />
+					<Route path="*" element={ <Navigate to="/tools/cpu-monitor/overview" replace /> } />
 				</Routes>
 			</Suspense>
 		</div>

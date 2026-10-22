@@ -46,7 +46,9 @@ class WPEPP_Geo {
 		$code = '';
 
 		// 1. Cloudflare header — instant, no external request.
-		if ( ! empty( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) {
+		// ONLY trusted when the direct peer is a registered proxy, otherwise
+		// any visitor could spoof the header to bypass geo rules (B1).
+		if ( ! empty( $_SERVER['HTTP_CF_IPCOUNTRY'] ) && self::is_behind_trusted_proxy() ) {
 			$cf = strtoupper( sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) );
 			// Cloudflare uses XX (unknown) and T1 (Tor) for non-countries — ignore those.
 			if ( preg_match( '/^[A-Z]{2}$/', $cf ) && ! in_array( $cf, [ 'XX', 'T1' ], true ) ) {
@@ -66,6 +68,23 @@ class WPEPP_Geo {
 		 * @param string $ip   Visitor IP.
 		 */
 		return (string) apply_filters( 'wpepp_geo_country', $code, $ip );
+	}
+
+	/**
+	 * Whether the direct peer of this request is a registered trusted proxy.
+	 *
+	 * @return bool
+	 */
+	private static function is_behind_trusted_proxy() {
+		if ( ! class_exists( 'WPEPP_Core_Ip' ) ) {
+			return false;
+		}
+
+		$remote = isset( $_SERVER['REMOTE_ADDR'] )
+			? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP )
+			: false;
+
+		return $remote ? WPEPP_Core_Ip::is_trusted_proxy( $remote ) : false;
 	}
 
 	/**

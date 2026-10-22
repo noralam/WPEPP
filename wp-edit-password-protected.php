@@ -9,9 +9,9 @@
  * Plugin Name:       WPEPP – Essential Security, Password Protect & Login Page Customizer
  * Plugin URI:        http://wpthemespace.com
  * Description:       Limit login attempts, block AI crawlers, hide login page, password protect content & login page customizer with live preview.
- * Version:           2.0.5
+ * Version:           3.0.0
  * Requires PHP:      7.4
- * Requires at least: 6.0
+ * Requires at least: 6.2
  * Author:            Noor alam
  * Author URI:        http://wpthemespace.com
  * License:           GPL-2.0+
@@ -22,10 +22,32 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Plugin constants.
-define( 'WPEPP_VERSION', '2.0.5' );
+/**
+ * Plugin version.
+ *
+ * @var string
+ */
+define( 'WPEPP_VERSION', '3.0.0' );
+
+/**
+ * Main plugin file path.
+ *
+ * @var string
+ */
 define( 'WPEPP_FILE', __FILE__ );
+
+/**
+ * Plugin directory path.
+ *
+ * @var string
+ */
 define( 'WPEPP_PATH', plugin_dir_path( __FILE__ ) );
+
+/**
+ * Plugin directory URL.
+ *
+ * @var string
+ */
 define( 'WPEPP_URL', plugins_url( '', __FILE__ ) );
 
 // Autoload includes.

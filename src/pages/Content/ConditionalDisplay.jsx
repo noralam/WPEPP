@@ -2,17 +2,20 @@
  * Conditional Display dashboard — list of posts with conditional rules.
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { Button, Spinner, ToggleControl, SelectControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import ProLock from '../../components/ProLock';
+import Pagination from '../../components/Pagination';
 
 const ConditionalDisplay = () => {
 	const isPro = useSelect( ( select ) => select( 'wpepp/settings' ).isPro() );
 	const [ posts, setPosts ] = useState( [] );
 	const [ loading, setLoading ] = useState( true );
 	const [ filter, setFilter ] = useState( 'all' );
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+	const pageSize = 15;
 
 	useEffect( () => {
 		apiFetch( { path: '/wpepp/v1/conditional' } )
@@ -35,9 +38,16 @@ const ConditionalDisplay = () => {
 		} );
 	};
 
-	const filteredPosts = filter === 'all'
-		? posts
-		: posts.filter( ( p ) => p.type === filter );
+	const filteredPosts = useMemo( () => {
+		return filter === 'all'
+			? posts
+			: posts.filter( ( p ) => p.type === filter );
+	}, [ posts, filter ] );
+
+	const paginatedPosts = useMemo( () => {
+		const start = ( currentPage - 1 ) * pageSize;
+		return filteredPosts.slice( start, start + pageSize );
+	}, [ filteredPosts, currentPage, pageSize ] );
 
 	if ( loading ) {
 		return <Spinner />;
@@ -60,7 +70,10 @@ const ConditionalDisplay = () => {
 							{ label: __( 'Posts', 'wp-edit-password-protected' ), value: 'post' },
 							{ label: __( 'Pages', 'wp-edit-password-protected' ), value: 'page' },
 						] }
-						onChange={ setFilter }
+						onChange={ ( v ) => {
+							setFilter( v );
+							setCurrentPage( 1 );
+						} }
 					/>
 				</div>
 
@@ -69,39 +82,47 @@ const ConditionalDisplay = () => {
 						{ __( 'No posts with conditional display rules. Use the Conditional Display meta box in the post editor.', 'wp-edit-password-protected' ) }
 					</p>
 				) : (
-					<table className="wpepp-table widefat striped">
-						<thead>
-							<tr>
-								<th>{ __( 'Title', 'wp-edit-password-protected' ) }</th>
-								<th>{ __( 'Type', 'wp-edit-password-protected' ) }</th>
-								<th>{ __( 'Condition', 'wp-edit-password-protected' ) }</th>
-								<th>{ __( 'Action', 'wp-edit-password-protected' ) }</th>
-								<th>{ __( 'Enabled', 'wp-edit-password-protected' ) }</th>
-							</tr>
-						</thead>
-						<tbody>
-							{ filteredPosts.map( ( post ) => (
-								<tr key={ post.id }>
-									<td>
-										<a href={ post.edit_link } target="_blank" rel="noopener noreferrer">
-											{ post.title }
-										</a>
-									</td>
-									<td>{ post.type }</td>
-									<td>{ post.condition }</td>
-									<td>{ post.action }</td>
-									<td>
-										<ToggleControl
-											__nextHasNoMarginBottom
-											checked={ post.enabled }
-											onChange={ ( v ) => toggleConditional( post.id, v ) }
-											__nextHasNoMarginBottom
-										/>
-									</td>
+					<>
+						<table className="wpepp-table widefat striped">
+							<thead>
+								<tr>
+									<th>{ __( 'Title', 'wp-edit-password-protected' ) }</th>
+									<th>{ __( 'Type', 'wp-edit-password-protected' ) }</th>
+									<th>{ __( 'Condition', 'wp-edit-password-protected' ) }</th>
+									<th>{ __( 'Action', 'wp-edit-password-protected' ) }</th>
+									<th>{ __( 'Enabled', 'wp-edit-password-protected' ) }</th>
 								</tr>
-							) ) }
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								{ paginatedPosts.map( ( post ) => (
+									<tr key={ post.id }>
+										<td>
+											<a href={ post.edit_link } target="_blank" rel="noopener noreferrer">
+												{ post.title }
+											</a>
+										</td>
+										<td>{ post.type }</td>
+										<td>{ post.condition }</td>
+										<td>{ post.action }</td>
+										<td>
+											<ToggleControl
+												__nextHasNoMarginBottom
+												checked={ post.enabled }
+												onChange={ ( v ) => toggleConditional( post.id, v ) }
+											/>
+										</td>
+									</tr>
+								) ) }
+							</tbody>
+						</table>
+						<Pagination
+							currentPage={ currentPage }
+							totalItems={ filteredPosts.length }
+							pageSize={ pageSize }
+							onPageChange={ setCurrentPage }
+							itemName={ __( 'items', 'wp-edit-password-protected' ) }
+						/>
+					</>
 				) }
 			</ProLock>
 		</div>

@@ -8,9 +8,13 @@ import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { Button, Spinner, Notice } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
+import Pagination from '../../components/Pagination';
+
+const PAGE_SIZE = 15;
 
 const PluginPerformance = () => {
 	const [ plugins, setPlugins ] = useState( [] );
+	const [ page, setPage ] = useState( 1 );
 	const [ loading, setLoading ] = useState( true );
 	const [ actionLoading, setActionLoading ] = useState( null );
 	const [ notice, setNotice ] = useState( null );
@@ -83,6 +87,7 @@ const PluginPerformance = () => {
 					{ __( 'No active plugins found.', 'wp-edit-password-protected' ) }
 				</p>
 			) : (
+				<>
 				<table className="wpepp-table widefat striped">
 					<thead>
 						<tr>
@@ -93,7 +98,7 @@ const PluginPerformance = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{ plugins.map( ( plugin ) => (
+						{ plugins.slice( ( page - 1 ) * PAGE_SIZE, page * PAGE_SIZE ).map( ( plugin ) => (
 							<tr key={ plugin.file }>
 								<td>
 									<strong>{ plugin.name }</strong>
@@ -122,6 +127,14 @@ const PluginPerformance = () => {
 						) ) }
 					</tbody>
 				</table>
+				<Pagination
+					currentPage={ page }
+					totalItems={ plugins.length }
+					pageSize={ PAGE_SIZE }
+					onPageChange={ setPage }
+					itemName={ __( 'plugins', 'wp-edit-password-protected' ) }
+				/>
+				</>
 			) }
 		</div>
 	);
