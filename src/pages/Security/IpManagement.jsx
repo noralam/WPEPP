@@ -7,7 +7,6 @@ import {
 	PanelRow,
 	TextareaControl,
 	Notice,
-	Spinner,
 	Button,
 } from '@wordpress/components';
 import Card from '../../components/Card';
@@ -16,6 +15,7 @@ import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../../components/ProBadge';
 import { useSaveBar } from '../../components/SaveBar';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
+import Loading from '../../components/Loading';
 
 const IpManagement = () => {
 	const { settings, isLoading, isPro } = useSelect( ( select ) => {
@@ -93,7 +93,7 @@ const IpManagement = () => {
 	}, [ s.trusted_proxies, update, loadProxyStatus ] );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="table" count={ 5 } />;
 	}
 
 	const blockedCount = ( s.ip_blocklist || '' ).split( /[\n,]+/ ).filter( ( l ) => l.trim() && ! l.trim().startsWith( '#' ) ).length;
@@ -211,7 +211,7 @@ const IpManagement = () => {
 								{ ! isPro && <ProBadge /> }
 							</span>
 						}
-						help={ __( 'Enter one IP address per line. You can add comments with # (e.g. 1.2.3.4 # spam bot). Supports CIDR notation.', 'wp-edit-password-protected' ) }
+						help={ ! isPro ? __( 'Requires WPEPP Pro to manage custom IP blocklist.', 'wp-edit-password-protected' ) : __( 'Enter one IP address per line. You can add comments with # (e.g. 1.2.3.4 # spam bot). Supports CIDR notation.', 'wp-edit-password-protected' ) }
 						value={ s.ip_blocklist || '' }
 						onChange={ ( v ) => update( 'ip_blocklist', v ) }
 						rows={ 8 }
@@ -245,7 +245,7 @@ const IpManagement = () => {
 								{ ! isPro && <ProBadge /> }
 							</span>
 						}
-						help={ __( 'Enter one IP address per line. These IPs will never be blocked by any security feature. Supports CIDR notation.', 'wp-edit-password-protected' ) }
+						help={ ! isPro ? __( 'Requires WPEPP Pro to manage custom IP allowlist.', 'wp-edit-password-protected' ) : __( 'Enter one IP address per line. These IPs will never be blocked by any security feature. Supports CIDR notation.', 'wp-edit-password-protected' ) }
 						value={ s.ip_allowlist || '' }
 						onChange={ ( v ) => update( 'ip_allowlist', v ) }
 						rows={ 6 }

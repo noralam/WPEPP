@@ -28,9 +28,10 @@ class WPEPP_Logger {
 	/**
 	 * Severity levels.
 	 */
-	const SEV_INFO = 1;
-	const SEV_WARN = 2;
-	const SEV_CRIT = 3;
+	const SEV_INFO     = 1;
+	const SEV_WARN     = 2;
+	const SEV_CRIT     = 3;
+	const SEV_CRITICAL = 3;
 
 	/**
 	 * Known event types (allowlist).
@@ -97,7 +98,7 @@ class WPEPP_Logger {
 		$exists = wp_cache_get( 'wpepp_events_exists', 'wpepp' );
 
 		if ( false === $exists ) {
-			$exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
 			);
 			wp_cache_set( 'wpepp_events_exists', $exists ? $table : 'no', 'wpepp', HOUR_IN_SECONDS );
@@ -145,7 +146,7 @@ class WPEPP_Logger {
 
 		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
 
-		$ok = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$ok = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			self::table_name(),
 			[
 				'event_type' => sanitize_key( $type ),
@@ -205,7 +206,7 @@ class WPEPP_Logger {
 
 		array_push( $params, $per_page, ( $page - 1 ) * $per_page );
 
-		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( $sql, ...$params ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders bound via prepare(); table from $wpdb->prefix.
 			ARRAY_A
 		);
@@ -240,7 +241,7 @@ class WPEPP_Logger {
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table always derives from $wpdb->prefix.
 			$sql_total = "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s";
-			$out['total'] = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$out['total'] = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare( $sql_total, $since ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $table derives from $wpdb->prefix.
 			);
 
@@ -249,7 +250,7 @@ class WPEPP_Logger {
 						 WHERE created_at >= %s GROUP BY event_type";
 
 			foreach (
-				$wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 					$wpdb->prepare(
 						$sql_by_type, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $table derives from $wpdb->prefix.
 						$since
@@ -265,7 +266,7 @@ class WPEPP_Logger {
 						   WHERE created_at >= %s GROUP BY DATE(created_at)";
 
 			foreach (
-				$wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 					$wpdb->prepare(
 						$sql_by_day, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $table derives from $wpdb->prefix.
 						$since

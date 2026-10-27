@@ -8,7 +8,6 @@ import {
 	TextControl,
 	TextareaControl,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
@@ -16,6 +15,7 @@ import { useMemo, useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 import { SITE_ACCESS_DEFAULTS } from '../../utils/defaults';
 import ProBadge from '../../components/ProBadge';
+import Loading from '../../components/Loading';
 
 const AdminOnly = () => {
 	const { settings, isLoading, isSaving, isPro } = useSelect( ( select ) => {
@@ -47,7 +47,7 @@ const AdminOnly = () => {
 	useSaveBar( handleSave, handleReset );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 3 } />;
 	}
 
 	return (

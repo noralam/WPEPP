@@ -3,7 +3,7 @@
  */
 import { lazy, Suspense, useState, useCallback, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { Spinner } from '@wordpress/components';
+import { PageSkeleton } from './components/Skeleton';
 import { useSelect } from '@wordpress/data';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
@@ -69,7 +69,7 @@ const App = () => {
 						<Notices />
 						<div className="wpepp-admin-content">
 							<ErrorBoundary>
-							<Suspense fallback={ <Spinner /> }>
+							<Suspense fallback={ <PageSkeleton variant="mixed" /> }>
 								<Routes>
 									<Route path="/" element={ <Dashboard /> } />
 									<Route path="/form-style/*" element={ <FormStyle /> } />

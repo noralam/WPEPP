@@ -9,13 +9,14 @@ import {
 	SelectControl,
 	RangeControl,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import { useMemo, useCallback, useState } from '@wordpress/element';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
 import { useSaveBar } from '../../components/SaveBar';
 import ProBadge from '../../components/ProBadge';
+import ProLock from '../../components/ProLock';
+import Loading from '../../components/Loading';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
 
 const AntiSpam = () => {
@@ -48,8 +49,15 @@ const AntiSpam = () => {
 
 	const [ activeSubTab, setActiveSubTab ] = useState( 'all' );
 
+	const hasCaptchaProvider = !! s.captcha_provider;
+	const captchaHelpText = ! isPro
+		? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' )
+		: ( ! hasCaptchaProvider
+			? __( 'Disabled — select and configure a provider in CAPTCHA Engine first.', 'wp-edit-password-protected' )
+			: null );
+
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="cards" count={ 3 } />;
 	}
 
 	const providerOptions = [
@@ -161,8 +169,11 @@ const AntiSpam = () => {
 								'Automatically rejects fake accounts registered with temporary throwaway emails (e.g. Mailinator, TempMail, Yopmail).',
 								'wp-edit-password-protected'
 							) }
-							checked={ s.wc_disposable_email_block !== false }
+							checked={ isPro && s.wc_disposable_email_block !== false }
 							onChange={ ( v ) => update( 'wc_disposable_email_block', v ) }
+							badge={ ! isPro ? <ProBadge /> : null }
+							disabled={ ! isPro }
+							help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 						/>
 
 						<ToggleCard
@@ -181,10 +192,11 @@ const AntiSpam = () => {
 								'Displays Cloudflare Turnstile or Google reCAPTCHA challenge directly on WooCommerce login and registration forms.',
 								'wp-edit-password-protected'
 							) }
-							checked={ !! s.wc_captcha_enabled }
+							checked={ isPro && hasCaptchaProvider && !! s.wc_captcha_enabled }
 							onChange={ ( v ) => update( 'wc_captcha_enabled', v ) }
 							badge={ ! isPro ? <ProBadge /> : null }
-							disabled={ ! isPro }
+							disabled={ ! isPro || ! hasCaptchaProvider }
+							help={ captchaHelpText }
 						/>
 					</div>
 				</Card>
@@ -226,10 +238,11 @@ const AntiSpam = () => {
 								'Challenges visitors with Turnstile or reCAPTCHA before their comment is accepted. Admins and moderators are automatically exempt.',
 								'wp-edit-password-protected'
 							) }
-							checked={ !! s.comment_captcha_enabled }
+							checked={ isPro && hasCaptchaProvider && !! s.comment_captcha_enabled }
 							onChange={ ( v ) => update( 'comment_captcha_enabled', v ) }
 							badge={ ! isPro ? <ProBadge /> : null }
-							disabled={ ! isPro }
+							disabled={ ! isPro || ! hasCaptchaProvider }
+							help={ captchaHelpText }
 						/>
 					</div>
 				</Card>
@@ -271,10 +284,11 @@ const AntiSpam = () => {
 								'Requires solving a CAPTCHA challenge before requesting a password reset email.',
 								'wp-edit-password-protected'
 							) }
-							checked={ !! s.lostpassword_captcha_enabled }
+							checked={ isPro && hasCaptchaProvider && !! s.lostpassword_captcha_enabled }
 							onChange={ ( v ) => update( 'lostpassword_captcha_enabled', v ) }
 							badge={ ! isPro ? <ProBadge /> : null }
-							disabled={ ! isPro }
+							disabled={ ! isPro || ! hasCaptchaProvider }
+							help={ captchaHelpText }
 						/>
 					</div>
 				</Card>
@@ -282,113 +296,115 @@ const AntiSpam = () => {
 
 			{ /* ─── 4. Universal CAPTCHA Engine ─── */ }
 			{ ( activeSubTab === 'all' || activeSubTab === 'captcha' ) && (
-				<Card
-					title={ __( 'Universal CAPTCHA Engine', 'wp-edit-password-protected' ) }
-					subtitle={ __(
-						'Choose your bot challenge provider. Supported across Login, Registration, WooCommerce, Comments, and Password Reset.',
-						'wp-edit-password-protected'
-					) }
-				>
-					<div style={ { maxWidth: '640px', display: 'flex', flexDirection: 'column', gap: '16px' } }>
-						<SelectControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'CAPTCHA Provider', 'wp-edit-password-protected' ) }
-							value={ s.captcha_provider || '' }
-							options={ providerOptions }
-							onChange={ ( v ) => update( 'captcha_provider', v ) }
-						/>
-
-						{ s.captcha_provider === 'turnstile' && (
-							<div
-								style={ {
-									padding: '16px',
-									background: 'var(--wpepp-surface)',
-									border: '1px solid var(--wpepp-border)',
-									borderRadius: '8px',
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '12px',
-								} }
-							>
-								<div style={ { fontSize: '13px', color: 'var(--wpepp-text-2)' } }>
-									{ __(
-										'Cloudflare Turnstile delivers a modern, frictionless visitor experience without frustrating puzzles.',
-										'wp-edit-password-protected'
-									) }
-								</div>
-								<TextControl
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									label={ __( 'Turnstile Site Key', 'wp-edit-password-protected' ) }
-									value={ s.turnstile_site_key || '' }
-									onChange={ ( v ) => update( 'turnstile_site_key', v ) }
-									placeholder="0x4AAAAAA..."
-								/>
-								<TextControl
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									label={ __( 'Turnstile Secret Key', 'wp-edit-password-protected' ) }
-									value={ s.turnstile_secret_key || '' }
-									onChange={ ( v ) => update( 'turnstile_secret_key', v ) }
-									type="password"
-									placeholder="0x4AAAAAA..."
-								/>
-							</div>
+				<ProLock isPro={ isPro } featureName={ __( 'Universal CAPTCHA Engine (Turnstile & reCAPTCHA)', 'wp-edit-password-protected' ) }>
+					<Card
+						title={ __( 'Universal CAPTCHA Engine', 'wp-edit-password-protected' ) }
+						subtitle={ __(
+							'Choose your bot challenge provider. Supported across Login, Registration, WooCommerce, Comments, and Password Reset.',
+							'wp-edit-password-protected'
 						) }
+					>
+						<div style={ { maxWidth: '640px', display: 'flex', flexDirection: 'column', gap: '16px' } }>
+							<SelectControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								label={ __( 'CAPTCHA Provider', 'wp-edit-password-protected' ) }
+								value={ s.captcha_provider || '' }
+								options={ providerOptions }
+								onChange={ ( v ) => update( 'captcha_provider', v ) }
+							/>
 
-						{ ( s.captcha_provider === 'recaptcha_v2' || s.captcha_provider === 'recaptcha_v3' ) && (
-							<div
-								style={ {
-									padding: '16px',
-									background: 'var(--wpepp-surface)',
-									border: '1px solid var(--wpepp-border)',
-									borderRadius: '8px',
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '12px',
-								} }
-							>
-								<TextControl
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									label={ __( 'reCAPTCHA Site Key', 'wp-edit-password-protected' ) }
-									value={ s.recaptcha_site_key || '' }
-									onChange={ ( v ) => update( 'recaptcha_site_key', v ) }
-								/>
-								<TextControl
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									label={ __( 'reCAPTCHA Secret Key', 'wp-edit-password-protected' ) }
-									value={ s.recaptcha_secret_key || '' }
-									onChange={ ( v ) => update( 'recaptcha_secret_key', v ) }
-									type="password"
-								/>
-								{ s.captcha_provider === 'recaptcha_v3' && (
-									<RangeControl
+							{ s.captcha_provider === 'turnstile' && (
+								<div
+									style={ {
+										padding: '16px',
+										background: 'var(--wpepp-surface)',
+										border: '1px solid var(--wpepp-border)',
+										borderRadius: '8px',
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '12px',
+									} }
+								>
+									<div style={ { fontSize: '13px', color: 'var(--wpepp-text-2)' } }>
+										{ __(
+											'Cloudflare Turnstile delivers a modern, frictionless visitor experience without frustrating puzzles.',
+											'wp-edit-password-protected'
+										) }
+									</div>
+									<TextControl
 										__next40pxDefaultSize
 										__nextHasNoMarginBottom
-										label={ __( 'v3 Passing Score Threshold', 'wp-edit-password-protected' ) }
-										help={ __( 'Scores range from 0.0 (likely a bot) to 1.0 (likely a human). 0.5 is the recommended standard.', 'wp-edit-password-protected' ) }
-										value={ s.captcha_threshold ?? 0.5 }
-										min={ 0.1 }
-										max={ 0.9 }
-										step={ 0.1 }
-										onChange={ ( v ) => update( 'captcha_threshold', v ) }
+										label={ __( 'Turnstile Site Key', 'wp-edit-password-protected' ) }
+										value={ s.turnstile_site_key || '' }
+										onChange={ ( v ) => update( 'turnstile_site_key', v ) }
+										placeholder="0x4AAAAAA..."
 									/>
-								) }
-							</div>
-						) }
+									<TextControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'Turnstile Secret Key', 'wp-edit-password-protected' ) }
+										value={ s.turnstile_secret_key || '' }
+										onChange={ ( v ) => update( 'turnstile_secret_key', v ) }
+										type="password"
+										placeholder="0x4AAAAAA..."
+									/>
+								</div>
+							) }
 
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __( 'Test Mode (Do not block submissions)', 'wp-edit-password-protected' ) }
-							help={ __( 'When enabled, the CAPTCHA widget renders and logs validation, but failing it will not block visitors.', 'wp-edit-password-protected' ) }
-							checked={ !! s.recaptcha_test_mode }
-							onChange={ ( v ) => update( 'recaptcha_test_mode', v ) }
-						/>
-					</div>
-				</Card>
+							{ ( s.captcha_provider === 'recaptcha_v2' || s.captcha_provider === 'recaptcha_v3' ) && (
+								<div
+									style={ {
+										padding: '16px',
+										background: 'var(--wpepp-surface)',
+										border: '1px solid var(--wpepp-border)',
+										borderRadius: '8px',
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '12px',
+									} }
+								>
+									<TextControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'reCAPTCHA Site Key', 'wp-edit-password-protected' ) }
+										value={ s.recaptcha_site_key || '' }
+										onChange={ ( v ) => update( 'recaptcha_site_key', v ) }
+									/>
+									<TextControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'reCAPTCHA Secret Key', 'wp-edit-password-protected' ) }
+										value={ s.recaptcha_secret_key || '' }
+										onChange={ ( v ) => update( 'recaptcha_secret_key', v ) }
+										type="password"
+									/>
+									{ s.captcha_provider === 'recaptcha_v3' && (
+										<RangeControl
+											__next40pxDefaultSize
+											__nextHasNoMarginBottom
+											label={ __( 'v3 Passing Score Threshold', 'wp-edit-password-protected' ) }
+											help={ __( 'Scores range from 0.0 (likely a bot) to 1.0 (likely a human). 0.5 is the recommended standard.', 'wp-edit-password-protected' ) }
+											value={ s.captcha_threshold ?? 0.5 }
+											min={ 0.1 }
+											max={ 0.9 }
+											step={ 0.1 }
+											onChange={ ( v ) => update( 'captcha_threshold', v ) }
+										/>
+									) }
+								</div>
+							) }
+
+							<ToggleControl
+								__nextHasNoMarginBottom
+								label={ __( 'Test Mode (Do not block submissions)', 'wp-edit-password-protected' ) }
+								help={ __( 'When enabled, the CAPTCHA widget renders and logs validation, but failing it will not block visitors.', 'wp-edit-password-protected' ) }
+								checked={ !! s.recaptcha_test_mode }
+								onChange={ ( v ) => update( 'recaptcha_test_mode', v ) }
+							/>
+						</div>
+					</Card>
+				</ProLock>
 			) }
 		</div>
 	);

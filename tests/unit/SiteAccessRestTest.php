@@ -87,9 +87,10 @@ class SiteAccessRestTest extends TestCase {
 	}
 
 	public function test_safe_mode_bypasses_site_wide_rest_restriction() {
+		// phpcs:disable WordPress.WP.AlternativeFunctions, PluginCheck.CodeAnalysis.WriteFile.PluginDirectoryWrite -- Test verifies emergency safe-mode bypass via file creation.
 		$flag_file = WP_CONTENT_DIR . '/wpepp-safe-mode.txt';
 		if ( ! is_dir( WP_CONTENT_DIR ) ) {
-			@mkdir( WP_CONTENT_DIR, 0777, true );
+			wp_mkdir_p( WP_CONTENT_DIR );
 		}
 		file_put_contents( $flag_file, 'Safe Mode Active' );
 
@@ -98,14 +99,15 @@ class SiteAccessRestTest extends TestCase {
 			'site_password'         => 'SecretPass123',
 		] ) );
 
-		// Force refresh safe mode cache
+		// Force refresh safe mode cache.
 		WPEPP_Security::is_safe_mode( true );
 
 		$access = new WPEPP_Site_Access();
 		$result = $access->enforce_rest_access( null );
 
-		@unlink( $flag_file );
+		wp_delete_file( $flag_file );
 		WPEPP_Security::is_safe_mode( true );
+		// phpcs:enable WordPress.WP.AlternativeFunctions, PluginCheck.CodeAnalysis.WriteFile.PluginDirectoryWrite
 
 		$this->assertNull( $result );
 	}

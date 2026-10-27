@@ -9,7 +9,6 @@ import {
 	TextareaControl,
 	FormTokenField,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
@@ -18,6 +17,7 @@ import { useSaveBar } from '../../components/SaveBar';
 import { SITE_ACCESS_DEFAULTS } from '../../utils/defaults';
 import { COUNTRIES, labelForCode, codeForLabel } from '../../utils/countries';
 import ProBadge from '../../components/ProBadge';
+import Loading from '../../components/Loading';
 
 const FREE_LIMIT = 2;
 
@@ -79,7 +79,7 @@ const CountryRestriction = () => {
 	}, [ isPro, update ] );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 3 } />;
 	}
 
 	return (

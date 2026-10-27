@@ -1,0 +1,193 @@
+/**
+ * WPEPP Skeleton & Loading Screen Styles
+ * Modeled after the modern shimmer loader in AI Marketing Expert.
+ */
+
+// Keyframe shimmer using background-position shift
+@keyframes wpepp-shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+// Atomic Skeleton
+.wpepp-skeleton {
+	animation: wpepp-shimmer 1.6s ease-in-out infinite;
+	background: linear-gradient(
+		90deg,
+		var(--wpepp-skeleton-bg, rgba(255, 255, 255, 0.08)) 25%,
+		var(--wpepp-skeleton-shine, rgba(255, 255, 255, 0.16)) 50%,
+		var(--wpepp-skeleton-bg, rgba(255, 255, 255, 0.08)) 75%
+	);
+	background-size: 200% 100%;
+	border-radius: 6px;
+	display: block;
+
+	&--circle {
+		border-radius: 50% !important;
+	}
+
+	&--pill {
+		border-radius: 999px !important;
+	}
+
+	&--control {
+		border-radius: 8px;
+		margin-top: 8px;
+	}
+
+	&--plot {
+		margin-top: 16px;
+		border-radius: 8px;
+	}
+}
+
+// Light theme variables (Matches the subtle mint-silver style in the uploaded image)
+.wpepp-admin-wrap[data-theme='light'] {
+	--wpepp-skeleton-bg: #eaf0ea;
+	--wpepp-skeleton-shine: #d5e2d5;
+}
+
+// Dark theme variables
+.wpepp-admin-wrap[data-theme='dark'],
+.wpepp-admin-wrap:not([data-theme='light']) {
+	--wpepp-skeleton-bg: rgba(255, 255, 255, 0.07);
+	--wpepp-skeleton-shine: rgba(255, 255, 255, 0.15);
+}
+
+// Loading Container
+.wpepp-loading {
+	width: 100%;
+
+	.wpepp-skeleton + .wpepp-skeleton {
+		margin-top: 10px;
+	}
+
+	// 1. Table Variant (Exact match to screenshot)
+	&__table {
+		background: var(--wpepp-card, #151a47);
+		border: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08));
+		border-radius: 12px;
+		overflow: hidden;
+		box-shadow: var(--wpepp-shadow, 0 2px 8px rgba(0, 0, 0, 0.06));
+		margin-bottom: 20px;
+	}
+
+	&__tr {
+		align-items: center;
+		border-bottom: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.07));
+		display: grid;
+		gap: 16px;
+		grid-template-columns: repeat(5, 1fr);
+		padding: 15px 20px;
+
+		&:last-child {
+			border-bottom: 0;
+		}
+
+		.wpepp-skeleton + .wpepp-skeleton {
+			margin-top: 0;
+		}
+
+		&--head {
+			background: var(--wpepp-surface, #111640);
+			border-bottom-color: var(--wpepp-border, rgba(255, 255, 255, 0.09));
+		}
+
+		@media (max-width: 768px) {
+			grid-template-columns: repeat(3, 1fr);
+
+			.wpepp-skeleton:nth-child(n+4) {
+				display: none;
+			}
+		}
+
+		@media (max-width: 480px) {
+			grid-template-columns: repeat(2, 1fr);
+
+			.wpepp-skeleton:nth-child(n+3) {
+				display: none;
+			}
+		}
+	}
+
+	// 2. Cards Grid Variant
+	&__grid {
+		display: grid;
+		gap: 16px;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		margin-bottom: 20px;
+	}
+
+	&__card {
+		background: var(--wpepp-card, #151a47);
+		border: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08));
+		border-radius: 12px;
+		box-shadow: var(--wpepp-shadow, 0 2px 8px rgba(0, 0, 0, 0.06));
+		padding: 22px;
+	}
+
+	// 3. Form Settings Variant
+	&__form {
+		background: var(--wpepp-card, #151a47);
+		border: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08));
+		border-radius: 12px;
+		padding: 24px;
+		margin-bottom: 20px;
+	}
+
+	&__field {
+		margin-bottom: 20px;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	// 4. Dashboard Stats & Panels Variant
+	&__stats {
+		background: var(--wpepp-card, #151a47);
+		border: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08));
+		border-radius: 12px;
+		display: grid;
+		gap: 1px;
+		grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+		margin-bottom: 20px;
+		overflow: hidden;
+	}
+
+	&__stat {
+		background: var(--wpepp-surface, #111640);
+		padding: 20px;
+
+		.wpepp-skeleton + .wpepp-skeleton {
+			margin-top: 12px;
+		}
+	}
+
+	&__panels {
+		display: grid;
+		gap: 16px;
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		margin-bottom: 20px;
+	}
+
+	// 5. Lines Variant
+	&__lines {
+		padding: 12px 0;
+	}
+}
+
+// Row flex helper
+.wpepp-skeleton-row {
+	display: flex;
+	gap: 12px;
+	margin-bottom: 12px;
+
+	.wpepp-skeleton {
+		flex: 1;
+	}
+}

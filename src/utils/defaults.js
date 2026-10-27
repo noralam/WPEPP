@@ -277,9 +277,9 @@ export const SECURITY_DEFAULTS = {
 	// IP Management (Pro).
 	ip_blocklist: '',
 	ip_allowlist: '',
-	// AI Crawler Blocker.
-	ai_crawler_blocker_enabled: true,
-	ai_crawler_block_ua: true,
+	// AI Crawler Blocker (Default: false to preserve AI SEO and recommendations).
+	ai_crawler_blocker_enabled: false,
+	ai_crawler_block_ua: false,
 	ai_crawler_bots: null,
 	ai_crawler_custom_ua: '',
 };

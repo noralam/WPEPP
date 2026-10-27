@@ -6,10 +6,11 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { Button, Spinner, Notice } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../../components/ProBadge';
 import Pagination from '../../components/Pagination';
+import { TableSkeleton } from '../../components/Skeleton';
 
 const PAGE_SIZE = 15;
 
@@ -79,7 +80,7 @@ const CronJobs = () => {
 	};
 
 	if ( loading ) {
-		return <Spinner />;
+		return <TableSkeleton rows={ 6 } columns={ 5 } />;
 	}
 
 	const now = Math.floor( Date.now() / 1000 );

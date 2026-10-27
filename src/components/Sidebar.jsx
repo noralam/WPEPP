@@ -35,7 +35,7 @@ const navGroups = [
 		items: [
 			{ to: '/firewall', icon: FirewallIcon, label: __( 'Firewall', 'wp-edit-password-protected' ) },
 			{ to: '/scanner', icon: ScannerIcon, label: __( 'Scanner', 'wp-edit-password-protected' ) },
-			{ to: '/anti-spam', icon: AntiSpamIcon, label: __( 'Anti-Spam', 'wp-edit-password-protected' ), badge: 'NEW' },
+			{ to: '/anti-spam', icon: AntiSpamIcon, label: __( 'Anti-Spam', 'wp-edit-password-protected' ) },
 			{ to: '/blocks', icon: BlocksIcon, label: __( 'Block Center', 'wp-edit-password-protected' ) },
 			{ to: '/logins', icon: LoginsIcon, label: __( 'Logins', 'wp-edit-password-protected' ) },
 			{ to: '/site-access', icon: SiteAccessIcon, label: __( 'Site Access', 'wp-edit-password-protected' ) },
@@ -45,9 +45,9 @@ const navGroups = [
 	{
 		label: __( 'Content', 'wp-edit-password-protected' ),
 		items: [
-			{ to: '/content', icon: ContentIcon, label: __( 'Content Lock', 'wp-edit-password-protected' ), pro: true },
 			{ to: '/form-style', icon: FormStyleIcon, label: __( 'Form Style', 'wp-edit-password-protected' ) },
 			{ to: '/templates', icon: TemplatesIcon, label: __( 'Templates', 'wp-edit-password-protected' ) },
+			{ to: '/content', icon: ContentIcon, label: __( 'Content Lock', 'wp-edit-password-protected' ), pro: true },
 		],
 	},
 	{
@@ -55,7 +55,7 @@ const navGroups = [
 		items: [
 			{ to: '/ai-crawler', icon: AiCrawlerIcon, label: __( 'AI Crawler Blocker', 'wp-edit-password-protected' ) },
 			{ to: '/activity', icon: AnalyticsIcon, label: __( 'Activity', 'wp-edit-password-protected' ) },
-			{ to: '/tools', icon: ToolsIcon, label: __( 'Logs & Tools', 'wp-edit-password-protected' ), pro: true },
+			{ to: '/tools', icon: ToolsIcon, label: __( 'Logs & Tools', 'wp-edit-password-protected' ) },
 			{ to: '/settings', icon: SettingsIcon, label: __( 'Settings', 'wp-edit-password-protected' ) },
 		],
 	},

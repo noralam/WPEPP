@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load module class without triggering the boot() side-effect at file end:
 // strip the trailing boot() call, stage a clean copy in the OS temp dir,
 // and include it from there instead of eval().
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 $passkeys_code = file_get_contents( dirname( __DIR__, 3 ) . '/wpepp-pro/inc/modules/passkeys.php' );
 $passkeys_code = preg_replace( '/WPEPP_Pro_Passkeys::boot\(\);.*$/s', '', $passkeys_code );
 $passkeys_tmp  = tempnam( sys_get_temp_dir(), 'wpepp_passkeys_' );
@@ -23,6 +24,7 @@ if ( false === $passkeys_tmp || false === $passkeys_code || false === file_put_c
 }
 
 require_once $passkeys_tmp;
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 wp_delete_file( $passkeys_tmp );
 
 /**

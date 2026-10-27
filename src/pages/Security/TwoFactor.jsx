@@ -5,7 +5,6 @@ import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	Notice,
-	Spinner,
 	Button,
 	TextControl,
 	SelectControl,
@@ -17,6 +16,7 @@ import { useMemo, useCallback, useState, useEffect, useRef } from '@wordpress/el
 import apiFetch from '@wordpress/api-fetch';
 import { useSaveBar } from '../../components/SaveBar';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
+import Loading from '../../components/Loading';
 
 const ROLE_OPTIONS = [
 	{ value: 'administrator', label: __( 'Administrator', 'wp-edit-password-protected' ) },
@@ -173,7 +173,7 @@ const TwoFactor = () => {
 	}, [ s.two_factor_roles, update ] );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 3 } />;
 	}
 
 	const roles = Array.isArray( s.two_factor_roles ) ? s.two_factor_roles : [ 'administrator' ];
@@ -257,14 +257,16 @@ const TwoFactor = () => {
 							{ ! setupData && ! recoveryCodes && (
 								<>
 									<p>{ __( 'Set up two-factor authentication for your account using an authenticator app.', 'wp-edit-password-protected' ) }</p>
-																			<Button
-											variant="primary"
-											onClick={ startSetup }
-											isBusy={ setupLoading }
-										>
-											{ __( 'Start Setup', 'wp-edit-password-protected' ) }
-										</Button>
-									
+									{ setupError && (
+										<Notice status="error" isDismissible={ false } style={ { marginBottom: 12 } }>{ setupError }</Notice>
+									) }
+									<Button
+										variant="primary"
+										onClick={ startSetup }
+										isBusy={ setupLoading }
+									>
+										{ __( 'Start Setup', 'wp-edit-password-protected' ) }
+									</Button>
 								</>
 							) }
 
@@ -297,17 +299,17 @@ const TwoFactor = () => {
 									</p>
 									<p><strong>{ __( 'Step 2:', 'wp-edit-password-protected' ) }</strong> { __( 'Enter the 6-digit code from your app to verify:', 'wp-edit-password-protected' ) }</p>
 									{ setupError && (
-										<Notice status="error" isDismissible={ false }>{ setupError }</Notice>
+										<Notice status="error" isDismissible={ false } style={ { marginBottom: 12 } }>{ setupError }</Notice>
 									) }
-																			<TextControl
-											label={ __( 'Verification Code', 'wp-edit-password-protected' ) }
-											value={ verifyCode }
-											onChange={ setVerifyCode }
-											placeholder="000000"
-											style={ { maxWidth: 180 } }
-										/>
-									
-																			<Button
+									<TextControl
+										label={ __( 'Verification Code', 'wp-edit-password-protected' ) }
+										value={ verifyCode }
+										onChange={ setVerifyCode }
+										placeholder="000000"
+										style={ { maxWidth: 180 } }
+									/>
+									<div style={ { display: 'flex', gap: 8, marginTop: 12 } }>
+										<Button
 											variant="primary"
 											onClick={ confirmSetup }
 											isBusy={ setupLoading }
@@ -315,7 +317,17 @@ const TwoFactor = () => {
 										>
 											{ __( 'Verify & Enable', 'wp-edit-password-protected' ) }
 										</Button>
-									
+										<Button
+											variant="tertiary"
+											onClick={ () => {
+												setSetupData( null );
+												setVerifyCode( '' );
+												setSetupError( '' );
+											} }
+										>
+											{ __( 'Cancel', 'wp-edit-password-protected' ) }
+										</Button>
+									</div>
 								</>
 							) }
 						</>
@@ -342,14 +354,22 @@ const TwoFactor = () => {
 									<div key={ i }>{ code }</div>
 								) ) }
 							</div>
-															<Button
-									variant="secondary"
-									onClick={ () => {
-										navigator.clipboard?.writeText( recoveryCodes.join( '\n' ) );
-									} }
-								>
-									{ __( 'Copy to Clipboard', 'wp-edit-password-protected' ) }
-								</Button>
+								<div style={ { display: 'flex', gap: 8, marginTop: 12 } }>
+									<Button
+										variant="secondary"
+										onClick={ () => {
+											navigator.clipboard?.writeText( recoveryCodes.join( '\n' ) );
+										} }
+									>
+										{ __( 'Copy to Clipboard', 'wp-edit-password-protected' ) }
+									</Button>
+									<Button
+										variant="primary"
+										onClick={ () => setRecoveryCodes( null ) }
+									>
+										{ __( 'Done', 'wp-edit-password-protected' ) }
+									</Button>
+								</div>
 							
 						</>
 					) }

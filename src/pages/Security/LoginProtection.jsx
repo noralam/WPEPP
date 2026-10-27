@@ -9,7 +9,6 @@ import {
 	SelectControl,
 	RangeControl,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
@@ -17,6 +16,7 @@ import { useMemo, useCallback } from '@wordpress/element';
 import ProBadge from '../../components/ProBadge';
 import { useSaveBar } from '../../components/SaveBar';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
+import Loading from '../../components/Loading';
 
 const LoginProtection = () => {
 	const { settings, isLoading, isSaving, isPro } = useSelect( ( select ) => {
@@ -50,7 +50,7 @@ const LoginProtection = () => {
 	const siteUrl = ( window.wpeppData?.adminUrl || '' ).replace( /\/wp-admin\/$/, '' );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 4 } />;
 	}
 
 	return (
@@ -229,21 +229,15 @@ const LoginProtection = () => {
 				<div className="wpepp-form-grid">
 					<div className="wpepp-form-grid__full">
 						<TextControl
-							label={
-								<span>
-									{ __( 'Custom Login Slug', 'wp-edit-password-protected' ) }
-									{ ! isPro && <ProBadge /> }
-								</span>
-							}
+							label={ __( 'Custom Login Slug', 'wp-edit-password-protected' ) }
 							help={ siteUrl ? `${ siteUrl }/${ s.custom_login_url || 'my-login' }` : __( 'Replace the default wp-login.php URL with a custom slug.', 'wp-edit-password-protected' ) }
 							value={ s.custom_login_url || '' }
 							onChange={ ( v ) => update( 'custom_login_url', v.replace( /[^a-z0-9-]/gi, '' ).toLowerCase() ) }
 							placeholder="my-login"
-							disabled={ ! isPro }
 						/>
 					</div>
 				</div>
-				{ isPro && s.custom_login_url && (
+				{ s.custom_login_url && (
 					<Notice status="success" isDismissible={ false } style={ { marginTop: 16 } }>
 						{ __( 'Your custom login URL is active. Use the slug above instead of wp-login.php.', 'wp-edit-password-protected' ) }
 					</Notice>
@@ -276,19 +270,32 @@ const LoginProtection = () => {
 				) }
 			</Card>
 
-			<Card title={ __( 'After Login Redirect', 'wp-edit-password-protected' ) }>
+			<Card
+				title={ __( 'After Login Redirect', 'wp-edit-password-protected' ) }
+				action={ ! isPro && <ProBadge /> }
+			>
 				<div className="wpepp-form-grid">
 					<div className="wpepp-form-grid__full">
 						<TextControl
-							label={ __( 'Redirect URL', 'wp-edit-password-protected' ) }
-							help={ __( 'Redirect users to this URL after a successful login. Leave empty for default WordPress behavior (wp-admin).', 'wp-edit-password-protected' ) }
+							label={
+								<span>
+									{ __( 'Redirect URL', 'wp-edit-password-protected' ) }
+									{ ! isPro && <ProBadge /> }
+								</span>
+							}
+							help={
+								! isPro
+									? __( 'Upgrade to Pro to redirect users to a custom page or dashboard after logging in.', 'wp-edit-password-protected' )
+									: __( 'Redirect users to this URL after a successful login. Leave empty for default WordPress behavior (wp-admin).', 'wp-edit-password-protected' )
+							}
 							value={ s.after_login_redirect || '' }
 							onChange={ ( v ) => update( 'after_login_redirect', v ) }
 							placeholder="https://example.com/dashboard"
+							disabled={ ! isPro }
 						/>
 					</div>
 				</div>
-				{ s.after_login_redirect && (
+				{ isPro && s.after_login_redirect && (
 					<Notice status="info" isDismissible={ false } style={ { marginTop: 16 } }>
 						{ __( 'Users will be redirected to this URL after login, unless a specific redirect_to parameter is already in the login URL.', 'wp-edit-password-protected' ) }
 					</Notice>

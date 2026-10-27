@@ -71,7 +71,9 @@ class WPEPP_Spam_Guard {
 
 		/* ─── Comment Spam Protection ─── */
 		if ( ! empty( $settings['comment_spam_protection_enabled'] ?? true ) ) {
-			add_action( 'comment_form', [ __CLASS__, 'render_comment_honeypot' ] );
+			if ( ! empty( $settings['comment_honeypot_enabled'] ?? true ) ) {
+				add_action( 'comment_form', [ __CLASS__, 'render_comment_honeypot' ] );
+			}
 			add_filter( 'preprocess_comment', [ __CLASS__, 'validate_comment' ] );
 
 			if ( ! empty( $settings['comment_captcha_enabled'] ) && class_exists( 'WPEPP_Captcha' ) && '' !== WPEPP_Captcha::provider() ) {
@@ -117,7 +119,7 @@ class WPEPP_Spam_Guard {
 
 		// 1. Honeypot check
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( ! empty( $_POST['wpepp_wc_hp'] ) || ( isset( $_POST['wpepp_reg_hp'] ) && '' !== $_POST['wpepp_reg_hp'] ) ) {
+		if ( ! empty( $s['wc_honeypot_enabled'] ?? true ) && ( ! empty( $_POST['wpepp_wc_hp'] ) || ( isset( $_POST['wpepp_reg_hp'] ) && '' !== $_POST['wpepp_reg_hp'] ) ) ) {
 			$errors->add(
 				'wpepp_wc_honeypot',
 				__( '<strong>Error:</strong> Automated bot registration detected and blocked.', 'wp-edit-password-protected' )
@@ -218,7 +220,7 @@ class WPEPP_Spam_Guard {
 
 		// 1. Honeypot check
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( ! empty( $_POST['wpepp_comment_hp'] ) ) {
+		if ( ! empty( $s['comment_honeypot_enabled'] ?? true ) && ! empty( $_POST['wpepp_comment_hp'] ) ) {
 			wp_die(
 				esc_html__( 'Spam detected: Comment blocked by security honeypot.', 'wp-edit-password-protected' ),
 				esc_html__( 'Spam Blocked', 'wp-edit-password-protected' ),
@@ -277,7 +279,7 @@ class WPEPP_Spam_Guard {
 
 		// Honeypot
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( ! empty( $_POST['wpepp_lostpwd_hp'] ) ) {
+		if ( ! empty( $s['lostpassword_honeypot_enabled'] ?? true ) && ! empty( $_POST['wpepp_lostpwd_hp'] ) ) {
 			$errors->add(
 				'wpepp_lostpwd_hp',
 				__( '<strong>Error:</strong> Password reset request blocked by anti-spam.', 'wp-edit-password-protected' )

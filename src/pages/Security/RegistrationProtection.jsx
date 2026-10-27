@@ -10,7 +10,6 @@ import {
 	RangeControl,
 	SelectControl,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
@@ -18,6 +17,7 @@ import { useMemo, useCallback } from '@wordpress/element';
 import ProBadge from '../../components/ProBadge';
 import { useSaveBar } from '../../components/SaveBar';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
+import Loading from '../../components/Loading';
 
 const RegistrationProtection = () => {
 	const { settings, isLoading, isPro } = useSelect( ( select ) => {
@@ -48,7 +48,7 @@ const RegistrationProtection = () => {
 	useSaveBar( handleSave, handleReset );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 4 } />;
 	}
 
 	return (
@@ -101,12 +101,9 @@ const RegistrationProtection = () => {
 			<Card title={ __( 'reCAPTCHA on Registration', 'wp-edit-password-protected' ) }>
 				<div className="wpepp-toggle-grid">
 					<ToggleCard
-						title={
-							<span>
-								{ __( 'Enable reCAPTCHA on Registration', 'wp-edit-password-protected' ) }
-								{ ! isPro && <ProBadge /> }
-							</span>
-						}
+						title={ __( 'Enable reCAPTCHA on Registration', 'wp-edit-password-protected' ) }
+						badge={ ! isPro ? <ProBadge /> : null }
+						help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 						checked={ isPro && !! s.reg_captcha_enabled }
 						onChange={ ( v ) => update( 'reg_captcha_enabled', v ) }
 						disabled={ ! isPro }
@@ -131,12 +128,9 @@ const RegistrationProtection = () => {
 			<Card title={ __( 'Disposable Email Blocker', 'wp-edit-password-protected' ) }>
 				<div className="wpepp-toggle-grid">
 					<ToggleCard
-						title={
-							<span>
-								{ __( 'Block Disposable Email Addresses', 'wp-edit-password-protected' ) }
-								{ ! isPro && <ProBadge /> }
-							</span>
-						}
+						title={ __( 'Block Disposable Email Addresses', 'wp-edit-password-protected' ) }
+						badge={ ! isPro ? <ProBadge /> : null }
+						help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 						description={ __( 'Registrations from known disposable/temporary email services (Mailinator, Guerrilla Mail, YOPmail, etc.) will be blocked. The list covers 200+ domains.', 'wp-edit-password-protected' ) }
 						checked={ isPro && !! s.reg_block_disposable_emails }
 						onChange={ ( v ) => update( 'reg_block_disposable_emails', v ) }
@@ -157,6 +151,7 @@ const RegistrationProtection = () => {
 									{ ! isPro && <ProBadge /> }
 								</span>
 							}
+							help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 							value={ isPro ? ( s.reg_email_domain_mode || 'off' ) : 'off' }
 							options={ [
 								{ label: __( 'Off', 'wp-edit-password-protected' ), value: 'off' },
@@ -201,12 +196,9 @@ const RegistrationProtection = () => {
 			<Card title={ __( 'Admin Approval for New Users', 'wp-edit-password-protected' ) }>
 				<div className="wpepp-toggle-grid">
 					<ToggleCard
-						title={
-							<span>
-								{ __( 'Require Admin Approval', 'wp-edit-password-protected' ) }
-								{ ! isPro && <ProBadge /> }
-							</span>
-						}
+						title={ __( 'Require Admin Approval', 'wp-edit-password-protected' ) }
+						badge={ ! isPro ? <ProBadge /> : null }
+						help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 						description={ __( 'New users will not be able to log in until an administrator approves their account. An email notification is sent to the site admin for each new registration.', 'wp-edit-password-protected' ) }
 						checked={ isPro && !! s.reg_admin_approval }
 						onChange={ ( v ) => update( 'reg_admin_approval', v ) }

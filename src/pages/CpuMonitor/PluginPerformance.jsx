@@ -6,9 +6,10 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { Button, Spinner, Notice } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import Pagination from '../../components/Pagination';
+import Loading from '../../components/Loading';
 
 const PAGE_SIZE = 15;
 
@@ -58,7 +59,7 @@ const PluginPerformance = () => {
 	};
 
 	if ( loading ) {
-		return <Spinner />;
+		return <Loading variant="table" count={ 5 } />;
 	}
 
 	return (

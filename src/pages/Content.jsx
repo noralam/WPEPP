@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelect } from '@wordpress/data';
 import { lazy, Suspense } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { CardSkeleton } from '../components/Skeleton';
 import ProBadge from '../components/ProBadge';
 import ProLock from '../components/ProLock';
 
@@ -31,7 +31,7 @@ const Content = () => {
 				</NavLink>
 			</nav>
 
-			<Suspense fallback={ <Spinner /> }>
+			<Suspense fallback={ <CardSkeleton rows={ 4 } /> }>
 				<Routes>
 					<Route index element={ <Navigate to="/content/lock" replace /> } />
 					<Route

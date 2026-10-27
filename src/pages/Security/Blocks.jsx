@@ -8,12 +8,12 @@ import {
 	TextControl,
 	SelectControl,
 	Notice,
-	Spinner,
 	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import Card from '../../components/Card';
 import Pagination from '../../components/Pagination';
+import { TableSkeleton } from '../../components/Skeleton';
 
 const TYPE_LABELS = {
 	manual: __( 'Manual', 'wp-edit-password-protected' ),
@@ -143,7 +143,7 @@ const Blocks = () => {
 
 			<Card title={ __( 'Active Blocks', 'wp-edit-password-protected' ) } padded={ false }>
 				{ blocks === null ? (
-					<div className="wpepp-card-sec__pad"><Spinner /></div>
+					<TableSkeleton rows={ 5 } columns={ 5 } />
 				) : blocks.length === 0 ? (
 					<div className="wpepp-empty-state">
 						<div className="wpepp-empty-state__icon">🛡️</div>

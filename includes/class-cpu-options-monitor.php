@@ -36,10 +36,11 @@ class WPEPP_CPU_Options_Monitor {
 			$autoload_values = [ 'yes' ];
 		}
 
-		$placeholders = implode( ', ', array_fill( 0, count( $autoload_values ), '%s' ) );
+		$clean_values = array_map( 'esc_sql', $autoload_values );
+		$in_clause    = "'" . implode( "','", $clean_values ) . "'";
 
 		// Total options table size.
-		$table_size = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$table_size = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
 				'SELECT ROUND( ( data_length + index_length ) ) FROM information_schema.TABLES WHERE table_schema = %s AND table_name = %s',
 				DB_NAME,
@@ -48,28 +49,26 @@ class WPEPP_CPU_Options_Monitor {
 		);
 
 		// Total options count.
-		$total_options = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$total_options = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			"SELECT COUNT(*) FROM {$wpdb->options}" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		);
 
+		// phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $in_clause is sanitized via esc_sql on static WP autoload keywords; options table is core.
+
 		// Autoloaded options total size.
-		$autoload_size = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-				"SELECT COALESCE( SUM( LENGTH( option_value ) ), 0 ) FROM {$wpdb->options} WHERE autoload IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				...$autoload_values
-			)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$autoload_size = (int) $wpdb->get_var(
+			"SELECT COALESCE( SUM( LENGTH( option_value ) ), 0 ) FROM {$wpdb->options} WHERE autoload IN ({$in_clause})"
 		);
 
 		// Autoloaded options count.
-		$autoload_count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-				"SELECT COUNT(*) FROM {$wpdb->options} WHERE autoload IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				...$autoload_values
-			)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$autoload_count = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$wpdb->options} WHERE autoload IN ({$in_clause})"
 		);
 
 		// Expired transients count.
-		$expired_transients = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$expired_transients = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s AND option_value < %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$wpdb->esc_like( '_transient_timeout_' ) . '%',
@@ -88,11 +87,9 @@ class WPEPP_CPU_Options_Monitor {
 
 		// Pro: full breakdown of top 20 autoloaded options.
 		if ( $full ) {
-			$top_options = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-				$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-					"SELECT option_name, LENGTH( option_value ) AS size FROM {$wpdb->options} WHERE autoload IN ($placeholders) ORDER BY size DESC LIMIT 20", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					...$autoload_values
-				)
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$top_options = $wpdb->get_results(
+				"SELECT option_name, LENGTH( option_value ) AS size FROM {$wpdb->options} WHERE autoload IN ({$in_clause}) ORDER BY size DESC LIMIT 20"
 			);
 
 			$stats['top_autoloaded'] = [];
@@ -106,6 +103,8 @@ class WPEPP_CPU_Options_Monitor {
 				}
 			}
 		}
+
+		// phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		wp_cache_set( $cache_key, $stats, 'wpepp', 60 );
 

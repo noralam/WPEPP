@@ -34,5 +34,10 @@ desktop.ini
 wp-config.php
 *.log
 
+# Cache & Local Tooling
+.phpunit.result.cache
+.cursorrules
+scratch/
+
 # Zip files
 *.zip

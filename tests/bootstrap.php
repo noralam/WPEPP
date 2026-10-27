@@ -13,6 +13,12 @@ define( 'WPEPP_PATH', dirname( __DIR__ ) . DIRECTORY_SEPARATOR );
 define( 'MINUTE_IN_SECONDS', 60 );
 define( 'HOUR_IN_SECONDS', 3600 );
 define( 'DAY_IN_SECONDS', 86400 );
+define( 'DB_NAME', 'test_db' );
+defined( 'ARRAY_A' ) || define( 'ARRAY_A', 'ARRAY_A' );
+
+function wp_cache_flush_group( $group ) {
+	return true;
+}
 
 // ── Minimal WordPress shims ─────────────────────────────────────────
 
@@ -42,6 +48,10 @@ function sanitize_text_field( $value ) {
 	return trim( preg_replace( '/[\r\n\t ]+/', ' ', strip_tags( (string) $value ) ) );
 }
 
+function wp_salt( $scheme = 'auth' ) {
+	return 'phpunit_mock_auth_salt_1234567890abcdefghijklmnopqrstuvwxyz';
+}
+
 function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['wp_test_options'] ) ? $GLOBALS['wp_test_options'][ $key ] : $default;
 }
@@ -51,20 +61,32 @@ function update_option( $key, $value, $autoload = null ) {
 	return true;
 }
 
+function delete_option( $key ) {
+	unset( $GLOBALS['wp_test_options'][ $key ] );
+	return true;
+}
+
 function add_action( $tag, $callback, $priority = 10, $accepted_args = 1 ) {
 	return add_filter( $tag, $callback, $priority, $accepted_args );
 }
 
 $GLOBALS['wpdb'] = new class {
 	public $prefix = 'wp_';
+	public $row_to_return = null;
 	public function get_row( $query = null, $output = 'OBJECT' ) {
-		return null;
+		return $this->row_to_return;
 	}
 	public function get_results( $query = null, $output = 'OBJECT' ) {
 		return [];
 	}
 	public function get_var( $query = null ) {
+		if ( false !== strpos( (string) $query, 'SHOW TABLES LIKE' ) ) {
+			return 'wp_wpepp_scanner_issues';
+		}
 		return null;
+	}
+	public function get_charset_collate() {
+		return 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
 	}
 	public function query( $query ) {
 		return true;
@@ -73,6 +95,9 @@ $GLOBALS['wpdb'] = new class {
 		return $query;
 	}
 	public function insert( $table, $data, $format = null ) {
+		return 1;
+	}
+	public function update( $table, $data, $where, $format = null, $where_format = null ) {
 		return 1;
 	}
 };
@@ -186,7 +211,7 @@ function wp_json_encode( $data, $flags = 0 ) {
 }
 
 function wp_is_writable( $path ) {
-	return is_writable( $path );
+	return is_writable( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Test stub implementation.
 }
 
 function wp_normalize_path( $path ) {
@@ -326,6 +351,12 @@ if ( ! function_exists( 'wp_hash' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_hash_password' ) ) {
+	function wp_hash_password( $password ) {
+		return md5( (string) $password . 'test_hash_salt' );
+	}
+}
+
 if ( ! function_exists( 'wp_check_password' ) ) {
 	function wp_check_password( $password, $hash, $user_id = '' ) {
 		return wp_hash( $password ) === $hash || $password === $hash;
@@ -335,6 +366,118 @@ if ( ! function_exists( 'wp_check_password' ) ) {
 if ( ! function_exists( 'current_user_can' ) ) {
 	function current_user_can( $capability, ...$args ) {
 		return ! empty( $GLOBALS['wp_test_current_user_can_' . $capability] );
+	}
+}
+
+if ( ! function_exists( 'dbDelta' ) ) {
+	function dbDelta( $queries = '', $execute = true ) {
+		return [];
+	}
+}
+
+if ( ! function_exists( 'wp_roles' ) ) {
+	function wp_roles() {
+		return new class {
+			public function get_names() {
+				return [
+					'administrator' => 'Administrator',
+					'editor'        => 'Editor',
+					'author'        => 'Author',
+					'contributor'   => 'Contributor',
+					'subscriber'    => 'Subscriber',
+				];
+			}
+			public function is_role( $role ) {
+				return in_array( $role, [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ], true );
+			}
+		};
+	}
+}
+
+if ( ! function_exists( 'get_users' ) ) {
+	function get_users( $args = [] ) {
+		return [];
+	}
+}
+
+if ( ! function_exists( 'wp_generate_password' ) ) {
+	function wp_generate_password( $length = 12, $special_chars = true, $extra_special_chars = false ) {
+		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+		if ( $special_chars ) {
+			$chars .= '!@#$%^&*()';
+		}
+		if ( $extra_special_chars ) {
+			$chars .= '-_ []{}<>~`+=,.;:/?|';
+		}
+		$password = '';
+		for ( $i = 0; $i < $length; $i++ ) {
+			$password .= substr( $chars, wp_rand( 0, strlen( $chars ) - 1 ), 1 );
+		}
+		return $password;
+	}
+}
+
+if ( ! function_exists( 'wp_rand' ) ) {
+	function wp_rand( $min = 0, $max = 0 ) {
+		if ( 0 === $max ) {
+			$max = mt_getrandmax();
+		}
+		return random_int( $min, $max );
+	}
+}
+
+if ( ! function_exists( 'get_user_meta' ) ) {
+	function get_user_meta( $user_id, $key = '', $single = false ) {
+		$meta = $GLOBALS['wp_test_user_meta'][ $user_id ] ?? [];
+		if ( '' === $key ) {
+			return $meta;
+		}
+		if ( ! array_key_exists( $key, $meta ) ) {
+			return $single ? '' : [];
+		}
+		return $single ? $meta[ $key ] : [ $meta[ $key ] ];
+	}
+}
+
+if ( ! function_exists( 'update_user_meta' ) ) {
+	function update_user_meta( $user_id, $key, $value, $prev_value = '' ) {
+		$GLOBALS['wp_test_user_meta'][ $user_id ][ $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'delete_user_meta' ) ) {
+	function delete_user_meta( $user_id, $key, $value = '' ) {
+		unset( $GLOBALS['wp_test_user_meta'][ $user_id ][ $key ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_bloginfo' ) ) {
+	function get_bloginfo( $show = 'name' ) {
+		return 'Test WordPress Site';
+	}
+}
+
+if ( ! function_exists( 'is_user_logged_in' ) ) {
+	function is_user_logged_in() {
+		return ! empty( $GLOBALS['wp_test_logged_in_user_id'] );
+	}
+}
+
+if ( ! function_exists( 'get_current_user_id' ) ) {
+	function get_current_user_id() {
+		return $GLOBALS['wp_test_logged_in_user_id'] ?? 0;
+	}
+}
+
+if ( ! function_exists( 'wp_get_current_user' ) ) {
+	function wp_get_current_user() {
+		$u = new \stdClass();
+		$u->ID = get_current_user_id();
+		$u->user_email = 'test@example.com';
+		$u->roles = [ 'administrator' ];
+		return $u;
 	}
 }
 
@@ -361,6 +504,15 @@ function wpepp_has_pro_check() {
 }
 
 function wpepp_feature_tier( $feature ) {
-	unset( $feature );
-	return 'pro';
+	if ( isset( $GLOBALS['wp_test_feature_tier'][ $feature ] ) ) {
+		return $GLOBALS['wp_test_feature_tier'][ $feature ];
+	}
+	$free_features = [
+		'login_limiter', 'honeypot', 'two_factor_totp', 'custom_login_url',
+		'username_shield', 'security_headers', 'ai_crawler_blocker',
+		'integrity_scan', 'malware_basic',
+	];
+	return in_array( $feature, $free_features, true ) ? 'free' : 'pro';
 }
+
+require_once __DIR__ . '/../includes/class-pro.php';

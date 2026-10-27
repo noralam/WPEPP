@@ -1,8 +1,9 @@
-{"pack": "wpepp-core", "version": "1.0.0", "signatures": [
+{"pack": "wpepp-core", "version": "1.1.0", "signatures": [
 	{
 		"id": "eval_base64_chain",
 		"name": "eval(base64_decode(...)) chain",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["base64_decode", "eval("],
 		"regex": "#\\beval\\s*\\(\\s*(base64_decode|gzinflate|gzuncompress|str_rot13)\\s*\\(.{0,300}#is"
 	},
@@ -10,6 +11,7 @@
 		"id": "eval_gzdecode",
 		"name": "eval(gzdecode()) chain",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["gzdecode", "eval("],
 		"regex": "#\\beval\\s*\\(\\s*gzdecode\\s*\\(#i"
 	},
@@ -17,6 +19,7 @@
 		"id": "assert_callback",
 		"name": "assert() used as code executor",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["assert("],
 		"regex": "#\\bassert\\s*\\(\\s*[\\$'\"_]#i"
 	},
@@ -24,13 +27,15 @@
 		"id": "preg_replace_eval",
 		"name": "preg_replace with /e modifier",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["preg_replace"],
-		"regex": "#preg_replace\\s*\\([^,]+['\"][a-z]*e[a-z]*['\"]#i"
+		"regex": "!preg_replace\\s*\\(\\s*['\"][#/~%].{1,120}[#/~%][a-z]*e[a-z]*['\"]\\s*,!i"
 	},
 	{
 		"id": "request_to_exec",
 		"name": "Superglobal passed to exec function",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["$_request"],
 		"regex": "#\\b(exec|system|passthru|shell_exec|popen|proc_open)\\s*\\(\\s*\\$_(GET|POST|REQUEST|COOKIE)#i"
 	},
@@ -38,6 +43,7 @@
 		"id": "call_user_func_request",
 		"name": "Dynamic callback from request input",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["call_user_func"],
 		"regex": "#call_user_(func|func_array)\\s*\\(\\s*\\$_(GET|POST|REQUEST)#i"
 	},
@@ -45,6 +51,7 @@
 		"id": "create_function_usage",
 		"name": "create_function() backdoor vector",
 		"severity": 2,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["create_function("],
 		"regex": "#create_function\\s*\\(.{0,200}\\$(_GET|_POST|_REQUEST|_COOKIE)#is"
 	},
@@ -52,6 +59,7 @@
 		"id": "webshell_wso",
 		"name": "WSO webshell marker",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["wso"],
 		"regex": "#(WSO\\s+[0-9.]+|~ wso|Web\\s+Shell\\s+by\\s+oRb)#i"
 	},
@@ -59,6 +67,7 @@
 		"id": "webshell_filesman",
 		"name": "FilesMan / c99 / r57 shell marker",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["filesman"],
 		"regex": "#(FilesMan|c99shell|r57shell|b374k|g00nshell|w4ck1ng)#i"
 	},
@@ -66,6 +75,7 @@
 		"id": "webshell_password_gate",
 		"name": "Password-gated execution block",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["$_post", "$password"],
 		"regex": "#if\\s*\\(\\s*\\$_(POST|GET|COOKIE)\\s*\\[\\s*['\\\"][a-z0-9_]{1,20}['\"]\\s*\\]\\s*==\\s*['\\\"][^'\\\"]{4,32}['\"]\\s*\\)\\s*\\{?(.{0,200}(eval|system|exec|include))#is"
 	},
@@ -73,6 +83,7 @@
 		"id": "remote_file_inclusion",
 		"name": "Remote file inclusion via request",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["http"],
 		"regex": "#\\b(include|require)(_once)?\\s*\\(\\s*\\$[_a-z0-9\\[\\]'\\\"]*(url|link|file|path|page|tpl|dir)[a-z0-9\\[\\]'\\\"]*.{0,80}\\$?(_GET|_POST|_REQUEST|_SERVER)#is"
 	},
@@ -80,6 +91,7 @@
 		"id": "curl_write_webshell_drop",
 		"name": "Downloads and writes executable PHP",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["file_put_contents", ".php"],
 		"regex": "#file_put_contents\\s*\\(.{0,120}\\.php.{0,200}(file_get_contents\\s*\\(\\s*['\\\"]https?:|curl_exec)#is"
 	},
@@ -87,6 +99,7 @@
 		"id": "hidden_admin_user_sql",
 		"name": "Hidden admin creation SQL blob",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["insert into", "wp_users"],
 		"regex": "#INSERT\\s+INTO.{0,60}wp_users.{0,120}(administrator|wp_capabilities)#is"
 	},
@@ -94,6 +107,7 @@
 		"id": "spam_link_farm",
 		"name": "Pharma/casino spam link farm",
 		"severity": 2,
+		"targets": ["html", "htm", "php", "phtml"],
 		"needles": ["<a href="],
 		"regex": "#<a[^>]+href=[\"'][^\"']*(viagra|cialis|casino|poker|pharmacy|replica[- ]watch|payday[- ]loan)[^\"']*[\"']#i"
 	},
@@ -101,6 +115,7 @@
 		"id": "cloaked_iframe",
 		"name": "Hidden iframe injection",
 		"severity": 2,
+		"targets": ["html", "htm", "php", "phtml"],
 		"needles": ["iframe"],
 		"regex": "#<iframe[^>]{0,300}(width\\s*=\\s*[\"']?[01][\"']?|height\\s*=\\s*[\"']?[01][\"']?|display\\s*:\\s*none|visibility\\s*:\\s*hidden)[^>]*>#i"
 	},
@@ -108,6 +123,7 @@
 		"id": "obfuscate_hex_names",
 		"name": "Hex-named obfuscated functions",
 		"severity": 2,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["function ", "0x"],
 		"regex": "#function\\s+[a-f0-9]{16,40}\\s*\\(.{0,400}(chr\\(|pack\\(|base64_)#is"
 	},
@@ -115,6 +131,7 @@
 		"id": "var_variable_execution",
 		"name": "Variable-variable invocation ($$f)",
 		"severity": 2,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["$$"],
 		"regex": "#\\$\\$\\{?[a-z_]+\\}?\\s*\\(#i"
 	},
@@ -122,6 +139,7 @@
 		"id": "htaccess_php_override",
 		"name": "PHP execution override in .htaccess",
 		"severity": 3,
+		"targets": ["htaccess"],
 		"needles": ["addtype"],
 		"regex": "#AddType\\s+application/x-httpd-php\\s+\\.?#i"
 	},
@@ -129,6 +147,7 @@
 		"id": "auth_bypass_cookie_set",
 		"name": "Direct auth-cookie forgery attempt",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["setcookie", "wordpress_logged_in"],
 		"regex": "#setcookie\\s*\\(.{0,60}wordpress_logged_in#is"
 	},
@@ -136,6 +155,7 @@
 		"id": "alfa_webshell",
 		"name": "Alfa Team Webshell marker",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["alfa", "shell"],
 		"regex": "#(ALFA\\s+TE?AM|alfa_shell|b374k|wso_shell)#i"
 	},
@@ -143,6 +163,7 @@
 		"id": "crypto_miner",
 		"name": "Cryptocurrency in-browser miner",
 		"severity": 3,
+		"targets": ["js", "html", "htm", "php", "phtml"],
 		"needles": ["coinhive", "cryptonight"],
 		"regex": "#(coinhive(\\.min)?\\.js|cryptonight\\.wasm|miner\\.start\\()#i"
 	},
@@ -150,6 +171,7 @@
 		"id": "reverse_tcp_shell",
 		"name": "PHP reverse TCP shell backdoor",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["fsockopen", "/bin/sh"],
 		"regex": "#fsockopen\\s*\\([^)]+\\).{0,300}(/bin/(sh|bash)|cmd\\.exe)#is"
 	},
@@ -157,6 +179,7 @@
 		"id": "hidden_admin_insert",
 		"name": "Hardcoded admin user creation in code",
 		"severity": 3,
+		"targets": ["php", "php3", "php4", "php5", "php7", "phtml", "pht", "inc"],
 		"needles": ["wp_create_user", "administrator"],
 		"regex": "#wp_create_user\\s*\\([^)]+\\).{0,250}add_role\\s*\\([^)]*['\"]administrator['\"]#is"
 	}

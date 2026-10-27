@@ -3,8 +3,9 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { Button, TextControl, Notice, Spinner } from '@wordpress/components';
+import { Button, TextControl, Notice } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
+import { TableSkeleton } from '../../components/Skeleton';
 
 function b64urlToBuffer( value ) {
 	value = String( value ).replace( /-/g, '+' ).replace( /_/g, '/' );
@@ -124,7 +125,7 @@ const Passkeys = () => {
 			</div>
 
 			{ list === null ? (
-				<Spinner />
+				<TableSkeleton rows={ 4 } columns={ 3 } />
 			) : list.length === 0 ? (
 				<p>{ __( 'No passkeys registered yet.', 'wp-edit-password-protected' ) }</p>
 			) : (

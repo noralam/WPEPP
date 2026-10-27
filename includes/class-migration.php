@@ -22,6 +22,9 @@ class WPEPP_Migration {
 		if ( version_compare( $version, '2.0', '<' ) ) {
 			self::migrate_password_settings();
 			self::migrate_member_template();
+		}
+
+		if ( version_compare( $version, WPEPP_VERSION, '<' ) ) {
 			update_option( 'wpepp_version', WPEPP_VERSION );
 		}
 	}

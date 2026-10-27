@@ -7,13 +7,13 @@ import { useMemo, useCallback } from '@wordpress/element';
 import {
 	RangeControl,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
 import ProBadge from '../../components/ProBadge';
 import { useSaveBar } from '../../components/SaveBar';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
+import Loading from '../../components/Loading';
 
 const Passwords = () => {
 	const { settings, isLoading, isPro } = useSelect( ( select ) => {
@@ -37,7 +37,7 @@ const Passwords = () => {
 	);
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 3 } />;
 	}
 
 	return (
@@ -80,12 +80,9 @@ const Passwords = () => {
 								onChange={ ( v ) => update( 'pw_block_common', v ) }
 							/>
 							<ToggleCard
-								title={
-									<span>
-										{ __( 'Check against breach database', 'wp-edit-password-protected' ) }
-										{ ! isPro && <ProBadge /> }
-									</span>
-								}
+								title={ __( 'Check against breach database', 'wp-edit-password-protected' ) }
+								badge={ ! isPro ? <ProBadge /> : null }
+								help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 								description={
 									s.pw_breach_check
 										? __( 'Privacy-safe k-anonymity check — only 5 characters of the password hash leave the server.', 'wp-edit-password-protected' )

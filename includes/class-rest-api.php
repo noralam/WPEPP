@@ -133,7 +133,7 @@ class WPEPP_Rest_Api {
 		register_rest_route( self::NAMESPACE, '/content-lock', [
 			'methods'             => 'GET',
 			'callback'            => [ $this, 'get_locked_posts' ],
-			'permission_callback' => [ $this, 'check_edit_posts_pro_permission' ],
+			'permission_callback' => [ $this, 'check_edit_posts_permission' ],
 		] );
 
 		register_rest_route( self::NAMESPACE, '/content-lock/bulk', [
@@ -191,7 +191,7 @@ class WPEPP_Rest_Api {
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'get_login_log' ],
-				'permission_callback' => [ $this, 'check_admin_pro_permission' ],
+				'permission_callback' => [ $this, 'check_admin_permission' ],
 			],
 			[
 				'methods'             => 'DELETE',
@@ -234,29 +234,29 @@ class WPEPP_Rest_Api {
 			],
 		] );
 
-		// Two-Factor Authentication (Pro) — user management.
+		// Two-Factor Authentication (FREE) — user management.
 		register_rest_route( self::NAMESPACE, '/2fa/setup', [
 			'methods'             => 'POST',
 			'callback'            => [ $this, 'setup_2fa' ],
-			'permission_callback' => [ $this, 'check_admin_pro_permission' ],
+			'permission_callback' => 'is_user_logged_in',
 		] );
 
 		register_rest_route( self::NAMESPACE, '/2fa/confirm', [
 			'methods'             => 'POST',
 			'callback'            => [ $this, 'confirm_2fa' ],
-			'permission_callback' => [ $this, 'check_admin_pro_permission' ],
+			'permission_callback' => 'is_user_logged_in',
 		] );
 
 		register_rest_route( self::NAMESPACE, '/2fa/disable', [
 			'methods'             => 'POST',
 			'callback'            => [ $this, 'disable_2fa' ],
-			'permission_callback' => [ $this, 'check_admin_pro_permission' ],
+			'permission_callback' => 'is_user_logged_in',
 		] );
 
 		register_rest_route( self::NAMESPACE, '/2fa/status', [
 			'methods'             => 'GET',
 			'callback'            => [ $this, 'get_2fa_status' ],
-			'permission_callback' => [ $this, 'check_admin_pro_permission' ],
+			'permission_callback' => 'is_user_logged_in',
 		] );
 
 		// Dashboard stats.
@@ -388,6 +388,19 @@ class WPEPP_Rest_Api {
 			'methods'             => [ 'POST', 'DELETE' ],
 			'callback'            => [ $this, 'clear_scan_issues' ],
 			'permission_callback' => [ $this, 'check_admin_permission' ],
+		] );
+
+		register_rest_route( self::NAMESPACE, '/scan/issues/bulk', [
+			'methods'             => 'POST',
+			'callback'            => [ $this, 'bulk_act_on_scan_issues' ],
+			'permission_callback' => [ $this, 'check_admin_permission' ],
+			'args'                => [
+				'action' => [
+					'type'              => 'string',
+					'required'          => true,
+					'sanitize_callback' => 'sanitize_key',
+				],
+			],
 		] );
 
 		register_rest_route( self::NAMESPACE, '/scan/signatures/sync', [
@@ -627,6 +640,12 @@ class WPEPP_Rest_Api {
 			$settings[ $section ] = json_decode( $raw, true ) ?: [];
 		}
 
+		// Mask site password on read.
+		if ( isset( $settings['site_access'] ) && is_array( $settings['site_access'] ) ) {
+			$settings['site_access']['has_site_password'] = ! empty( $settings['site_access']['site_password'] );
+			$settings['site_access']['site_password']     = '';
+		}
+
 		// Include member template separately.
 		$settings['member_template'] = json_decode( get_option( 'wpepp_member_template', '{}' ), true ) ?: [];
 
@@ -651,6 +670,24 @@ class WPEPP_Rest_Api {
 				continue;
 			}
 
+			// Secure site password: hash immediately and preserve if untouched.
+			if ( 'site_access' === $section && is_array( $settings ) ) {
+				$existing_raw = get_option( 'wpepp_site_access_settings', '{}' );
+				$existing_set = json_decode( (string) $existing_raw, true );
+				$existing_pw  = ( is_array( $existing_set ) && ! empty( $existing_set['site_password'] ) ) ? (string) $existing_set['site_password'] : '';
+
+				if ( ! isset( $settings['site_password'] ) || '' === trim( (string) $settings['site_password'] ) ) {
+					if ( ! empty( $existing_pw ) ) {
+						$settings['site_password'] = $existing_pw;
+					}
+				} else {
+					$submitted_pw = (string) $settings['site_password'];
+					if ( class_exists( 'WPEPP_Site_Access' ) && ! WPEPP_Site_Access::looks_hashed( $submitted_pw ) ) {
+						$settings['site_password'] = wp_hash_password( $submitted_pw );
+					}
+				}
+			}
+
 			$settings   = $this->sanitize_settings_object( $settings );
 			$settings   = wpepp_enforce_pro_settings( $settings, $section );
 			$option_key = $this->get_option_key( $section );
@@ -672,8 +709,14 @@ class WPEPP_Rest_Api {
 		$section    = $request->get_param( 'section' );
 		$option_key = $this->get_option_key( $section );
 		$raw        = get_option( $option_key, '{}' );
+		$decoded    = json_decode( $raw, true ) ?: [];
 
-		return rest_ensure_response( json_decode( $raw, true ) ?: [] );
+		if ( 'site_access' === $section && is_array( $decoded ) ) {
+			$decoded['has_site_password'] = ! empty( $decoded['site_password'] );
+			$decoded['site_password']     = '';
+		}
+
+		return rest_ensure_response( $decoded );
 	}
 
 	/**
@@ -690,11 +733,39 @@ class WPEPP_Rest_Api {
 			return new WP_Error( 'invalid_data', __( 'Invalid data.', 'wp-edit-password-protected' ), [ 'status' => 400 ] );
 		}
 
+		// Secure site password: hash immediately and preserve if untouched.
+		if ( 'site_access' === $section ) {
+			$existing_raw = get_option( 'wpepp_site_access_settings', '{}' );
+			$existing_set = json_decode( (string) $existing_raw, true );
+			$existing_pw  = ( is_array( $existing_set ) && ! empty( $existing_set['site_password'] ) ) ? (string) $existing_set['site_password'] : '';
+
+			if ( ! isset( $settings['site_password'] ) || '' === trim( (string) $settings['site_password'] ) ) {
+				if ( ! empty( $existing_pw ) ) {
+					$settings['site_password'] = $existing_pw;
+				}
+			} else {
+				$submitted_pw = (string) $settings['site_password'];
+				if ( class_exists( 'WPEPP_Site_Access' ) && ! WPEPP_Site_Access::looks_hashed( $submitted_pw ) ) {
+					$settings['site_password'] = wp_hash_password( $submitted_pw );
+				}
+			}
+		}
+
+		$option_key   = $this->get_option_key( $section );
+		$existing_raw = get_option( $option_key, '{}' );
+		$existing     = json_decode( (string) $existing_raw, true );
+		if ( is_array( $existing ) ) {
+			$settings = array_merge( $existing, $settings );
+		}
+
 		$settings   = $this->sanitize_settings_object( $settings );
 		$settings   = wpepp_enforce_pro_settings( $settings, $section );
-		$option_key = $this->get_option_key( $section );
 
 		update_option( $option_key, wp_json_encode( $settings ) );
+
+		if ( 'security' === $section && class_exists( 'WPEPP_Scan_Engine' ) ) {
+			WPEPP_Scan_Engine::schedule();
+		}
 
 		do_action( 'wpepp/settings/saved', $section );
 
@@ -892,7 +963,11 @@ class WPEPP_Rest_Api {
 	 * @return \WP_REST_Response
 	 */
 	public function get_locked_posts( $request ) {
-		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Filter locked posts by meta.
+		if ( ! wpepp_has_pro_check() ) {
+			return rest_ensure_response( [] );
+		}
+
+		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Filter locked posts by meta.
 		$args = [
 			'post_type'      => [ 'post', 'page' ],
 			'posts_per_page' => 50,
@@ -900,6 +975,7 @@ class WPEPP_Rest_Api {
 			'meta_value'     => 'yes',
 			'post_status'    => 'publish',
 		];
+		// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 
 		$search = sanitize_text_field( $request->get_param( 'search' ) ?? '' );
 		if ( ! empty( $search ) ) {
@@ -909,6 +985,10 @@ class WPEPP_Rest_Api {
 		$post_type = sanitize_text_field( $request->get_param( 'post_type' ) ?? '' );
 		if ( ! empty( $post_type ) && in_array( $post_type, [ 'post', 'page' ], true ) ) {
 			$args['post_type'] = $post_type;
+		}
+
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			$args['author'] = get_current_user_id();
 		}
 
 		$query = new WP_Query( $args );
@@ -937,6 +1017,11 @@ class WPEPP_Rest_Api {
 	 */
 	public function get_post_lock( $request ) {
 		$post_id = absint( $request->get_param( 'post_id' ) );
+		$cap     = $this->require_edit_post( $post_id );
+		if ( is_wp_error( $cap ) ) {
+			return $cap;
+		}
+
 		$post    = get_post( $post_id );
 
 		if ( ! $post ) {
@@ -1010,7 +1095,11 @@ class WPEPP_Rest_Api {
 		}
 
 		if ( isset( $body['redirect'] ) ) {
-			update_post_meta( $post_id, '_wpepp_content_lock_redirect', esc_url_raw( $body['redirect'] ) );
+			$redirect_url = esc_url_raw( $body['redirect'] );
+			if ( ! current_user_can( 'manage_options' ) && ! empty( $redirect_url ) ) {
+				$redirect_url = wp_validate_redirect( $redirect_url, home_url( '/' ) );
+			}
+			update_post_meta( $post_id, '_wpepp_content_lock_redirect', $redirect_url );
 		}
 
 		if ( isset( $body['show_excerpt'] ) ) {
@@ -1059,7 +1148,7 @@ class WPEPP_Rest_Api {
 	 * @return \WP_REST_Response
 	 */
 	public function get_conditional_posts( $request ) {
-		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Filter conditional posts by meta.
+		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Filter conditional posts by meta.
 		$args = [
 			'post_type'      => [ 'post', 'page' ],
 			'posts_per_page' => 50,
@@ -1067,10 +1156,15 @@ class WPEPP_Rest_Api {
 			'meta_value'     => 'yes',
 			'post_status'    => 'publish',
 		];
+		// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 
 		$search = sanitize_text_field( $request->get_param( 'search' ) ?? '' );
 		if ( ! empty( $search ) ) {
 			$args['s'] = $search;
+		}
+
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			$args['author'] = get_current_user_id();
 		}
 
 		$query = new WP_Query( $args );
@@ -1115,6 +1209,11 @@ class WPEPP_Rest_Api {
 	 */
 	public function get_post_conditional( $request ) {
 		$post_id = absint( $request->get_param( 'post_id' ) );
+		$cap     = $this->require_edit_post( $post_id );
+		if ( is_wp_error( $cap ) ) {
+			return $cap;
+		}
+
 		$post    = get_post( $post_id );
 
 		if ( ! $post ) {
@@ -1200,6 +1299,10 @@ class WPEPP_Rest_Api {
 	 * @return \WP_REST_Response
 	 */
 	public function get_login_log( $request ) {
+		if ( ! wpepp_has_pro_check() ) {
+			return rest_ensure_response( [] );
+		}
+
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'wpepp_login_log';
@@ -1471,20 +1574,27 @@ class WPEPP_Rest_Api {
 			$user      = get_user_by( 'id', (int) $link['user_id'] );
 			$user_name = $user ? $user->display_name : __( 'Unknown', 'wp-edit-password-protected' );
 
+			$token_str = '';
+			if ( ! empty( $link['token_encrypted'] ) && class_exists( 'WPEPP_Security' ) ) {
+				$token_str = WPEPP_Security::decrypt_token( $link['token_encrypted'] );
+			} elseif ( ! empty( $link['token'] ) ) {
+				$token_str = $link['token'];
+			}
+
 			$result[] = [
-				'id'         => $link['id'],
-				'label'      => $link['label'] ?? '',
-				'user_id'    => (int) $link['user_id'],
-				'user_name'  => $user_name,
-				'use_count'  => (int) ( $link['use_count'] ?? 0 ),
-				'max_uses'   => (int) ( $link['max_uses'] ?? 0 ),
-				'expires'    => ! empty( $link['expires_at'] )
+				'id'               => $link['id'],
+				'label'            => $link['label'] ?? '',
+				'user_id'          => (int) $link['user_id'],
+				'user_name'        => $user_name,
+				'use_count'        => (int) ( $link['use_count'] ?? 0 ),
+				'max_uses'         => (int) ( $link['max_uses'] ?? 0 ),
+				'expires'          => ! empty( $link['expires_at'] )
 					? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $link['expires_at'] )
 					: '',
 				'role_restriction' => $link['role_restriction'] ?? '',
 				'redirect_url'     => $link['redirect_url'] ?? '',
-				'url'        => add_query_arg( 'wpepp_autologin', $link['token'], home_url( '/' ) ),
-				'created_at' => $link['created_at'] ?? '',
+				'url'              => ! empty( $token_str ) ? add_query_arg( 'wpepp_autologin', $token_str, home_url( '/' ) ) : '',
+				'created_at'       => $link['created_at'] ?? '',
 			];
 		}
 
@@ -1503,14 +1613,17 @@ class WPEPP_Rest_Api {
 			return new WP_Error( 'invalid_user', __( 'Invalid user.', 'wp-edit-password-protected' ), [ 'status' => 400 ] );
 		}
 
-		$label       = sanitize_text_field( $request->get_param( 'label' ) ?: __( 'Auto Login Link', 'wp-edit-password-protected' ) );
+		$label        = sanitize_text_field( $request->get_param( 'label' ) ?: __( 'Auto Login Link', 'wp-edit-password-protected' ) );
 		$redirect_url = esc_url_raw( $request->get_param( 'redirect_url' ) ?: '' );
-		$token       = wp_generate_password( 48, false );
-		$id          = wp_generate_password( 12, false );
+		$token        = wp_generate_password( 48, false );
+		$id           = wp_generate_password( 12, false );
+		$token_hash   = hash( 'sha256', $token );
+		$token_enc    = class_exists( 'WPEPP_Security' ) ? WPEPP_Security::encrypt_token( $token ) : $token;
 
 		$link = [
 			'id'               => $id,
-			'token'            => $token,
+			'token_hash'       => $token_hash,
+			'token_encrypted'  => $token_enc,
 			'user_id'          => $user_id,
 			'label'            => $label,
 			'redirect_url'     => $redirect_url,
@@ -1542,6 +1655,15 @@ class WPEPP_Rest_Api {
 		$links = get_option( 'wpepp_auto_login_links', [] );
 		if ( ! is_array( $links ) ) {
 			$links = [];
+		}
+
+		// Free version is capped at 3 active links.
+		if ( ! wpepp_has_pro_check() && count( $links ) >= 3 ) {
+			return new WP_Error(
+				'wpepp_free_limit_reached',
+				__( 'Free version is limited to 3 active auto-login links. Upgrade to Pro for unlimited links.', 'wp-edit-password-protected' ),
+				[ 'status' => 403 ]
+			);
 		}
 
 		array_unshift( $links, $link );
@@ -1798,7 +1920,17 @@ class WPEPP_Rest_Api {
 		if ( '' === $entry ) {
 			return new WP_Error( 'missing_entry', __( 'IP address or CIDR range is required.', 'wp-edit-password-protected' ), [ 'status' => 400 ] );
 		}
-		$expires = $request->get_param( 'expires' );
+		$expires  = $request->get_param( 'expires' );
+		$duration = $request->get_param( 'duration' );
+		if ( empty( $expires ) && ! empty( $duration ) && 'permanent' !== $duration ) {
+			if ( '1h' === $duration ) {
+				$expires = time() + HOUR_IN_SECONDS;
+			} elseif ( '24h' === $duration ) {
+				$expires = time() + DAY_IN_SECONDS;
+			} elseif ( '7d' === $duration ) {
+				$expires = time() + 7 * DAY_IN_SECONDS;
+			}
+		}
 		$args = [
 			'type'    => sanitize_key( (string) ( $request->get_param( 'type' ) ?? 'manual' ) ),
 			'reason'  => sanitize_text_field( (string) ( $request->get_param( 'reason' ) ?? '' ) ),
@@ -1918,6 +2050,9 @@ class WPEPP_Rest_Api {
 				@file_put_contents( $runtime_file, wp_json_encode( [ 'learning_mode' => $value ] ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 			}
 		} elseif ( 'extended_enabled' === $setting ) {
+			if ( $value && ! wpepp_has_pro_check() ) {
+				return new WP_Error( 'wpepp_pro_required', __( 'Extended firewall protection requires WPEPP Pro.', 'wp-edit-password-protected' ), [ 'status' => 403 ] );
+			}
 			if ( $value ) {
 				$res = WPEPP_Firewall::enable_extended();
 				if ( is_wp_error( $res ) ) {
@@ -1946,6 +2081,10 @@ class WPEPP_Rest_Api {
 	 * @return \WP_REST_Response
 	 */
 	public function test_firewall( $request ) {
+		if ( ! wpepp_has_pro_check() ) {
+			return new WP_Error( 'wpepp_pro_required', __( 'Live firewall testing requires WPEPP Pro.', 'wp-edit-password-protected' ), [ 'status' => 403 ] );
+		}
+
 		if ( ! class_exists( 'WPEPP_Firewall' ) || ! class_exists( 'WPEPP_FW_Engine' ) ) {
 			return rest_ensure_response( [ 'matched' => null ] );
 		}
@@ -2023,11 +2162,12 @@ class WPEPP_Rest_Api {
 
 		return rest_ensure_response( [
 			'running'     => ! empty( $state['running'] ),
+			'profile'     => (string) ( $state['profile'] ?? 'quick' ),
 			'stage'       => $current_st,
 			'stage_index' => $stage_index,
 			'stage_total' => 4,
 			'scanned'     => (int) ( $state['scanned'] ?? 0 ),
-			'flagged'     => (int) ( $state['flagged'] ?? 0 ),
+			'flagged'     => max( (int) ( $state['flagged'] ?? 0 ), $issues_new ),
 			'issues_new'  => $issues_new,
 			'last_scan'   => $last_scan,
 			'scheduled'   => $scheduled,
@@ -2083,6 +2223,10 @@ class WPEPP_Rest_Api {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function sync_signatures() {
+		if ( ! wpepp_has_pro_check() ) {
+			return new WP_Error( 'wpepp_pro_required', __( 'Cloud signature sync requires WPEPP Pro.', 'wp-edit-password-protected' ), [ 'status' => 403 ] );
+		}
+
 		if ( ! class_exists( 'WPEPP_Signatures' ) ) {
 			return new WP_Error( 'not_available', __( 'Signatures engine unavailable.', 'wp-edit-password-protected' ), [ 'status' => 500 ] );
 		}
@@ -2128,7 +2272,10 @@ class WPEPP_Rest_Api {
 		$id     = absint( $request->get_param( 'id' ) );
 		$action = sanitize_key( (string) ( $request->get_param( 'action' ) ?? '' ) );
 
-		if ( 'resolve' === $action || 'fixed' === $action ) {
+		if ( 'delete_file' === $action ) {
+			$res = WPEPP_Issues::delete_file( $id );
+			return rest_ensure_response( $res );
+		} elseif ( 'resolve' === $action || 'fixed' === $action ) {
 			$ok = WPEPP_Issues::set_status( $id, 'fixed' );
 		} elseif ( 'ignore' === $action || 'ignored' === $action ) {
 			$ok = WPEPP_Issues::set_status( $id, 'ignored' );
@@ -2154,6 +2301,27 @@ class WPEPP_Rest_Api {
 		$only_handled = (bool) $request->get_param( 'only_handled' );
 		$cleared      = WPEPP_Issues::clear( $only_handled );
 		return rest_ensure_response( [ 'success' => true, 'cleared' => $cleared ] );
+	}
+
+	/**
+	 * Bulk action on scan issues (resolve_all, ignore_all, clear_all).
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public function bulk_act_on_scan_issues( $request ) {
+		if ( ! class_exists( 'WPEPP_Issues' ) ) {
+			return rest_ensure_response( [ 'success' => false, 'affected' => 0 ] );
+		}
+
+		$action   = sanitize_key( (string) $request->get_param( 'action' ) );
+		$affected = WPEPP_Issues::bulk_action( $action );
+
+		return rest_ensure_response( [
+			'success'  => true,
+			'action'   => $action,
+			'affected' => $affected,
+		] );
 	}
 
 	// ── Hardening & Diagnostics ──

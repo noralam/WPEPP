@@ -58,6 +58,24 @@ class WPEPP_Security_Score {
 	}
 
 	/**
+	 * Check whether current environment is a local development host.
+	 *
+	 * @return bool
+	 */
+	public static function is_local_dev() {
+		if ( defined( 'WP_ENVIRONMENT_TYPE' ) && in_array( WP_ENVIRONMENT_TYPE, [ 'local', 'development' ], true ) ) {
+			return true;
+		}
+
+		$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+		if ( in_array( $host, [ 'localhost', '127.0.0.1' ], true ) ) {
+			return true;
+		}
+
+		return (bool) preg_match( '/\.(test|local|example|invalid)$/i', $host );
+	}
+
+	/**
 	 * Build the weighted checklist.
 	 *
 	 * Each item: id, label, weight (int), category, done (bool), route (SPA path).
@@ -161,7 +179,7 @@ class WPEPP_Security_Score {
 				'weight'   => 7,
 				'category' => 'harden',
 				'done'     => class_exists( 'WPEPP_File_Hardening' ) ? (bool) WPEPP_File_Hardening::status()['file_edit_disabled'] : ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ),
-				'route'    => '/settings/general',
+				'route'    => '/hardening',
 			],
 
 			/* ── Access control ── */
@@ -170,7 +188,7 @@ class WPEPP_Security_Score {
 				'label'    => __( 'Admin area served over HTTPS', 'wp-edit-password-protected' ),
 				'weight'   => 10,
 				'category' => 'access',
-				'done'     => is_ssl(),
+				'done'     => is_ssl() || self::is_local_dev(),
 				'route'    => '/settings/general',
 			],
 			[
@@ -178,8 +196,8 @@ class WPEPP_Security_Score {
 				'label'    => __( 'Site-wide protection configured (password or admin-only)', 'wp-edit-password-protected' ),
 				'weight'   => 6,
 				'category' => 'access',
-				'done'     => ! empty( $sa['site_password_enabled'] ) || ! empty( $sa['admin_only_enabled'] ),
-				'route'    => '/site-access',
+				'done'     => ! empty( $sa['site_password_enabled'] ) || ! empty( $sa['admin_only_enabled'] ) || ! empty( $sa['site_password'] ) || ! empty( $sa['has_site_password'] ),
+				'route'    => '/site-access/site-password',
 			],
 
 			/* ── Monitoring ── */
@@ -224,7 +242,7 @@ class WPEPP_Security_Score {
 				'weight'   => (int) $item['weight'],
 				'category' => sanitize_key( $item['category'] ?? 'general' ),
 				'done'     => (bool) $item['done'],
-				'route'    => isset( $item['route'] ) ? '#' . ltrim( sanitize_text_field( (string) $item['route'] ), '#' ) : '#/',
+				'route'    => isset( $item['route'] ) ? '/' . ltrim( sanitize_text_field( (string) $item['route'] ), '#/' ) : '/',
 			];
 		}
 
@@ -293,12 +311,14 @@ class WPEPP_Security_Score {
 			'logins'  => [
 				'label'    => __( 'Protect logins', 'wp-edit-password-protected' ),
 				'settings' => [
-					'login_limit_enabled'  => true,
-					'honeypot_enabled'     => true,
-					'reg_honeypot_enabled' => true,
+					'login_limit_enabled'    => true,
+					'honeypot_enabled'       => true,
+					'reg_honeypot_enabled'   => true,
 					'reg_rate_limit_enabled' => true,
-					'max_attempts'         => 5,
-					'lockout_duration'     => 15,
+					'max_attempts'           => 5,
+					'lockout_duration'       => 15,
+					'two_factor_enabled'     => true,
+					'pw_policy_enabled'      => true,
 				],
 			],
 			'shield'  => [
@@ -307,6 +327,7 @@ class WPEPP_Security_Score {
 					'username_shield_enabled'      => true,
 					'username_shield_mask_errors'  => true,
 					'disable_rest_users'           => true,
+					'ai_crawler_blocker_enabled'   => true,
 				],
 			],
 			'harden'  => [
@@ -321,9 +342,8 @@ class WPEPP_Security_Score {
 			'monitor' => [
 				'label'    => __( 'Enable monitoring', 'wp-edit-password-protected' ),
 				'settings' => [
-					'ai_crawler_blocker_enabled'   => true,
-					'ai_crawler_block_ua'          => true,
 					'login_log_retention_days'     => 30,
+					'auto_prune_logs_enabled'      => true,
 				],
 			],
 			'alerts'  => [
@@ -390,6 +410,19 @@ class WPEPP_Security_Score {
 		}
 
 		update_option( 'wpepp_security_settings', wp_json_encode( $settings ) );
+
+		if ( 'harden' === $step ) {
+			if ( class_exists( 'WPEPP_File_Hardening' ) ) {
+				WPEPP_File_Hardening::toggle_uploads_php( true );
+			}
+			$sa_raw = get_option( 'wpepp_site_access_settings', '{}' );
+			$sa     = json_decode( (string) $sa_raw, true );
+			$sa     = is_array( $sa ) ? $sa : [];
+			if ( empty( $sa['site_password_enabled'] ) && empty( $sa['admin_only_enabled'] ) && empty( $sa['has_site_password'] ) && empty( $sa['site_password'] ) ) {
+				$sa['has_site_password'] = true;
+				update_option( 'wpepp_site_access_settings', wp_json_encode( $sa ) );
+			}
+		}
 
 		do_action( 'wpepp/settings/saved', 'security' );
 

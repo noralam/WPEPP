@@ -9,13 +9,13 @@ import {
 	SelectControl,
 	TextControl,
 	Button,
-	Spinner,
 	Notice,
 } from '@wordpress/components';
 import Card from '../components/Card';
 import Pagination from '../components/Pagination';
 import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../components/ProBadge';
+import { TableSkeleton } from '../components/Skeleton';
 import { SECURITY_DEFAULTS } from '../utils/defaults';
 
 const TYPE_LABELS = {
@@ -143,7 +143,7 @@ const Activity = () => {
 	}, [ isSaving, error ] );
 
 	if ( events === null && ! error ) {
-		return <Spinner />;
+		return <TableSkeleton rows={ 7 } columns={ 5 } />;
 	}
 
 	return (
@@ -245,18 +245,21 @@ const Activity = () => {
 				>
 					<ToggleControl
 						label={ <span>{ __( 'Administrator logins', 'wp-edit-password-protected' ) }{ ! isPro && <ProBadge /> }</span> }
+						help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 						checked={ isPro && !! s.alert_admin_login }
 						disabled={ ! isPro }
 						onChange={ ( v ) => update( 'alert_admin_login', v ) }
 					/>
 					<ToggleControl
 						label={ <span>{ __( 'Firewall burst digest', 'wp-edit-password-protected' ) }{ ! isPro && <ProBadge /> }</span> }
+						help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 						checked={ isPro && !! s.alert_firewall_burst }
 						disabled={ ! isPro }
 						onChange={ ( v ) => update( 'alert_firewall_burst', v ) }
 					/>
 					<ToggleControl
 						label={ <span>{ __( 'Weekly activity report', 'wp-edit-password-protected' ) }{ ! isPro && <ProBadge /> }</span> }
+						help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 						checked={ isPro && !! s.alert_weekly_report }
 						disabled={ ! isPro }
 						onChange={ ( v ) => update( 'alert_weekly_report', v ) }

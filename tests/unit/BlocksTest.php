@@ -88,4 +88,19 @@ class BlocksTest extends TestCase {
 		$this->assertTrue( strcmp( $lower, $r['start'] ) >= 0 && strcmp( $lower, $r['end'] ) <= 0 );
 		$this->assertFalse( strcmp( $upper, $r['end'] ) <= 0 && strcmp( $upper, $r['start'] ) >= 0 );
 	}
+
+	public function test_cidr_unaligned_start_is_masked() {
+		// 192.168.1.5/24 should mask start to 192.168.1.0 and end to 192.168.1.255.
+		$r = WPEPP_Blocks::parse_entry( '192.168.1.5/24' );
+
+		$this->assertNotNull( $r );
+		$this->assertSame( inet_pton( '192.168.1.0' ), $r['start'] );
+		$this->assertSame( inet_pton( '192.168.1.255' ), $r['end'] );
+
+		// 10.50.77.99/16 should mask start to 10.50.0.0.
+		$r2 = WPEPP_Blocks::parse_entry( '10.50.77.99/16' );
+		$this->assertNotNull( $r2 );
+		$this->assertSame( inet_pton( '10.50.0.0' ), $r2['start'] );
+		$this->assertSame( inet_pton( '10.50.255.255' ), $r2['end'] );
+	}
 }

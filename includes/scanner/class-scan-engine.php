@@ -81,6 +81,8 @@ class WPEPP_Scan_Engine {
 			return new \WP_Error( 'wpepp_scan_no_table', __( 'Could not create the issues table.', 'wp-edit-password-protected' ), [ 'status' => 500 ] );
 		}
 
+		self::release_lock();
+
 		self::save_state(
 			[
 				'running'     => true,
@@ -104,7 +106,8 @@ class WPEPP_Scan_Engine {
 	 * Stop a running scan.
 	 */
 	public static function stop() {
-		$state         = self::state();
+		self::release_lock();
+		$state            = self::state();
 		$state['running'] = false;
 		$state['stage']   = 'stopped';
 		self::save_state( $state );
@@ -176,54 +179,51 @@ class WPEPP_Scan_Engine {
 	/**
 	 * Execute one processing slice (caller must hold the lock).
 	 *
+	 * Advances stage-by-stage and yields between stages so each stage transition
+	 * (files → integrity → options → users → done) is reported to the frontend
+	 * for smooth visual progress and checkmark feedback.
+	 *
 	 * @param array $state Current state snapshot.
 	 * @return bool True when more work remains.
 	 */
 	private static function run_slice( array $state ) {
 		$start = microtime( true );
+		$state = self::state();
 
-		while ( microtime( true ) - $start < self::SLICE_BUDGET ) {
-			$state = self::state();
-
-			if ( empty( $state['running'] ) ) {
-				return false;
-			}
-
-			switch ( $state['stage'] ) {
-
-				case 'files':
-					$more = WPEPP_Signatures::process_slice( $state, $start );
-					break;
-
-				case 'integrity':
-					$more = WPEPP_Integrity::process_slice( $state, $start );
-					break;
-
-				case 'options':
-					WPEPP_Option_Scan::run();
-					$state             = self::state();
-					$state['stage']    = 'users';
-					$more              = true;
-					break;
-
-				case 'users':
-					WPEPP_User_Scan::run();
-					$state          = self::state();
-					$state['stage'] = '';
-					self::finish( $state );
-					return false;
-
-				default:
-					self::finish( $state );
-					return false;
-			}
-
-			if ( ! $more ) {
-				return true; // Budget spent — continue next request.
-			}
+		if ( empty( $state['running'] ) ) {
+			return false;
 		}
 
-		return true;
+		switch ( $state['stage'] ) {
+
+			case 'files':
+				$more = WPEPP_Signatures::process_slice( $state, $start );
+				// If files stage finished (process_slice returned true), yield so the
+				// client receives the new 'integrity' stage and shows the checkmark.
+				return true;
+
+			case 'integrity':
+				$more = WPEPP_Integrity::process_slice( $state, $start );
+				// If integrity stage finished, yield so the client sees 'options'.
+				return true;
+
+			case 'options':
+				WPEPP_Option_Scan::run();
+				$state = self::state();
+				self::advance( $state, 'users' );
+				// Yield so the client sees 'users' stage next.
+				return true;
+
+			case 'users':
+				WPEPP_User_Scan::run();
+				$state = self::state();
+				self::finish( $state );
+				return false; // Scan complete!
+
+			default:
+				self::finish( $state );
+				return false;
+		}
 	}
 
 	/**
@@ -254,9 +254,13 @@ class WPEPP_Scan_Engine {
 	 * @param array $state Final state.
 	 */
 	private static function finish( array $state ) {
-		$state['running']    = false;
-		$state['stage']      = 'done';
+		$state['running']     = false;
+		$state['stage']       = 'done';
 		$state['finished_at'] = time();
+
+		$fresh                = self::state();
+		$open_issues          = class_exists( 'WPEPP_Issues' ) ? WPEPP_Issues::count_new() : 0;
+		$state['flagged']     = max( (int) ( $fresh['flagged'] ?? $state['flagged'] ?? 0 ), $open_issues );
 
 		update_option( 'wpepp_last_scan', gmdate( 'Y-m-d H:i:s', time() ), false );
 

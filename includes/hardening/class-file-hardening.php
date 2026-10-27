@@ -181,22 +181,30 @@ class WPEPP_File_Hardening {
 			$content = str_replace( $anchor, $line . "\n" . $anchor, $content );
 		}
 
-		// Atomic-ish write: temp + rename.
-		$tmp = $file . '.wpepp-tmp';
+		// Atomic-ish write: write to system temp outside web root, then move.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		$tmp = wp_tempnam( 'wpepp-config' );
 
-		if ( false === file_put_contents( $tmp, $content ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions
-			return new WP_Error( 'wpepp_write_failed', __( 'Could not write wp-config.php.', 'wp-edit-password-protected' ), [ 'status' => 500 ] );
+		if ( ! $tmp || false === file_put_contents( $tmp, $content ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			if ( $tmp ) {
+				wp_delete_file( $tmp );
+			}
+			return new WP_Error( 'wpepp_write_failed', __( 'Could not write temporary config file.', 'wp-edit-password-protected' ), [ 'status' => 500 ] );
 		}
 
 		global $wp_filesystem;
 		if ( ! $wp_filesystem instanceof WP_Filesystem_Base ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
 			WP_Filesystem();
 		}
 
-		if ( ! $wp_filesystem->move( $tmp, $file, true ) ) {
+		$moved = $wp_filesystem && $wp_filesystem->move( $tmp, $file, true );
+		if ( ! $moved ) {
+			// Fallback for cross-filesystem moves.
+			if ( ! $wp_filesystem || ! $wp_filesystem->copy( $tmp, $file, true ) ) {
+				wp_delete_file( $tmp );
+				return new WP_Error( 'wpepp_rename_failed', __( 'Could not finalize the wp-config.php change.', 'wp-edit-password-protected' ), [ 'status' => 500 ] );
+			}
 			wp_delete_file( $tmp );
-			return new WP_Error( 'wpepp_rename_failed', __( 'Could not finalize the wp-config.php change.', 'wp-edit-password-protected' ), [ 'status' => 500 ] );
 		}
 
 		if ( function_exists( 'opcache_invalidate' ) ) {

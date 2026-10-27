@@ -4,10 +4,13 @@
  */
 import { ToggleControl } from '@wordpress/components';
 
-const ToggleCard = ( { title, description, checked, onChange, disabled, help } ) => (
+const ToggleCard = ( { title, description, checked, onChange, disabled, help, badge } ) => (
 	<div className={ `wpepp-toggle-card${ disabled ? ' is-disabled' : '' }` }>
 		<div className="wpepp-toggle-card__text">
-			<span className="wpepp-toggle-card__title">{ title }</span>
+			<div style={ { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } }>
+				<span className="wpepp-toggle-card__title">{ title }</span>
+				{ badge }
+			</div>
 			{ description && <span className="wpepp-toggle-card__desc">{ description }</span> }
 			{ help && <span className="wpepp-toggle-card__help">{ help }</span> }
 		</div>

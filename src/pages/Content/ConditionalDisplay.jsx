@@ -3,11 +3,12 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useState, useEffect, useMemo } from '@wordpress/element';
-import { Button, Spinner, ToggleControl, SelectControl } from '@wordpress/components';
+import { Button, ToggleControl, SelectControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import ProLock from '../../components/ProLock';
 import Pagination from '../../components/Pagination';
+import Loading from '../../components/Loading';
 
 const ConditionalDisplay = () => {
 	const isPro = useSelect( ( select ) => select( 'wpepp/settings' ).isPro() );
@@ -50,7 +51,7 @@ const ConditionalDisplay = () => {
 	}, [ filteredPosts, currentPage, pageSize ] );
 
 	if ( loading ) {
-		return <Spinner />;
+		return <Loading variant="table" count={ 5 } />;
 	}
 
 	return (

@@ -216,10 +216,15 @@ class WPEPP_Content_Lock {
 		}
 
 		if ( isset( $_POST['_wpepp_content_lock_redirect'] ) ) {
+			$raw_redirect = esc_url_raw( wp_unslash( $_POST['_wpepp_content_lock_redirect'] ) );
+			// Non-administrators may only redirect to internal site URLs to prevent open redirect phishing.
+			if ( ! current_user_can( 'manage_options' ) && ! empty( $raw_redirect ) ) {
+				$raw_redirect = wp_validate_redirect( $raw_redirect, home_url( '/' ) );
+			}
 			update_post_meta(
 				$post_id,
 				'_wpepp_content_lock_redirect',
-				esc_url_raw( wp_unslash( $_POST['_wpepp_content_lock_redirect'] ) )
+				$raw_redirect
 			);
 		}
 

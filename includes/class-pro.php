@@ -28,26 +28,28 @@ define( 'WPEPP_REQUIRED_PRO_VERSION', '3.0.0' );
  *
  * @return bool
  */
-function wpepp_has_pro_check() {
-	if ( 'yes' !== get_option( 'wpepp_has_pro', 'no' ) ) {
-		return false;
-	}
+if ( ! function_exists( 'wpepp_has_pro_check' ) ) {
+	function wpepp_has_pro_check() {
+		if ( 'yes' !== get_option( 'wpepp_has_pro', 'no' ) ) {
+			return false;
+		}
 
-	if ( ! function_exists( 'is_plugin_active' ) ) {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-	}
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 
-	if ( ! is_plugin_active( 'wpepp-pro/wpepp-pro.php' ) ) {
-		return false;
-	}
+		if ( ! is_plugin_active( 'wpepp-pro/wpepp-pro.php' ) ) {
+			return false;
+		}
 
-	// New-style pro declares its version and passes the handshake.
-	if ( defined( 'WPEPP_PRO_VERSION' ) ) {
-		return version_compare( WPEPP_PRO_VERSION, WPEPP_REQUIRED_PRO_VERSION, '>=' );
-	}
+		// New-style pro declares its version and passes the handshake.
+		if ( defined( 'WPEPP_PRO_VERSION' ) ) {
+			return version_compare( WPEPP_PRO_VERSION, WPEPP_REQUIRED_PRO_VERSION, '>=' );
+		}
 
-	// Legacy pro (pre-3.0) has no version constant — still honoured.
-	return true;
+		// Legacy pro (pre-3.0) has no version constant — still honoured.
+		return true;
+	}
 }
 
 /**
@@ -60,83 +62,77 @@ function wpepp_has_pro_check() {
  * @param string $feature Feature slug.
  * @return string 'free'|'pro'
  */
-function wpepp_feature_tier( $feature ) {
-	$tiers = [
-		// Login security.
-		'login_limiter'        => 'free',
-		'honeypot'             => 'free',
-		'two_factor_totp'      => 'free',
-		'passkeys'             => 'pro',
-		'recaptcha'            => 'pro',
-		'custom_login_url'     => 'pro',
-		'login_log'            => 'pro',
-		'auto_login_advanced'  => 'pro',
+if ( ! function_exists( 'wpepp_feature_tier' ) ) {
+	function wpepp_feature_tier( $feature ) {
+		$tiers = [
+			// Login security.
+			'login_limiter'        => 'free',
+			'honeypot'             => 'free',
+			'two_factor_totp'      => 'free',
+			'passkeys'             => 'pro',
+			'recaptcha'            => 'pro',
+			'custom_login_url'     => 'free',
+			'login_log'            => 'pro',
+			'auto_login_advanced'  => 'pro',
+			'after_login_redirect' => 'pro',
 
-		// Hardening / shielding.
-		'username_shield'      => 'free',
-		'security_headers'     => 'free',
-		'ai_crawler_blocker'   => 'free',
+			// Hardening / shielding.
+			'username_shield'      => 'free',
+			'security_headers'     => 'free',
+			'ai_crawler_blocker'   => 'free',
 
-		// Scanner.
-		'integrity_scan'       => 'free',
-		'malware_basic'        => 'free',
-		'malware_full'         => 'pro',
-		'file_watcher_realtime' => 'pro',
-		'vuln_daily_feed'      => 'pro',
+			// Scanner.
+			'integrity_scan'       => 'free',
+			'malware_basic'        => 'free',
+			'malware_full'         => 'pro',
+			'file_watcher_realtime' => 'pro',
+			'vuln_daily_feed'      => 'pro',
 
-		// Firewall.
-		'firewall_basic'       => 'free',
-		'firewall_extended'    => 'pro',
+			// Firewall.
+			'firewall_basic'       => 'free',
+			'firewall_extended'    => 'pro',
 
-		// Blocking.
-		'ip_single_entries'    => 'free',
-		'ip_cidr_import'       => 'pro',
-		'country_block_2'      => 'free',
-		'country_block_unlimited' => 'pro',
-	];
+			// Blocking.
+			'ip_single_entries'    => 'free',
+			'ip_cidr_import'       => 'pro',
+			'country_block_2'      => 'free',
+			'country_block_unlimited' => 'pro',
+		];
 
-	$tiers = apply_filters( 'wpepp/features/tiers', $tiers ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- documented public API.
+		$tiers = apply_filters( 'wpepp/features/tiers', $tiers ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- documented public API.
 
-	return isset( $tiers[ $feature ] ) ? $tiers[ $feature ] : 'pro';
-}
-
-/**
- * Get available conditional display conditions based on tier.
- *
- * @return array
- */
-function wpepp_get_available_conditions() {
-	$free_conditions = [
-		'user_logged_in'  => __( 'User is logged in', 'wp-edit-password-protected' ),
-		'user_logged_out' => __( 'User is logged out', 'wp-edit-password-protected' ),
-	];
-
-	if ( ! wpepp_has_pro_check() ) {
-		return $free_conditions;
+		return isset( $tiers[ $feature ] ) ? $tiers[ $feature ] : 'pro';
 	}
-
-	return array_merge( $free_conditions, [
-		'user_role'       => __( 'User role', 'wp-edit-password-protected' ),
-		'device_type'     => __( 'Device type', 'wp-edit-password-protected' ),
-		'day_of_week'     => __( 'Day of week', 'wp-edit-password-protected' ),
-		'time_range'      => __( 'Time range', 'wp-edit-password-protected' ),
-		'date_range'      => __( 'Date range', 'wp-edit-password-protected' ),
-		'recurring'       => __( 'Recurring schedule', 'wp-edit-password-protected' ),
-		'post_type'       => __( 'Post type', 'wp-edit-password-protected' ),
-		'browser_type'    => __( 'Browser type', 'wp-edit-password-protected' ),
-		'url_parameter'   => __( 'URL parameter', 'wp-edit-password-protected' ),
-		'referrer_source' => __( 'Referrer source', 'wp-edit-password-protected' ),
-	] );
 }
 
-/**
- * Enforce Pro restrictions on settings before save.
- *
- * @param array  $settings The submitted settings.
- * @param string $section  The settings section.
- * @return array Filtered settings.
- */
-function wpepp_enforce_pro_settings( $settings, $section ) {
+if ( ! function_exists( 'wpepp_get_available_conditions' ) ) {
+	function wpepp_get_available_conditions() {
+		$free_conditions = [
+			'user_logged_in'  => __( 'User is logged in', 'wp-edit-password-protected' ),
+			'user_logged_out' => __( 'User is logged out', 'wp-edit-password-protected' ),
+		];
+
+		if ( ! wpepp_has_pro_check() ) {
+			return $free_conditions;
+		}
+
+		return array_merge( $free_conditions, [
+			'user_role'       => __( 'User role', 'wp-edit-password-protected' ),
+			'device_type'     => __( 'Device type', 'wp-edit-password-protected' ),
+			'day_of_week'     => __( 'Day of week', 'wp-edit-password-protected' ),
+			'time_range'      => __( 'Time range', 'wp-edit-password-protected' ),
+			'date_range'      => __( 'Date range', 'wp-edit-password-protected' ),
+			'recurring'       => __( 'Recurring schedule', 'wp-edit-password-protected' ),
+			'post_type'       => __( 'Post type', 'wp-edit-password-protected' ),
+			'browser_type'    => __( 'Browser type', 'wp-edit-password-protected' ),
+			'url_parameter'   => __( 'URL parameter', 'wp-edit-password-protected' ),
+			'referrer_source' => __( 'Referrer source', 'wp-edit-password-protected' ),
+		] );
+	}
+}
+
+if ( ! function_exists( 'wpepp_enforce_pro_settings' ) ) {
+	function wpepp_enforce_pro_settings( $settings, $section ) {
 	if ( wpepp_has_pro_check() ) {
 		return $settings;
 	}
@@ -187,8 +183,8 @@ function wpepp_enforce_pro_settings( $settings, $section ) {
 				$settings['recaptcha_enabled'],
 				$settings['recaptcha_site_key'],
 				$settings['recaptcha_secret_key'],
-				$settings['custom_login_url'],
 				$settings['login_log_enabled'],
+				$settings['after_login_redirect'],
 				$settings['reg_recaptcha_enabled'],
 				$settings['reg_block_disposable_emails'],
 				$settings['reg_email_domain_mode'],
@@ -209,7 +205,19 @@ function wpepp_enforce_pro_settings( $settings, $section ) {
 
 				// Passkeys + live traffic (Pro modules).
 				$settings['passkeys_enabled'],
-				$settings['live_traffic_enabled']
+				$settings['live_traffic_enabled'],
+
+				// Scanner & Anti-spam Pro extensions (v3.0).
+				$settings['scan_schedule_enabled'],
+				$settings['wc_disposable_email_block'],
+				$settings['wc_captcha_enabled'],
+				$settings['comment_captcha_enabled'],
+				$settings['lostpassword_captcha_enabled'],
+				$settings['auto_prune_logs_enabled'],
+				$settings['events_retention_days'],
+				$settings['login_log_retention_days'],
+				$settings['slow_queries_retention_days'],
+				$settings['max_log_rows_cap']
 			);
 
 			// Breached-password check is Pro; the rest of the policy is free.
@@ -234,6 +242,7 @@ function wpepp_enforce_pro_settings( $settings, $section ) {
 	}
 
 	return $settings;
+	}
 }
 
 /**
@@ -241,13 +250,15 @@ function wpepp_enforce_pro_settings( $settings, $section ) {
  *
  * @return true|\WP_Error
  */
-function wpepp_check_pro_permission() {
-	if ( ! wpepp_has_pro_check() ) {
-		return new WP_Error(
-			'wpepp_pro_required',
-			__( 'This feature requires WPEPP Pro.', 'wp-edit-password-protected' ),
-			[ 'status' => 403 ]
-		);
+if ( ! function_exists( 'wpepp_check_pro_permission' ) ) {
+	function wpepp_check_pro_permission() {
+		if ( ! wpepp_has_pro_check() ) {
+			return new WP_Error(
+				'wpepp_pro_required',
+				__( 'This feature requires WPEPP Pro.', 'wp-edit-password-protected' ),
+				[ 'status' => 403 ]
+			);
+		}
+		return true;
 	}
-	return true;
 }

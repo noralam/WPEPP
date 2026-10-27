@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelect } from '@wordpress/data';
 import { lazy, Suspense } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { TableSkeleton } from '../components/Skeleton';
 import ProBadge from '../components/ProBadge';
 import ProLock from '../components/ProLock';
 
@@ -37,13 +37,14 @@ const CpuMonitor = () => {
 				</NavLink>
 				<NavLink to="/tools/cpu-monitor/plugin-performance" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Plugin Performance', 'wp-edit-password-protected' ) }
+					{ ! isPro && <ProBadge /> }
 				</NavLink>
 				<NavLink to="/tools/cpu-monitor/options-bloat" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Options Bloat', 'wp-edit-password-protected' ) }
 				</NavLink>
 			</nav>
 
-			<Suspense fallback={ <Spinner /> }>
+			<Suspense fallback={ <TableSkeleton rows={ 6 } columns={ 5 } /> }>
 				<Routes>
 					<Route index element={ <Navigate to="/tools/cpu-monitor/overview" replace /> } />
 					<Route path="overview" element={ <Overview /> } />
@@ -57,7 +58,14 @@ const CpuMonitor = () => {
 							</ProLock>
 						}
 					/>
-					<Route path="plugin-performance" element={ <PluginPerformance /> } />
+					<Route
+						path="plugin-performance"
+						element={
+							<ProLock isPro={ isPro } featureName={ __( 'Plugin Performance Footprint', 'wp-edit-password-protected' ) }>
+								<PluginPerformance />
+							</ProLock>
+						}
+					/>
 					<Route path="options-bloat" element={ <OptionsBloat /> } />
 					<Route path="*" element={ <Navigate to="/tools/cpu-monitor/overview" replace /> } />
 				</Routes>

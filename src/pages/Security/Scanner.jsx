@@ -3,17 +3,19 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	Button,
 	SelectControl,
 	ToggleControl,
 	Notice,
-	Spinner,
 	ProgressBar,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import Card from '../../components/Card';
 import Pagination from '../../components/Pagination';
+import { TableSkeleton } from '../../components/Skeleton';
+import ProBadge from '../../components/ProBadge';
 
 const PAGE_SIZE = 15;
 
@@ -47,7 +49,47 @@ const STAGE_LABELS = [
 	__( 'Checking users…', 'wp-edit-password-protected' ),
 ];
 
+const SCAN_STAGES = [
+	{ id: 'files', label: __( 'Files', 'wp-edit-password-protected' ) },
+	{ id: 'checksums', label: __( 'Checksums', 'wp-edit-password-protected' ) },
+	{ id: 'options', label: __( 'Options', 'wp-edit-password-protected' ) },
+	{ id: 'users', label: __( 'Users', 'wp-edit-password-protected' ) },
+];
+
+const getFixRecommendation = ( issue ) => {
+	const path = issue.object_path || '';
+	if ( issue.kind === 'malware' ) {
+		if ( path.includes( 'wp-includes' ) || path.includes( 'wp-admin' ) ) {
+			return __( 'WordPress Core file — Click "Ignore" if this is an unmodified core file, or restore via Dashboard > Updates.', 'wp-edit-password-protected' );
+		}
+		if ( path.includes( 'vendor' ) || path.includes( 'node_modules' ) ) {
+			return __( 'Vendor library package — Click "Ignore" if part of a legitimate Composer/npm dependency.', 'wp-edit-password-protected' );
+		}
+		return __( 'Suspicious pattern detected — Inspect file content to remove malicious code or delete if unknown.', 'wp-edit-password-protected' );
+	}
+	if ( issue.kind === 'core_modified' ) {
+		return __( 'Official core file modified — Reinstall WordPress from Dashboard > Updates to restore original clean code.', 'wp-edit-password-protected' );
+	}
+	if ( issue.kind === 'core_unknown' ) {
+		return __( 'Unrecognized PHP file inside core directory — Delete this file if not intentionally added.', 'wp-edit-password-protected' );
+	}
+	if ( issue.kind === 'plugins_unverified' || issue.kind === 'themes_unverified' ) {
+		return __( 'Custom or premium extension not in WordPress.org directory — Click "Ignore" to whitelist your legitimate theme/plugin.', 'wp-edit-password-protected' );
+	}
+	if ( issue.kind === 'missing_file' ) {
+		return __( 'Missing WordPress file — Reinstall WordPress from Dashboard > Updates to restore it.', 'wp-edit-password-protected' );
+	}
+	if ( issue.kind === 'recent_admin' ) {
+		return __( 'New administrator account — Verify this user in WordPress Users menu.', 'wp-edit-password-protected' );
+	}
+	if ( issue.kind === 'suspicious_option' ) {
+		return __( 'Suspicious database option value — Review setting in WordPress admin.', 'wp-edit-password-protected' );
+	}
+	return __( 'Review this item and click Resolve once verified.', 'wp-edit-password-protected' );
+};
+
 const Scanner = () => {
+	const isPro = useSelect( ( select ) => select( 'wpepp/settings' ).isPro() );
 	const [ status, setStatus ] = useState( null );
 	const [ issues, setIssues ] = useState( null );
 	const [ filter, setFilter ] = useState( '' );
@@ -56,7 +98,22 @@ const Scanner = () => {
 	const [ error, setError ] = useState( '' );
 	const [ syncingSigs, setSyncingSigs ] = useState( false );
 	const [ syncNotice, setSyncNotice ] = useState( null );
-	const pollRef = useRef( null );
+	const [ scanResult, setScanResult ] = useState( null );
+
+	const computeScanProgress = useCallback( ( st ) => {
+		if ( ! st ) return 0;
+		if ( ! st.running ) return 100;
+		const stageIdx = st.stage_index ?? 0;
+		if ( stageIdx === 0 ) {
+			const scanned = st.scanned || 0;
+			const targetFiles = st.profile === 'quick' ? 600 : 12000;
+			return Math.min( 24, Math.max( 3, Math.round( ( scanned / targetFiles ) * 24 ) ) );
+		}
+		if ( stageIdx === 1 ) return 25;
+		if ( stageIdx === 2 ) return 50;
+		if ( stageIdx === 3 ) return 75;
+		return 90;
+	}, [] );
 
 	const loadStatus = useCallback( async () => {
 		try {
@@ -103,23 +160,73 @@ const Scanner = () => {
 		loadStatus();
 	}, [ loadStatus ] );
 
-	// Poll while a scan runs.
+	// Drive scan sequentially while running without lock contention or overlapping slices.
 	useEffect( () => {
-		if ( status?.running ) {
-			pollRef.current = setInterval( async () => {
-				const res = await loadStatus();
-				if ( res && ! res.running ) {
-					clearInterval( pollRef.current );
-					loadIssues();
+		let isMounted = true;
+		let timerId = null;
+
+		const runTickLoop = async () => {
+			if ( ! isMounted ) {
+				return;
+			}
+			try {
+				const res = await apiFetch( { path: '/wpepp/v1/scan/tick', method: 'POST' } );
+				if ( ! isMounted ) {
+					return;
 				}
-			}, 2500 );
+				if ( res ) {
+					setStatus( res );
+					if ( ! res.running ) {
+						setScanResult( {
+							scanned: res.scanned,
+							flagged: res.flagged,
+							issuesNew: res.issues_new,
+							time: new Date().toLocaleTimeString( [], { hour: '2-digit', minute: '2-digit', second: '2-digit' } ),
+						} );
+						loadIssues();
+						return;
+					}
+				}
+			} catch {
+				if ( ! isMounted ) {
+					return;
+				}
+				const res = await loadStatus();
+				if ( ! isMounted ) {
+					return;
+				}
+				if ( res && ! res.running ) {
+					setScanResult( {
+						scanned: res.scanned,
+						flagged: res.flagged,
+						issuesNew: res.issues_new,
+						time: new Date().toLocaleTimeString( [], { hour: '2-digit', minute: '2-digit', second: '2-digit' } ),
+					} );
+					loadIssues();
+					return;
+				}
+			}
+
+			if ( isMounted ) {
+				timerId = setTimeout( runTickLoop, 500 );
+			}
+		};
+
+		if ( status?.running ) {
+			timerId = setTimeout( runTickLoop, 100 );
 		}
 
-		return () => clearInterval( pollRef.current );
+		return () => {
+			isMounted = false;
+			if ( timerId ) {
+				clearTimeout( timerId );
+			}
+		};
 	}, [ status?.running, loadStatus, loadIssues ] );
 
 	const startScan = useCallback( async ( profile ) => {
 		setError( '' );
+		setScanResult( null );
 
 		try {
 			await apiFetch( {
@@ -127,26 +234,22 @@ const Scanner = () => {
 				method: 'POST',
 				data: { profile },
 			} );
-			let res = await loadStatus();
-
-			// Drive the first slices from the browser for snappy progress.
-			let guard = 0;
-			while ( res?.running && guard++ < 200 ) {
-				res = await apiFetch( { path: '/wpepp/v1/scan/tick', method: 'POST' } ); // eslint-disable-line no-await-in-loop
+			const res = await loadStatus();
+			if ( res ) {
 				setStatus( res );
-			}
-
-			if ( ! res?.running ) {
-				loadIssues();
 			}
 		} catch ( err ) {
 			setError( err.message || __( 'Scan failed to start.', 'wp-edit-password-protected' ) );
 		}
-	}, [ loadStatus, loadIssues ] );
+	}, [ loadStatus ] );
 
 	const stopScan = useCallback( async () => {
+		setScanResult( null );
 		await apiFetch( { path: '/wpepp/v1/scan/stop', method: 'POST' } ).catch( () => {} );
-		loadStatus();
+		const res = await loadStatus();
+		if ( res ) {
+			setStatus( res );
+		}
 	}, [ loadStatus ] );
 
 	const toggleSchedule = useCallback( ( enabled ) => {
@@ -158,10 +261,40 @@ const Scanner = () => {
 		} ).catch( () => setSchedule( ! enabled ) );
 	}, [] );
 
-	const actOnIssue = useCallback( async ( id, action ) => {
-		await apiFetch( { path: `/wpepp/v1/scan/issues/${ id }/${ action }`, method: 'POST' } ).catch( () => {} );
-		loadIssues();
-	}, [ loadIssues ] );
+	const actOnIssue = useCallback( async ( id, action, pathName = '' ) => {
+		if ( action === 'delete_file' ) {
+			/* eslint-disable no-alert */
+			const confirmed = window.confirm(
+				/* translators: %s: file path */
+				__( 'Are you sure you want to permanently delete this file from your server?\n\n' + pathName, 'wp-edit-password-protected' )
+			);
+			if ( ! confirmed ) {
+				return;
+			}
+			/* eslint-enable no-alert */
+		}
+		try {
+			await apiFetch( { path: `/wpepp/v1/scan/issues/${ id }/${ action }`, method: 'POST' } );
+			loadIssues();
+			loadStatus();
+		} catch ( err ) {
+			setError( err.message || __( 'Action failed.', 'wp-edit-password-protected' ) );
+		}
+	}, [ loadIssues, loadStatus ] );
+
+	const handleBulkAction = useCallback( async ( action ) => {
+		try {
+			await apiFetch( {
+				path: '/wpepp/v1/scan/issues/bulk',
+				method: 'POST',
+				data: { action },
+			} );
+			loadIssues();
+			loadStatus();
+		} catch ( err ) {
+			setError( err.message || __( 'Could not execute bulk action.', 'wp-edit-password-protected' ) );
+		}
+	}, [ loadIssues, loadStatus ] );
 
 	const handleSyncSignatures = useCallback( async () => {
 		setSyncingSigs( true );
@@ -181,7 +314,7 @@ const Scanner = () => {
 	}, [ loadStatus ] );
 
 	if ( status === null ) {
-		return <Spinner />;
+		return <TableSkeleton rows={ 6 } columns={ 4 } />;
 	}
 
 	return (
@@ -243,61 +376,141 @@ const Scanner = () => {
 					</>
 				}
 			>
-				{ status.running && (
-					<div className="wpepp-scanner__progress">
+				{ ( status.running || scanResult ) && (
+					<div className={ `wpepp-scanner__progress${ scanResult ? ' is-completed' : '' }` }>
+						{ scanResult && ( () => {
+							const activeThreats = Math.max( scanResult.flagged || 0, scanResult.issuesNew || 0 );
+							const isClean = activeThreats === 0;
+
+							return (
+								<div className={ `wpepp-scan-summary-banner ${ isClean ? 'is-clean' : 'is-warning' }` }>
+									<div className="wpepp-scan-summary-banner__icon">
+										{ isClean ? '🛡️' : '⚠️' }
+									</div>
+									<div className="wpepp-scan-summary-banner__text">
+										<div className="wpepp-scan-summary-banner__title">
+											{ isClean
+												? __( 'Scan Complete — Site is 100% Clean!', 'wp-edit-password-protected' )
+												: sprintf(
+													/* translators: %d: number of newly detected threats */
+													__( 'Scan Complete — %d Active Threat(s) Flagged!', 'wp-edit-password-protected' ),
+													activeThreats
+												) }
+										</div>
+										<div className="wpepp-scan-summary-banner__desc">
+											{ isClean
+												? sprintf(
+													/* translators: %d: files count */
+													__( 'All %d files and objects scanned in this run are secure. No new threats or vulnerabilities were detected.', 'wp-edit-password-protected' ),
+													scanResult.scanned
+												)
+												: __( 'Review the flagged items in the Scan Results table below to inspect, resolve, or ignore them.', 'wp-edit-password-protected' ) }
+										</div>
+									</div>
+									<button
+										type="button"
+										className="wpepp-scan-summary-banner__close"
+										onClick={ () => setScanResult( null ) }
+										title={ __( 'Dismiss', 'wp-edit-password-protected' ) }
+									>
+										✕
+									</button>
+								</div>
+							);
+						} )() }
+
 						<div className="wpepp-scanner__progress-top">
 							<span className="wpepp-scanner__progress-label">
-								{ STAGE_LABELS[ status.stage_index ] ?? status.stage }
+								{ scanResult
+									? __( 'All Security Checks Finished', 'wp-edit-password-protected' )
+									: ( STAGE_LABELS[ status.stage_index ] ?? status.stage ) }
 							</span>
 							<span className="wpepp-scanner__progress-pct">
-								{ Math.round( ( status.stage_index / status.stage_total ) * 100 ) }%
+								{ scanResult ? '100%' : `${ computeScanProgress( status ) }%` }
 							</span>
 						</div>
 						<div
 							className="wpepp-scanner__progressbar-track"
 							role="progressbar"
-							aria-valuenow={ Math.round( ( status.stage_index / status.stage_total ) * 100 ) }
+							aria-valuenow={ scanResult ? 100 : computeScanProgress( status ) }
 							aria-valuemin="0"
 							aria-valuemax="100"
 						>
 							<div
-								className="wpepp-scanner__progressbar-fill"
+								className={ `wpepp-scanner__progressbar-fill ${ scanResult ? 'is-finished' : '' }` }
 								style={ {
-									width: `${ Math.max( 4, Math.round( ( status.stage_index / status.stage_total ) * 100 ) ) }%`,
+									width: `${ scanResult ? 100 : Math.max( 4, computeScanProgress( status ) ) }%`,
 								} }
 							/>
 						</div>
-						<div className="wpepp-scanner__stages" aria-hidden="true" style={ { marginBottom: 16 } }>
-							{ [
-								__( 'Files', 'wp-edit-password-protected' ),
-								__( 'Checksums', 'wp-edit-password-protected' ),
-								__( 'Options', 'wp-edit-password-protected' ),
-								__( 'Users', 'wp-edit-password-protected' ),
-							].map( ( label, i ) => (
-								<span
-									key={ label }
-									className={ `wpepp-scanner__stage${ i < status.stage_index ? ' is-done' : '' }${ i === status.stage_index ? ' is-current' : '' }` }
-								>
-									{ label }
-								</span>
-							) ) }
+						<div className="wpepp-scanner__stages-card-grid" aria-hidden="true">
+							{ SCAN_STAGES.map( ( stageItem, i ) => {
+								const isDone = !! scanResult || i < status.stage_index;
+								const isCurrent = ! scanResult && i === status.stage_index;
+								const badgeStatus = isDone ? 'completed' : ( isCurrent ? 'progress' : 'upcoming' );
+								const badgeIcon = isDone ? '✓' : ( isCurrent ? '⏳' : '○' );
+								const badgeLabel = isDone
+									? __( 'Completed', 'wp-edit-password-protected' )
+									: ( isCurrent
+										? __( 'In Progress', 'wp-edit-password-protected' )
+										: __( 'Upcoming', 'wp-edit-password-protected' ) );
+
+								return (
+									<div
+										key={ stageItem.id }
+										className={ `wpepp-scanner-stage-pill is-${ badgeStatus }` }
+									>
+										<div className="wpepp-scanner-stage-pill__header">
+											<span className="wpepp-scanner-stage-pill__icon">{ badgeIcon }</span>
+											<span className="wpepp-scanner-stage-pill__name">{ stageItem.label }</span>
+										</div>
+										<span className={ `wpepp-scanner-stage-badge is-${ badgeStatus }` }>
+											{ badgeLabel }
+										</span>
+									</div>
+								);
+							} ) }
 						</div>
-						<p className="wpepp-scanner__meta" style={ { marginTop: 16, marginBottom: 0 } }>
-							{ sprintf(
-								/* translators: 1: files scanned, 2: findings so far */
-								__( '%1$d files scanned · %2$d findings', 'wp-edit-password-protected' ),
-								status.scanned,
-								status.flagged
+						<div className="wpepp-scanner__meta-bar">
+							<span>
+								📁 { sprintf(
+									/* translators: %d: files scanned */
+									__( '%d files scanned', 'wp-edit-password-protected' ),
+									scanResult ? scanResult.scanned : status.scanned
+								) }
+							</span>
+							<span>·</span>
+							<span style={ { color: ( ( scanResult ? scanResult.flagged : status.flagged ) > 0 ? 'var(--wpepp-danger)' : 'inherit' ) } }>
+								🛡️ { sprintf(
+									/* translators: %d: findings flagged */
+									__( '%d findings flagged', 'wp-edit-password-protected' ),
+									scanResult ? scanResult.flagged : status.flagged
+								) }
+							</span>
+							{ scanResult && (
+								<>
+									<span>·</span>
+									<span style={ { color: 'var(--wpepp-text-3)' } }>
+										⏱️ { sprintf( __( 'Finished at %s', 'wp-edit-password-protected' ), scanResult.time ) }
+									</span>
+								</>
 							) }
-						</p>
+						</div>
 					</div>
 				) }
 
 				<div className="wpepp-scanner__controls" style={ { marginTop: 20 } }>
 					<ToggleControl
-						label={ __( 'Daily automatic scan', 'wp-edit-password-protected' ) }
-						checked={ schedule }
-						onChange={ toggleSchedule }
+						label={
+							<span>
+								{ __( 'Daily automatic scan', 'wp-edit-password-protected' ) }
+								{ ! isPro && <ProBadge /> }
+							</span>
+						}
+						help={ ! isPro ? __( 'Requires WPEPP Pro for automated daily scans.', 'wp-edit-password-protected' ) : null }
+						checked={ isPro && !! schedule }
+						disabled={ ! isPro }
+						onChange={ isPro ? toggleSchedule : undefined }
 					/>
 				</div>
 
@@ -314,28 +527,35 @@ const Scanner = () => {
 						gap: 12,
 					} }
 				>
-					<div>
-						<strong>{ __( 'Malware Signatures:', 'wp-edit-password-protected' ) }</strong>{ ' ' }
-						<span style={ { color: 'var(--wpepp-text-2)' } }>
-							{ sprintf(
-								__( '%d active detection patterns', 'wp-edit-password-protected' ),
-								status.signatures?.total || 14
-							) }
-						</span>
-						{ !! status.signatures?.last_sync && (
-							<span style={ { marginLeft: 8, fontSize: '12px', color: 'var(--wpepp-text-3)' } }>
-								({ sprintf( __( 'Last sync: %s', 'wp-edit-password-protected' ), status.signatures.last_sync ) })
+					<div style={ { display: 'flex', alignItems: 'center', gap: 8 } }>
+						<span style={ { fontSize: '16px' } }>🛡️</span>
+						<div>
+							<strong style={ { color: 'var(--wpepp-text)' } }>
+								{ __( 'Antivirus Definition Database:', 'wp-edit-password-protected' ) }
+							</strong>{ ' ' }
+							<span style={ { color: 'var(--wpepp-text-2)', fontSize: '13px' } }>
+								{ sprintf(
+									/* translators: %d: rule count */
+									__( '%d security definition rules active', 'wp-edit-password-protected' ),
+									status.signatures?.total || 23
+								) }
 							</span>
-						) }
+							{ !! status.signatures?.last_sync && (
+								<span style={ { marginLeft: 8, fontSize: '12px', color: 'var(--wpepp-text-3)' } }>
+									({ sprintf( __( 'Updated: %s', 'wp-edit-password-protected' ), status.signatures.last_sync ) })
+								</span>
+							) }
+						</div>
 					</div>
 					<Button
 						variant="secondary"
 						isSmall
 						isBusy={ syncingSigs }
-						disabled={ syncingSigs || !! status.running }
-						onClick={ handleSyncSignatures }
+						disabled={ ! isPro || syncingSigs || !! status.running }
+						onClick={ isPro ? handleSyncSignatures : undefined }
 					>
 						{ __( 'Check for Signature Updates', 'wp-edit-password-protected' ) }
+						{ ! isPro && <ProBadge /> }
 					</Button>
 				</div>
 			</Card>
@@ -343,37 +563,68 @@ const Scanner = () => {
 			<Card
 				title={ __( 'Scan Results', 'wp-edit-password-protected' ) }
 				action={
-					<SelectControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						value={ filter }
-						onChange={ ( val ) => {
-							setFilter( val );
-							setPage( 1 );
-						} }
-						options={ [
-							{ value: '', label: __( 'All issues', 'wp-edit-password-protected' ) },
-							{ value: 'new', label: __( 'Open', 'wp-edit-password-protected' ) },
-							{ value: 'ignored', label: __( 'Ignored', 'wp-edit-password-protected' ) },
-							{ value: 'fixed', label: __( 'Resolved', 'wp-edit-password-protected' ) },
-						] }
-					/>
+					<div style={ { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' } }>
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							value={ filter }
+							onChange={ ( val ) => {
+								setFilter( val );
+								setPage( 1 );
+							} }
+							options={ [
+								{ value: '', label: __( 'All issues', 'wp-edit-password-protected' ) },
+								{ value: 'new', label: __( 'Open', 'wp-edit-password-protected' ) },
+								{ value: 'ignored', label: __( 'Ignored', 'wp-edit-password-protected' ) },
+								{ value: 'fixed', label: __( 'Resolved', 'wp-edit-password-protected' ) },
+							] }
+						/>
+						{ issues && issues.length > 0 && (
+							<>
+								<Button
+									variant="secondary"
+									isSmall
+									onClick={ () => handleBulkAction( 'resolve_all' ) }
+									title={ __( 'Mark all open issues as resolved', 'wp-edit-password-protected' ) }
+								>
+									{ __( 'Resolve All', 'wp-edit-password-protected' ) }
+								</Button>
+								<Button
+									variant="secondary"
+									isSmall
+									onClick={ () => handleBulkAction( 'ignore_all' ) }
+									title={ __( 'Ignore all open issues', 'wp-edit-password-protected' ) }
+								>
+									{ __( 'Ignore All', 'wp-edit-password-protected' ) }
+								</Button>
+								<Button
+									variant="tertiary"
+									isDestructive
+									isSmall
+									onClick={ () => handleBulkAction( 'clear_all' ) }
+									title={ __( 'Clear issues table', 'wp-edit-password-protected' ) }
+								>
+									{ __( 'Clear Table', 'wp-edit-password-protected' ) }
+								</Button>
+							</>
+						) }
+					</div>
 				}
 				padded={ false }
 			>
 				{ issues === null ? (
-					<div className="wpepp-card-sec__pad"><Spinner /></div>
+					<div className="wpepp-card-sec__pad"><TableSkeleton rows={ 5 } columns={ 5 } /></div>
 				) : issues.length === 0 ? (
-					<div className="wpepp-card-sec__pad"><p>✅ { __( 'No issues found.', 'wp-edit-password-protected' ) }</p></div>
+					<div className="wpepp-card-sec__pad"><p>✅ { __( 'No open issues found. Everything is secure!', 'wp-edit-password-protected' ) }</p></div>
 				) : (
 				<>
-				<table className="wpepp-table wpepp-blocks__table widefat striped">
+				<table className="wpepp-table wpepp-scanner__table">
 					<thead>
 						<tr>
 							<th>{ __( 'Severity', 'wp-edit-password-protected' ) }</th>
 							<th>{ __( 'Type', 'wp-edit-password-protected' ) }</th>
-							<th>{ __( 'Path / Object', 'wp-edit-password-protected' ) }</th>
-							<th>{ __( 'Actions', 'wp-edit-password-protected' ) }</th>
+							<th>{ __( 'Path / Object & Recommendation', 'wp-edit-password-protected' ) }</th>
+							<th className="wpepp-scanner__actions-th">{ __( 'Actions', 'wp-edit-password-protected' ) }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -385,19 +636,67 @@ const Scanner = () => {
 									</span>
 								</td>
 								<td>{ KIND_LABELS[ issue.kind ] || issue.kind }</td>
-								<td className="wpepp-scanner__path"><code>{ issue.object_path }</code></td>
-								<td>
+								<td className="wpepp-scanner__path">
+									<div style={ { fontWeight: 600, marginBottom: 4 } }>
+										<code>{ issue.object_path }</code>
+									</div>
+									{ issue.detail?.name && (
+										<div style={ { fontSize: '12px', color: 'var(--wpepp-text-2)', marginBottom: 2 } }>
+											<strong>{ __( 'Detection:', 'wp-edit-password-protected' ) }</strong> { issue.detail.name }
+										</div>
+									) }
+									<div style={ { fontSize: '11.5px', color: 'var(--wpepp-text-3)', fontStyle: 'italic', marginTop: 3 } }>
+										💡 <strong>{ __( 'How to fix:', 'wp-edit-password-protected' ) }</strong> { getFixRecommendation( issue ) }
+									</div>
+								</td>
+								<td className="wpepp-scanner__actions-cell">
 									{ issue.status === 'new' ? (
-										<>
-											<Button variant="tertiary" onClick={ () => actOnIssue( issue.id, 'resolve' ) }>
-												{ __( 'Resolve', 'wp-edit-password-protected' ) }
-											</Button>
-											<Button variant="tertiary" onClick={ () => actOnIssue( issue.id, 'ignore' ) }>
+										<div className="wpepp-scanner__actions">
+											{ ( issue.kind === 'malware' || issue.kind === 'core_unknown' ) ? (
+												<Button
+													variant="secondary"
+													isDestructive
+													isSmall
+													className="wpepp-scanner__btn-delete"
+													onClick={ () => actOnIssue( issue.id, 'delete_file', issue.object_path ) }
+													title={ __( 'Permanently delete this file from server', 'wp-edit-password-protected' ) }
+												>
+													{ __( 'Delete File', 'wp-edit-password-protected' ) }
+												</Button>
+											) : (
+												<Button
+													variant="tertiary"
+													isSmall
+													className="wpepp-scanner__btn-resolve"
+													onClick={ () => actOnIssue( issue.id, 'resolve' ) }
+												>
+													{ __( 'Resolve', 'wp-edit-password-protected' ) }
+												</Button>
+											) }
+											<Button
+												variant="tertiary"
+												isSmall
+												className="wpepp-scanner__btn-ignore"
+												onClick={ () => actOnIssue( issue.id, 'ignore' ) }
+												title={ __( 'Ignore and whitelist this item', 'wp-edit-password-protected' ) }
+											>
 												{ __( 'Ignore', 'wp-edit-password-protected' ) }
 											</Button>
-										</>
+										</div>
+									) : issue.status === 'ignored' ? (
+										<div className="wpepp-scanner__actions">
+											<em className="wpepp-scanner__status-badge" style={ { marginRight: 8 } }>{ issue.status }</em>
+											<Button
+												variant="tertiary"
+												isSmall
+												onClick={ () => actOnIssue( issue.id, 'unignore' ) }
+												title={ __( 'Restore to open issues', 'wp-edit-password-protected' ) }
+											>
+												{ __( 'Unignore', 'wp-edit-password-protected' ) }
+											</Button>
+										</div>
 									) : (
-										<em>{ issue.status }</em>
+										<em className="wpepp-scanner__status-badge">{ issue.status }</em>
 									) }
 								</td>
 							</tr>

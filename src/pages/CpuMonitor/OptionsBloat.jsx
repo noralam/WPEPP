@@ -6,10 +6,11 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { Button, Spinner, Notice } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../../components/ProBadge';
 import Pagination from '../../components/Pagination';
+import Loading from '../../components/Loading';
 
 const PAGE_SIZE = 10;
 
@@ -60,7 +61,7 @@ const OptionsBloat = () => {
 	};
 
 	if ( loading ) {
-		return <Spinner />;
+		return <Loading variant="table" count={ 5 } />;
 	}
 
 	if ( ! stats ) {

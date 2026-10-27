@@ -166,6 +166,7 @@ class CoreIpTest extends TestCase {
  * @param mixed $data Data to encode.
  * @return string
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 function wp_json_encode_stub( $data ) {
 	return json_encode( $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 }

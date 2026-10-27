@@ -45,6 +45,9 @@ class WPEPP_Site_Access {
 			$this->settings = [];
 		}
 
+		// Self-heal: upgrade legacy plaintext password on init when pluggable functions are ready.
+		add_action( 'init', [ $this, 'maybe_upgrade_password_hash' ] );
+
 		// Nothing enabled — bail early.
 		if ( empty( $this->settings['admin_only_enabled'] )
 			&& empty( $this->settings['site_password_enabled'] )
@@ -64,6 +67,16 @@ class WPEPP_Site_Access {
 
 		// Prevent server-level & CDN page caching when access restrictions are active.
 		add_action( 'send_headers', [ $this, 'send_no_cache_headers' ] );
+	}
+
+	/**
+	 * Upgrade legacy plaintext password to secure hash once pluggable functions are loaded.
+	 */
+	public function maybe_upgrade_password_hash() {
+		if ( ! empty( $this->settings['site_password'] ) && function_exists( 'wp_hash_password' ) && ! self::looks_hashed( (string) $this->settings['site_password'] ) ) {
+			$this->settings['site_password'] = wp_hash_password( (string) $this->settings['site_password'] );
+			update_option( 'wpepp_site_access_settings', wp_json_encode( $this->settings ), false );
+		}
 	}
 
 	/**
@@ -250,10 +263,11 @@ class WPEPP_Site_Access {
 		$allowed_routes = apply_filters( 'wpepp_site_access_allowed_rest_routes', [], $block );
 		if ( ! empty( $allowed_routes ) && is_array( $allowed_routes ) ) {
 			$current_route = untrailingslashit( $GLOBALS['wp']->query_vars['rest_route'] ?? '' );
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading public rest_route query parameter.
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Reading public rest_route query parameter.
 			if ( empty( $current_route ) && isset( $_GET['rest_route'] ) ) {
 				$current_route = untrailingslashit( sanitize_text_field( wp_unslash( $_GET['rest_route'] ) ) );
 			}
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 			if ( empty( $current_route ) && ! empty( $_SERVER['PATH_INFO'] ) ) {
 				$current_route = untrailingslashit( sanitize_text_field( wp_unslash( $_SERVER['PATH_INFO'] ) ) );
 			}
@@ -261,7 +275,7 @@ class WPEPP_Site_Access {
 
 			foreach ( $allowed_routes as $allowed ) {
 				$allowed = '/' . trim( (string) $allowed, '/' );
-				if ( '/' !== $allowed && 0 === strpos( $current_route, $allowed ) ) {
+				if ( '/' !== $allowed && ( $current_route === $allowed || 0 === strpos( $current_route, trailingslashit( $allowed ) ) ) ) {
 					return $access;
 				}
 			}
@@ -659,7 +673,19 @@ class WPEPP_Site_Access {
 			? sanitize_text_field( wp_unslash( $_POST['wpepp_site_password'] ) )
 			: '';
 
+		$ip       = class_exists( 'WPEPP_Core_Ip' ) ? WPEPP_Core_Ip::get_client_ip() : sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' ) );
+		$rl_key   = 'wpepp_rl_site_pass_' . md5( $ip );
+		$attempts = (int) get_transient( $rl_key );
+
+		if ( $attempts >= 5 ) {
+			add_filter( 'wpepp_site_password_rate_limit', '__return_true' );
+			add_filter( 'wpepp_site_password_error', '__return_true' );
+			return;
+		}
+
 		if ( self::verify_site_password( $submitted ) ) {
+			delete_transient( $rl_key );
+
 			// Re-read settings — verify_site_password may have upgraded the
 			// stored hash from legacy plaintext.
 			$raw      = get_option( 'wpepp_site_access_settings', '{}' );
@@ -682,7 +708,19 @@ class WPEPP_Site_Access {
 			exit;
 		}
 
-		// Wrong password — set flag for the template.
+		// Wrong password — increment failure counter and set flag for template.
+		$attempts++;
+		set_transient( $rl_key, $attempts, 5 * MINUTE_IN_SECONDS );
+
+		if ( class_exists( 'WPEPP_Logger' ) ) {
+			WPEPP_Logger::log(
+				'password_bruteforce_attempt',
+				sprintf( 'Failed direct site password attempt from %s (attempt %d/5)', $ip, $attempts ),
+				$attempts >= 5 ? WPEPP_Logger::SEV_CRITICAL : WPEPP_Logger::SEV_WARN,
+				[ 'ip' => $ip, 'attempt' => $attempts ]
+			);
+		}
+
 		add_filter( 'wpepp_site_password_error', '__return_true' );
 	}
 

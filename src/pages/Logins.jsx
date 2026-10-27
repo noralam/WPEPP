@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelect } from '@wordpress/data';
 import { lazy, Suspense } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { CardSkeleton } from '../components/Skeleton';
 import ProLock from '../components/ProLock';
 
 const LoginProtection        = lazy( () => import( './Security/LoginProtection' ) );
@@ -22,7 +22,7 @@ const TABS = [
 	{ to: '/logins/passwords', label: __( 'Passwords', 'wp-edit-password-protected' ) },
 	{ to: '/logins/two-factor', label: __( 'Two-Factor Auth', 'wp-edit-password-protected' ) },
 	{ to: '/logins/passkeys', label: __( 'Passkeys', 'wp-edit-password-protected' ), pro: true },
-	{ to: '/logins/custom-url', label: __( 'Custom Login URL', 'wp-edit-password-protected' ), pro: true },
+	{ to: '/logins/custom-url', label: __( 'Custom Login URL', 'wp-edit-password-protected' ) },
 	{ to: '/logins/auto-login', label: __( 'Auto Login', 'wp-edit-password-protected' ) },
 ];
 
@@ -40,7 +40,7 @@ const Logins = () => {
 				) ) }
 			</nav>
 
-			<Suspense fallback={ <Spinner /> }>
+			<Suspense fallback={ <CardSkeleton rows={ 4 } /> }>
 				<Routes>
 					<Route index element={ <Navigate to="/logins/protection" replace /> } />
 					<Route path="protection" element={ <LoginProtection /> } />
@@ -57,11 +57,7 @@ const Logins = () => {
 					/>
 					<Route
 						path="custom-url"
-						element={
-							<ProLock isPro={ isPro } featureName={ __( 'Custom Login URL', 'wp-edit-password-protected' ) }>
-								<CustomLoginUrl />
-							</ProLock>
-						}
+						element={ <CustomLoginUrl /> }
 					/>
 					<Route path="auto-login" element={ <AutoLogin /> } />
 					<Route path="*" element={ <Navigate to="/logins/protection" replace /> } />

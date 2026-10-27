@@ -185,7 +185,7 @@ class WPEPP_Captcha {
 					'wpepp-captcha',
 					$turnstile_api,
 					[],
-					null,
+					WPEPP_VERSION,
 					true
 				);
 				printf(

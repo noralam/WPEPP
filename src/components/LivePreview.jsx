@@ -5,6 +5,7 @@ import { useRef, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Spinner } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import Loading from './Loading';
 
 const LivePreview = ( { previewUrl, css, video, settings, width = '100%' } ) => {
 	const iframeRef = useRef( null );
@@ -75,8 +76,8 @@ const LivePreview = ( { previewUrl, css, video, settings, width = '100%' } ) => 
 	return (
 		<div className="wpepp-live-preview" style={ { width } }>
 			{ ! isLoaded && (
-				<div className="wpepp-live-preview__loading">
-					<Spinner />
+				<div className="wpepp-live-preview__loading" style={ { padding: 24 } }>
+					<Loading variant="form" count={ 3 } />
 				</div>
 			) }
 			<iframe

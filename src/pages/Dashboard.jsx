@@ -45,6 +45,14 @@ const Dashboard = () => {
 		.sort( ( a, b ) => b.weight - a.weight )
 		.slice( 0, 4 );
 
+	const handleFix = ( route ) => {
+		if ( ! route ) {
+			return;
+		}
+		const cleanRoute = '/' + String( route ).replace( /^#?\/?/, '' );
+		navigate( cleanRoute );
+	};
+
 	/* ── Feature Status Helpers ── */
 	const features = [
 		{
@@ -264,7 +272,7 @@ const Dashboard = () => {
 						<ul className="wpepp-score-card__items">
 							{ undoneItems.map( ( item ) => (
 								<li key={ item.id }>
-									<button type="button" onClick={ () => navigate( item.route ) }>
+									<button type="button" onClick={ () => handleFix( item.route ) }>
 										<span className="wpepp-score-card__item-label">{ item.label }</span>
 										<span className="wpepp-score-card__item-fix">{ __( 'Fix →', 'wp-edit-password-protected' ) }</span>
 									</button>

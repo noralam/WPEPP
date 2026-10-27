@@ -56,9 +56,8 @@ const SetupWizard = ( { onClose, onComplete } ) => {
 				data: { step: step.step },
 			} );
 
-			setResult( res.summary ?? null );
-
 			if ( isLast ) {
+				setResult( res.summary ?? null );
 				onComplete?.( res.summary ?? null );
 			} else {
 				setCurrent( ( c ) => c + 1 );

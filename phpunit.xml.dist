@@ -5,6 +5,7 @@
 	verbose="true"
 	failOnRisky="true"
 	failOnWarning="true"
+	cacheResult="false"
 >
 	<testsuites>
 		<testsuite name="Unit">

@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelect } from '@wordpress/data';
 import { lazy, Suspense } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { CardSkeleton } from '../components/Skeleton';
 import Backup from './Settings/Backup';
 import DatabaseMaintenance from './Settings/DatabaseMaintenance';
 import ProBadge from '../components/ProBadge';
@@ -35,7 +35,7 @@ const Settings = () => {
 				</NavLink>
 			</nav>
 
-			<Suspense fallback={ <Spinner /> }>
+			<Suspense fallback={ <CardSkeleton rows={ 4 } /> }>
 				<Routes>
 					<Route index element={ <Navigate to="/settings/general" replace /> } />
 					<Route path="general" element={ <General /> } />

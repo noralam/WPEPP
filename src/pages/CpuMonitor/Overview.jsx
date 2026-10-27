@@ -5,8 +5,9 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
-import { Button, Spinner } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
+import Loading from '../../components/Loading';
 
 const formatBytes = ( bytes ) => {
 	if ( bytes >= 1073741824 ) {
@@ -46,7 +47,7 @@ const Overview = () => {
 	}, [] );
 
 	if ( loading ) {
-		return <Spinner />;
+		return <Loading variant="dashboard" count={ 2 } />;
 	}
 
 	if ( ! stats ) {

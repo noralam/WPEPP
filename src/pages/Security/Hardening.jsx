@@ -15,6 +15,7 @@ import {
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
+import Loading from '../../components/Loading';
 import apiFetch from '@wordpress/api-fetch';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
 import { useSaveBar } from '../../components/SaveBar';
@@ -135,7 +136,7 @@ const Hardening = () => {
 	}, [ savedFlash ] );
 
 	if ( status === null ) {
-		return <Spinner />;
+		return <Loading variant="cards" count={ 3 } />;
 	}
 
 	return (

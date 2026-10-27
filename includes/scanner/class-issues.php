@@ -36,7 +36,9 @@ class WPEPP_Issues {
 	public static function create_table() {
 		global $wpdb;
 
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		if ( ! function_exists( 'dbDelta' ) && file_exists( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
 
 		$charset_collate = $wpdb->get_charset_collate();
 		$table           = self::table_name();
@@ -73,7 +75,7 @@ class WPEPP_Issues {
 		$exists = wp_cache_get( 'wpepp_issues_exists', 'wpepp' );
 
 		if ( false === $exists ) {
-			$exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
 			);
 			wp_cache_set( 'wpepp_issues_exists', $exists ? $table : 'no', 'wpepp', HOUR_IN_SECONDS );
@@ -121,20 +123,29 @@ class WPEPP_Issues {
 		$hash = self::hash( $kind, $path );
 		$table = self::table_name();
 
-		$existing = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->prepare( 'SELECT id FROM %i WHERE ignore_hash = %s LIMIT 1', $table, $hash )
+		$existing_row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare( 'SELECT id, status FROM %i WHERE ignore_hash = %s LIMIT 1', $table, $hash ),
+			ARRAY_A
 		);
 
-		if ( $existing > 0 ) {
-			// Refresh timestamp unless already ignored/fixed by the user.
+		if ( ! empty( $existing_row['id'] ) ) {
+			if ( 'ignored' === $existing_row['status'] ) {
+				return;
+			}
+
+			// If already open (new), refresh timestamp and count in current scan findings.
 			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
 					"UPDATE %i SET created_at = %s WHERE id = %d AND status = 'new'",
 					$table,
 					current_time( 'mysql', true ),
-					$existing
+					(int) $existing_row['id']
 				)
 			);
+
+			$state            = WPEPP_Scan_Engine::state();
+			$state['flagged'] = (int) ( $state['flagged'] ?? 0 ) + 1;
+			WPEPP_Scan_Engine::persist( $state );
 			return;
 		}
 
@@ -142,7 +153,7 @@ class WPEPP_Issues {
 		$state['flagged'] = (int) ( $state['flagged'] ?? 0 ) + 1;
 		WPEPP_Scan_Engine::persist( $state );
 
-		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$table,
 			[
 				'kind'        => sanitize_key( $kind ),
@@ -177,7 +188,7 @@ class WPEPP_Issues {
 		$table = self::table_name();
 
 		if ( '' !== $status ) {
-			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
 					'SELECT id, kind, severity, object_path, detail, status, created_at
 					 FROM %i WHERE status = %s ORDER BY severity DESC, id DESC LIMIT %d OFFSET %d',
@@ -189,7 +200,7 @@ class WPEPP_Issues {
 				ARRAY_A
 			);
 		} else {
-			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
 					'SELECT id, kind, severity, object_path, detail, status, created_at
 					 FROM %i ORDER BY severity DESC, id DESC LIMIT %d OFFSET %d',
@@ -276,5 +287,109 @@ class WPEPP_Issues {
 		wp_cache_flush_group( 'wpepp' );
 
 		return $n;
+	}
+
+	/**
+	 * Bulk update status for findings.
+	 *
+	 * @param string $action 'resolve_all' | 'ignore_all' | 'clear_all'.
+	 * @return int Rows affected.
+	 */
+	public static function bulk_action( $action ) {
+		global $wpdb;
+
+		if ( ! self::table_exists() ) {
+			return 0;
+		}
+
+		$table = self::table_name();
+
+		if ( 'resolve_all' === $action ) {
+			$n = (int) $wpdb->query(
+				$wpdb->prepare( "UPDATE %i SET status = 'fixed' WHERE status = 'new'", $table )
+			);
+			wp_cache_flush_group( 'wpepp' );
+			return $n;
+		}
+
+		if ( 'ignore_all' === $action ) {
+			$n = (int) $wpdb->query(
+				$wpdb->prepare( "UPDATE %i SET status = 'ignored' WHERE status = 'new'", $table )
+			);
+			wp_cache_flush_group( 'wpepp' );
+			return $n;
+		}
+
+		if ( 'clear_all' === $action ) {
+			return self::clear( false );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Permanently delete a malicious file associated with an issue from disk.
+	 *
+	 * @param int $id Issue ID.
+	 * @return array { success: bool, message: string }
+	 */
+	public static function delete_file( $id ) {
+		global $wpdb;
+
+		if ( ! self::table_exists() ) {
+			return [ 'success' => false, 'message' => __( 'Issues table does not exist.', 'wp-edit-password-protected' ) ];
+		}
+
+		$table = self::table_name();
+		$row   = $wpdb->get_row(
+			$wpdb->prepare( 'SELECT id, kind, object_path FROM %i WHERE id = %d LIMIT 1', $table, absint( $id ) ),
+			ARRAY_A
+		);
+
+		if ( ! $row || empty( $row['object_path'] ) ) {
+			return [ 'success' => false, 'message' => __( 'Issue not found.', 'wp-edit-password-protected' ) ];
+		}
+
+		$path    = wp_normalize_path( $row['object_path'] );
+		$abspath = wp_normalize_path( ABSPATH );
+
+		// Security: must be inside ABSPATH.
+		if ( 0 !== strpos( $path, $abspath ) ) {
+			return [ 'success' => false, 'message' => __( 'File path is outside of WordPress installation.', 'wp-edit-password-protected' ) ];
+		}
+
+		// Security: protect critical WordPress files from accidental deletion.
+		$basename        = strtolower( basename( $path ) );
+		$protected_files = [ 'wp-config.php', 'wp-settings.php', 'wp-load.php', 'wp-blog-header.php', 'index.php', '.htaccess' ];
+		if ( in_array( $basename, $protected_files, true ) && dirname( $path ) === rtrim( $abspath, '/' ) ) {
+			return [ 'success' => false, 'message' => __( 'Cannot delete core system file.', 'wp-edit-password-protected' ) ];
+		}
+
+		if ( ! file_exists( $path ) ) {
+			// File is already gone, update status to fixed.
+			self::set_status( $id, 'fixed' );
+			return [ 'success' => true, 'message' => __( 'File was already removed from disk.', 'wp-edit-password-protected' ) ];
+		}
+
+		if ( is_dir( $path ) ) {
+			return [ 'success' => false, 'message' => __( 'Target is a directory, not a file.', 'wp-edit-password-protected' ) ];
+		}
+
+		if ( ! @unlink( $path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return [ 'success' => false, 'message' => __( 'Permission denied: Could not delete file from server.', 'wp-edit-password-protected' ) ];
+		}
+
+		self::set_status( $id, 'fixed' );
+
+		if ( class_exists( 'WPEPP_Logger' ) ) {
+			WPEPP_Logger::log(
+				'malware_deleted',
+				sprintf( 'Malware file deleted: %s', $path ),
+				WPEPP_Logger::SEV_WARN,
+				[ 'issue_id' => $id, 'path' => $path ]
+			);
+		}
+
+		return [ 'success' => true, 'message' => __( 'File permanently deleted from server.', 'wp-edit-password-protected' ) ];
 	}
 }

@@ -9,7 +9,6 @@ import {
 	CheckboxControl,
 	TextareaControl,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import { useMemo, useCallback } from '@wordpress/element';
@@ -17,6 +16,7 @@ import { useSaveBar } from '../../components/SaveBar';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
 import ProBadge from '../../components/ProBadge';
 import ProLock from '../../components/ProLock';
+import Loading from '../../components/Loading';
 
 /**
  * Known AI bot list — must stay in sync with WPEPP_Security::get_known_ai_bots().
@@ -76,7 +76,7 @@ const AiCrawlerBlocker = () => {
 	useSaveBar( handleSave, handleReset );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="cards" count={ 2 } />;
 	}
 
 	const selectedBots = ( s.ai_crawler_bots === null || ! Array.isArray( s.ai_crawler_bots ) )
@@ -103,11 +103,20 @@ const AiCrawlerBlocker = () => {
 	};
 
 	const blockedCount = selectedBots.length;
-	const siteUrl = ( window.wpeppData?.siteUrl || window.location.origin );
+	const siteUrl = ( window.wpeppData?.siteUrl || window.location.origin ).replace( /\/+$/, '' );
 
 	return (
 		<div className="wpepp-ai-crawler-blocker">
 			<h3>{ __( 'AI Crawler Blocker', 'wp-edit-password-protected' ) }</h3>
+
+			<Notice status="warning" isDismissible={ false } style={ { marginBottom: 20 } }>
+				<div style={ { fontWeight: 600, marginBottom: 4 } }>
+					{ __( 'Important for SEO & AI Recommendations (ChatGPT, SearchGPT, Perplexity):', 'wp-edit-password-protected' ) }
+				</div>
+				<div style={ { fontSize: '13px', lineHeight: 1.5 } }>
+					{ __( 'Enabling this feature blocks AI crawlers and search bots from reading your site. While it protects your content from being scraped for AI training, it will also prevent AI engines from citing, recommending, or summarizing your articles and products to users. Keep this feature disabled if you want AI-assisted traffic and search recommendations.', 'wp-edit-password-protected' ) }
+				</div>
+			</Notice>
 
 			<Card title={ __( 'Enable AI Crawler Blocking', 'wp-edit-password-protected' ) }>
 				<PanelRow>

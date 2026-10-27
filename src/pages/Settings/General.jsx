@@ -6,12 +6,12 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	ToggleControl,
 	TextControl,
-	Spinner,
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import DatabaseMaintenance from './DatabaseMaintenance';
 import { useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
+import Loading from '../../components/Loading';
 
 const General = () => {
 	const { settings, isLoading } = useSelect( ( select ) => {
@@ -35,7 +35,7 @@ const General = () => {
 	useSaveBar( handleSave, handleReset );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 4 } />;
 	}
 
 	const set = ( key, value ) => updateSetting( 'general', key, value );

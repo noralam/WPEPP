@@ -2,7 +2,7 @@
  * Auto Login Link management — create magic login URLs.
  * Basic link creation is free; conditions (expiry, role, max uses) are Pro.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	Button,
@@ -10,10 +10,10 @@ import {
 	SelectControl,
 	RangeControl,
 	Notice,
-	Spinner,
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
 import Card from '../../components/Card';
+import { TableSkeleton } from '../../components/Skeleton';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { copy, trash } from '@wordpress/icons';
@@ -27,6 +27,7 @@ const AutoLogin = () => {
 	const [ loading, setLoading ] = useState( true );
 	const [ creating, setCreating ] = useState( false );
 	const [ copied, setCopied ] = useState( null );
+	const [ createError, setCreateError ] = useState( '' );
 
 	// Form state.
 	const [ userId, setUserId ] = useState( '' );
@@ -35,6 +36,8 @@ const AutoLogin = () => {
 	const [ maxUses, setMaxUses ] = useState( 0 ); // 0 = unlimited
 	const [ roleRestriction, setRoleRestriction ] = useState( '' );
 	const [ redirectUrl, setRedirectUrl ] = useState( '' );
+
+	const reachedFreeLimit = ! isPro && links.length >= 3;
 
 	// Fetch links + users on mount.
 	useEffect( () => {
@@ -70,10 +73,11 @@ const AutoLogin = () => {
 	}, [] );
 
 	const handleCreate = useCallback( async () => {
-		if ( ! userId ) {
+		if ( ! userId || ( ! isPro && links.length >= 3 ) ) {
 			return;
 		}
 		setCreating( true );
+		setCreateError( '' );
 		try {
 			const body = {
 				user_id: parseInt( userId, 10 ),
@@ -110,10 +114,10 @@ const AutoLogin = () => {
 			setRoleRestriction( '' );
 			setRedirectUrl( '' );
 		} catch ( err ) {
-			// Error handled silently.
+			setCreateError( err?.message || __( 'Failed to generate link.', 'wp-edit-password-protected' ) );
 		}
 		setCreating( false );
-	}, [ userId, label, expiresIn, maxUses, roleRestriction, redirectUrl, isPro ] );
+	}, [ userId, label, expiresIn, maxUses, roleRestriction, redirectUrl, isPro, links.length ] );
 
 	const handleDelete = useCallback( async ( id ) => {
 		try {
@@ -135,7 +139,7 @@ const AutoLogin = () => {
 	}, [] );
 
 	if ( loading ) {
-		return <Spinner />;
+		return <TableSkeleton rows={ 5 } columns={ 5 } />;
 	}
 
 	return (
@@ -146,7 +150,43 @@ const AutoLogin = () => {
 				{ __( 'Generate magic login URLs that allow users to log in without entering credentials. Share these links carefully — anyone with the link can log in as the selected user.', 'wp-edit-password-protected' ) }
 			</Notice>
 
-			<Card title={ __( 'Create New Link', 'wp-edit-password-protected' ) }>
+			{ reachedFreeLimit && (
+				<Notice status="warning" isDismissible={ false } className="wpepp-mb-4">
+					<div style={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 } }>
+						<span>
+							{ __( 'Free version is limited to 3 active auto-login links. Upgrade to Pro for unlimited links, expiration dates, usage limits, and role restrictions.', 'wp-edit-password-protected' ) }
+						</span>
+						<Button
+							variant="secondary"
+							isSmall
+							href={ window.wpeppData?.proUrl || '#' }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'Upgrade to Pro', 'wp-edit-password-protected' ) }
+						</Button>
+					</div>
+				</Notice>
+			) }
+
+			{ createError && (
+				<Notice status="error" isDismissible onDismiss={ () => setCreateError( '' ) } className="wpepp-mb-4">
+					{ createError }
+				</Notice>
+			) }
+
+			<Card
+				title={
+					<div style={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' } }>
+						<span>{ __( 'Create New Link', 'wp-edit-password-protected' ) }</span>
+						{ ! isPro && (
+							<span style={ { fontSize: 12, fontWeight: 500, color: reachedFreeLimit ? '#dc2626' : 'var(--wpepp-text-2)' } }>
+								{ sprintf( __( '%d / 3 Active Links Used (Free)', 'wp-edit-password-protected' ), links.length ) }
+							</span>
+						) }
+					</div>
+				}
+			>
 				<div className="wpepp-form-grid">
 					<SelectControl
 						__next40pxDefaultSize
@@ -180,6 +220,7 @@ const AutoLogin = () => {
 								{ ! isPro && <ProBadge /> }
 							</span>
 						}
+						help={ ! isPro ? __( 'Requires WPEPP Pro to customize expiration.', 'wp-edit-password-protected' ) : null }
 						value={ String( isPro ? expiresIn : 0 ) }
 						options={ [
 							{ label: __( 'Never expires', 'wp-edit-password-protected' ), value: '0' },
@@ -194,13 +235,8 @@ const AutoLogin = () => {
 						disabled={ ! isPro }
 					/>
 					<RangeControl
-						label={
-							<span>
-								{ __( 'Max Uses', 'wp-edit-password-protected' ) }
-								{ ! isPro && <ProBadge /> }
-							</span>
-						}
-						help={ __( '0 = unlimited', 'wp-edit-password-protected' ) }
+						label={ isPro ? __( 'Max Uses', 'wp-edit-password-protected' ) : sprintf( __( 'Max Uses (%s)', 'wp-edit-password-protected' ), 'Pro' ) }
+						help={ ! isPro ? __( 'Requires WPEPP Pro to limit uses.', 'wp-edit-password-protected' ) : __( '0 = unlimited', 'wp-edit-password-protected' ) }
 						value={ isPro ? maxUses : 0 }
 						onChange={ setMaxUses }
 						min={ 0 }
@@ -216,7 +252,7 @@ const AutoLogin = () => {
 									{ ! isPro && <ProBadge /> }
 								</span>
 							}
-							help={ __( 'Only create a link for users with this role.', 'wp-edit-password-protected' ) }
+							help={ ! isPro ? __( 'Requires WPEPP Pro for role restriction.', 'wp-edit-password-protected' ) : __( 'Only create a link for users with this role.', 'wp-edit-password-protected' ) }
 							value={ isPro ? roleRestriction : '' }
 							options={ roleOptions }
 							onChange={ setRoleRestriction }
@@ -229,7 +265,7 @@ const AutoLogin = () => {
 							variant="primary"
 							onClick={ handleCreate }
 							isBusy={ creating }
-							disabled={ ! userId || creating }
+							disabled={ ! userId || creating || reachedFreeLimit }
 						>
 							{ __( 'Generate Link', 'wp-edit-password-protected' ) }
 						</Button>

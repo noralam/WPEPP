@@ -31,6 +31,16 @@ class WPEPP_Integrity {
 	 * @return bool True when more work remains in the stage.
 	 */
 	public static function process_slice( array &$state, $start ) {
+		$is_quick = ( ( $state['profile'] ?? 'quick' ) === 'quick' );
+
+		// In Quick Scan, perform core integrity check on critical entrypoints and immediately advance to options,
+		// avoiding slow remote HTTP API calls for individual plugins and thousands of deep file hashes.
+		if ( $is_quick ) {
+			self::check_core( true );
+			WPEPP_Scan_Engine::advance( $state, 'options' );
+			return true;
+		}
+
 		$queue = $state['integrity_queue'] ?? null;
 
 		if ( null === $queue ) {
@@ -66,15 +76,20 @@ class WPEPP_Integrity {
 			$index = (int) ( $state['integrity_index'] ?? 0 );
 
 			if ( $index >= count( $queue ) ) {
-				unset( $state['integrity_queue'], $state['integrity_index'] );
+				unset( $state['integrity_queue'], $state['integrity_index'], $state['core_cursor'] );
 				WPEPP_Scan_Engine::advance( $state, 'options' );
-				return false; // Stage complete.
+				return true; // Stage complete — advance to options!
 			}
 
 			$job = $queue[ $index ];
 
 			if ( '__core__' === $job ) {
-				self::check_core();
+				$core_done = self::check_core( false, $start, $state );
+				if ( ! $core_done ) {
+					// Time budget spent checking core files — persist and yield for next slice.
+					WPEPP_Scan_Engine::persist( $state );
+					return false;
+				}
 			} else {
 				self::check_extension( $job );
 			}
@@ -103,7 +118,7 @@ class WPEPP_Integrity {
 		$response = wp_remote_get(
 			$url,
 			[
-				'timeout'    => 8,
+				'timeout'    => 3,
 				'user-agent' => 'WPEPP/' . ( defined( 'WPEPP_VERSION' ) ? WPEPP_VERSION : '3.0' ),
 			]
 		);
@@ -123,8 +138,13 @@ class WPEPP_Integrity {
 
 	/**
 	 * Verify WordPress core files against the official checksums.
+	 *
+	 * @param bool       $is_quick Whether this is a quick scan (checks top-level & critical loaders only).
+	 * @param float|null $start    Microtime start timestamp for slice budget tracking.
+	 * @param array|null $state    Current scan state reference.
+	 * @return bool True if core checks completed, false if yielded due to slice budget.
 	 */
-	public static function check_core() {
+	public static function check_core( $is_quick = false, $start = null, array &$state = null ) {
 		global $wp_version, $wp_local_package;
 
 		$url     = add_query_arg(
@@ -138,14 +158,49 @@ class WPEPP_Integrity {
 
 		if ( empty( $manifest ) ) {
 			WPEPP_Issues::add( 'core_unverified', 1, 'api.wordpress.org unreachable', [] );
-			return;
+			return true;
 		}
 
-		foreach ( $manifest as $rel_path => $md5 ) {
+		$keys    = array_keys( $manifest );
+		$total   = count( $keys );
+		$cursor  = (int) ( $state['core_cursor'] ?? 0 );
+		$budget  = WPEPP_Scan_Engine::SLICE_BUDGET - 0.5;
+
+		while ( $cursor < $total ) {
+			$rel_path = $keys[ $cursor ];
+			$md5      = $manifest[ $rel_path ];
+			$cursor++;
+
+			// Check time budget periodically in Full Scan
+			if ( ! $is_quick && null !== $start && 0 === ( $cursor % 30 ) ) {
+				if ( ( microtime( true ) - $start ) >= $budget ) {
+					$state['core_cursor'] = $cursor;
+					return false; // Yield cleanly — more core files remain!
+				}
+			}
 
 			// Only verify files OUTSIDE wp-content (themes/plugins handled separately).
 			if ( 0 === strpos( $rel_path, 'wp-content/' ) ) {
 				continue;
+			}
+
+			// In Quick Scan, only verify top-level root files and critical loaders,
+			// leaving deep core subdirectories for Full Scan.
+			if ( $is_quick ) {
+				$is_root_file  = ( false === strpos( $rel_path, '/' ) );
+				$is_key_loader = in_array( $rel_path, [
+					'wp-admin/index.php', 'wp-admin/admin.php', 'wp-admin/admin-ajax.php',
+					'wp-includes/version.php', 'wp-includes/pluggable.php', 'wp-includes/functions.php',
+				], true );
+				if ( ! $is_root_file && ! $is_key_loader ) {
+					continue;
+				}
+			} else {
+				// In Full Scan, verify scripts and code files; skip 2,200 pure static images/fonts/icons
+				$ext = strtolower( pathinfo( $rel_path, PATHINFO_EXTENSION ) );
+				if ( ! in_array( $ext, [ 'php', 'js', 'html', 'htaccess' ], true ) ) {
+					continue;
+				}
 			}
 
 			$abs = wp_normalize_path( ABSPATH . ltrim( $rel_path, '/' ) );
@@ -171,7 +226,16 @@ class WPEPP_Integrity {
 			}
 		}
 
-		// Unknown PHP files inside wp-admin / wp-includes.
+		if ( isset( $state['core_cursor'] ) ) {
+			unset( $state['core_cursor'] );
+		}
+
+		// In Quick Scan, skip deep recursive traversal of wp-admin and wp-includes.
+		if ( $is_quick ) {
+			return true;
+		}
+
+		// Unknown PHP files inside wp-admin / wp-includes (Full Scan only).
 		foreach ( [ 'wp-admin', 'wp-includes' ] as $core_dir ) {
 			$dir_abs = wp_normalize_path( ABSPATH . $core_dir );
 
@@ -184,7 +248,7 @@ class WPEPP_Integrity {
 			);
 
 			foreach ( $it as $file ) {
-				$rel = $core_dir . '/' . str_replace( '\\\\', '/', substr( wp_normalize_path( (string) $file ), strlen( $dir_abs ) + 1 ) );
+				$rel = $core_dir . '/' . str_replace( '\\', '/', substr( wp_normalize_path( (string) $file ), strlen( $dir_abs ) + 1 ) );
 
 				if ( isset( $manifest[ $rel ] ) ) {
 					continue;
@@ -195,6 +259,8 @@ class WPEPP_Integrity {
 				}
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -217,13 +283,8 @@ class WPEPP_Integrity {
 		);
 
 		if ( empty( $manifest ) ) {
-			// Non-wp.org asset (premium) or API miss — flag once for review.
-			WPEPP_Issues::add(
-				"{$type}_unverified",
-				1,
-				$job['slug'],
-				[ 'version' => $job['version'] ]
-			);
+			// Non-wp.org asset (premium or custom plugin/theme) — cannot checksum from api.wordpress.org.
+			// Do NOT flag as a security vulnerability; simply skip checksum verification.
 			return;
 		}
 

@@ -9,7 +9,6 @@ import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	Button,
-	Spinner,
 	ToggleControl,
 	SelectControl,
 	Notice,
@@ -17,12 +16,15 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 import Card from '../../components/Card';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
+import Loading from '../../components/Loading';
+import ProBadge from '../../components/ProBadge';
 
 const DatabaseMaintenance = () => {
-	const { settings } = useSelect( ( select ) => {
+	const { settings, isPro } = useSelect( ( select ) => {
 		const store = select( 'wpepp/settings' );
 		return {
 			settings: store.getSectionSettings( 'security' ),
+			isPro: store.isPro(),
 		};
 	} );
 
@@ -122,7 +124,7 @@ const DatabaseMaintenance = () => {
 			) }
 
 			{ loading && ! stats ? (
-				<Spinner />
+				<Loading variant="table" count={ 5 } />
 			) : (
 				<>
 					{ /* Table Footprint Overview */ }
@@ -228,10 +230,20 @@ const DatabaseMaintenance = () => {
 					{ /* Controls */ }
 					<ToggleControl
 						__nextHasNoMarginBottom
-						label={ __( 'Enable Automatic Daily Log Pruning', 'wp-edit-password-protected' ) }
-						help={ __( 'Automatically prunes old records during the daily background cron to prevent tables from growing indefinitely.', 'wp-edit-password-protected' ) }
-						checked={ s.auto_prune_logs_enabled !== false }
+						label={
+							<span style={ { display: 'inline-flex', alignItems: 'center', gap: 6 } }>
+								{ __( 'Enable Automatic Daily Log Pruning', 'wp-edit-password-protected' ) }
+								{ ! isPro && <ProBadge /> }
+							</span>
+						}
+						help={
+							! isPro
+								? __( 'Automatic scheduled log pruning is available in WPEPP Pro. Free users can run manual database cleanup anytime using the button above.', 'wp-edit-password-protected' )
+								: __( 'Automatically prunes old records during the daily background cron to prevent tables from growing indefinitely.', 'wp-edit-password-protected' )
+						}
+						checked={ isPro ? s.auto_prune_logs_enabled !== false : false }
 						onChange={ ( v ) => update( 'auto_prune_logs_enabled', v ) }
+						disabled={ ! isPro }
 					/>
 
 					<div
@@ -245,7 +257,12 @@ const DatabaseMaintenance = () => {
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
-							label={ __( 'Activity Log Retention', 'wp-edit-password-protected' ) }
+							label={
+								<span style={ { display: 'inline-flex', alignItems: 'center', gap: 6 } }>
+									{ __( 'Activity Log Retention', 'wp-edit-password-protected' ) }
+									{ ! isPro && <ProBadge /> }
+								</span>
+							}
 							value={ s.events_retention_days ?? 30 }
 							options={ [
 								{ value: 7, label: __( '7 Days', 'wp-edit-password-protected' ) },
@@ -255,12 +272,18 @@ const DatabaseMaintenance = () => {
 								{ value: 90, label: __( '90 Days', 'wp-edit-password-protected' ) },
 							] }
 							onChange={ ( v ) => update( 'events_retention_days', parseInt( v, 10 ) ) }
+							disabled={ ! isPro }
 						/>
 
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
-							label={ __( 'Login Activity Log Retention', 'wp-edit-password-protected' ) }
+							label={
+								<span style={ { display: 'inline-flex', alignItems: 'center', gap: 6 } }>
+									{ __( 'Login Activity Log Retention', 'wp-edit-password-protected' ) }
+									{ ! isPro && <ProBadge /> }
+								</span>
+							}
 							value={ s.login_log_retention_days ?? 30 }
 							options={ [
 								{ value: 7, label: __( '7 Days', 'wp-edit-password-protected' ) },
@@ -270,12 +293,18 @@ const DatabaseMaintenance = () => {
 								{ value: 90, label: __( '90 Days', 'wp-edit-password-protected' ) },
 							] }
 							onChange={ ( v ) => update( 'login_log_retention_days', parseInt( v, 10 ) ) }
+							disabled={ ! isPro }
 						/>
 
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
-							label={ __( 'Slow Queries Retention', 'wp-edit-password-protected' ) }
+							label={
+								<span style={ { display: 'inline-flex', alignItems: 'center', gap: 6 } }>
+									{ __( 'Slow Queries Retention', 'wp-edit-password-protected' ) }
+									{ ! isPro && <ProBadge /> }
+								</span>
+							}
 							value={ s.slow_queries_retention_days ?? 7 }
 							options={ [
 								{ value: 3, label: __( '3 Days', 'wp-edit-password-protected' ) },
@@ -284,12 +313,18 @@ const DatabaseMaintenance = () => {
 								{ value: 30, label: __( '30 Days', 'wp-edit-password-protected' ) },
 							] }
 							onChange={ ( v ) => update( 'slow_queries_retention_days', parseInt( v, 10 ) ) }
+							disabled={ ! isPro }
 						/>
 
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
-							label={ __( 'Flood Protection (Max Rows Cap)', 'wp-edit-password-protected' ) }
+							label={
+								<span style={ { display: 'inline-flex', alignItems: 'center', gap: 6 } }>
+									{ __( 'Flood Protection (Max Rows Cap)', 'wp-edit-password-protected' ) }
+									{ ! isPro && <ProBadge /> }
+								</span>
+							}
 							value={ s.max_log_rows_cap ?? 5000 }
 							options={ [
 								{ value: 1000, label: __( '1,000 Rows per log (Lightweight)', 'wp-edit-password-protected' ) },
@@ -298,6 +333,7 @@ const DatabaseMaintenance = () => {
 								{ value: 10000, label: __( '10,000 Rows', 'wp-edit-password-protected' ) },
 							] }
 							onChange={ ( v ) => update( 'max_log_rows_cap', parseInt( v, 10 ) ) }
+							disabled={ ! isPro }
 						/>
 					</div>
 				</>

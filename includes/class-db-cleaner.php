@@ -34,8 +34,12 @@ class WPEPP_DB_Cleaner {
 		$raw      = get_option( 'wpepp_security_settings', '{}' );
 		$settings = is_array( json_decode( $raw, true ) ) ? json_decode( $raw, true ) : [];
 
-		// Default to true to safeguard database health out of the box.
-		$auto_prune = $settings['auto_prune_logs_enabled'] ?? true;
+		// Automated daily background pruning is a Pro feature. Free users can trigger manual cleanup.
+		if ( ! function_exists( 'wpepp_has_pro_check' ) || ! wpepp_has_pro_check() ) {
+			return;
+		}
+
+		$auto_prune = ! empty( $settings['auto_prune_logs_enabled'] );
 		if ( ! $auto_prune ) {
 			return;
 		}
@@ -87,6 +91,7 @@ class WPEPP_DB_Cleaner {
 
 		foreach ( $tables as $key => $meta ) {
 			$table_name = $meta['table'];
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$exists = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
 
 			if ( ! $exists ) {
@@ -104,17 +109,18 @@ class WPEPP_DB_Cleaner {
 				continue;
 			}
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table verified via prefix
-			$row_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$table_name}`" );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$row_count = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name ) );
 			$total_rows += $row_count;
 
-			// Get table size from information_schema
+			// Get table size from information_schema.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$size_info = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT (data_length + index_length) AS total_size
+					'SELECT (data_length + index_length) AS total_size
 					 FROM information_schema.TABLES
-					 WHERE table_schema = %s AND table_name = %s",
-					DB_NAME,
+					 WHERE table_schema = %s AND table_name = %s',
+					defined( 'DB_NAME' ) ? DB_NAME : '',
 					$table_name
 				)
 			);
@@ -122,8 +128,8 @@ class WPEPP_DB_Cleaner {
 			$total_bytes += $bytes;
 
 			$time_col = $meta['time_col'];
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$dates = $wpdb->get_row( "SELECT MIN(`{$time_col}`) AS oldest, MAX(`{$time_col}`) AS newest FROM `{$table_name}`" );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$dates = $wpdb->get_row( $wpdb->prepare( 'SELECT MIN(%i) AS oldest, MAX(%i) AS newest FROM %i', $time_col, $time_col, $table_name ) );
 
 			$stats[ $key ] = [
 				'key'        => $key,
@@ -175,23 +181,25 @@ class WPEPP_DB_Cleaner {
 
 		// 1. Prune Activity Events
 		$t_events = $wpdb->prefix . 'wpepp_events';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t_events ) ) ) {
 			if ( $events_retention > 0 ) {
 				$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $events_retention * DAY_IN_SECONDS ) );
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$deleted = $wpdb->query(
-					$wpdb->prepare( "DELETE FROM `{$t_events}` WHERE created_at < %s", $cutoff )
+					$wpdb->prepare( 'DELETE FROM %i WHERE created_at < %s', $t_events, $cutoff )
 				);
 				$purged['events'] += max( 0, (int) $deleted );
 			}
 
-			// Enforce row cap
-			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$t_events}`" );
+			// Enforce row cap.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$count = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $t_events ) );
 			if ( $row_cap > 0 && $count > $row_cap ) {
 				$excess = $count - $row_cap;
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$cap_del = $wpdb->query(
-					$wpdb->prepare( "DELETE FROM `{$t_events}` ORDER BY id ASC LIMIT %d", $excess )
+					$wpdb->prepare( 'DELETE FROM %i ORDER BY id ASC LIMIT %d', $t_events, $excess )
 				);
 				$purged['events'] += max( 0, (int) $cap_del );
 			}
@@ -200,36 +208,39 @@ class WPEPP_DB_Cleaner {
 
 		// 2. Prune Login Log
 		$t_login = $wpdb->prefix . 'wpepp_login_log';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t_login ) ) ) {
 			if ( $login_retention > 0 ) {
 				$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $login_retention * DAY_IN_SECONDS ) );
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$deleted = $wpdb->query(
-					$wpdb->prepare( "DELETE FROM `{$t_login}` WHERE created_at < %s", $cutoff )
+					$wpdb->prepare( 'DELETE FROM %i WHERE created_at < %s', $t_login, $cutoff )
 				);
 				$purged['login_log'] += max( 0, (int) $deleted );
 			}
 
-			// Enforce row cap
-			$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$t_login}`" );
+			// Enforce row cap.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$count = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $t_login ) );
 			if ( $row_cap > 0 && $count > $row_cap ) {
 				$excess = $count - $row_cap;
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$cap_del = $wpdb->query(
-					$wpdb->prepare( "DELETE FROM `{$t_login}` ORDER BY id ASC LIMIT %d", $excess )
+					$wpdb->prepare( 'DELETE FROM %i ORDER BY id ASC LIMIT %d', $t_login, $excess )
 				);
 				$purged['login_log'] += max( 0, (int) $cap_del );
 			}
 		}
 
 		// 3. Prune Slow Queries
-		$t_slow = $wpdb->prefix . 'wpepp_cpu_slow_queries';
+		$t_slow = $wpdb->prefix . 'wpepp_slow_queries';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t_slow ) ) ) {
 			if ( $slow_retention > 0 ) {
 				$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $slow_retention * DAY_IN_SECONDS ) );
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$deleted = $wpdb->query(
-					$wpdb->prepare( "DELETE FROM `{$t_slow}` WHERE recorded_at < %s", $cutoff )
+					$wpdb->prepare( 'DELETE FROM %i WHERE recorded_at < %s', $t_slow, $cutoff )
 				);
 				$purged['slow_queries'] += max( 0, (int) $deleted );
 			}
@@ -270,13 +281,14 @@ class WPEPP_DB_Cleaner {
 		}
 
 		$t = $map[ $key ]['table'];
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t ) ) ) {
 			return 0;
 		}
 
 		if ( $all ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$deleted = $wpdb->query( "TRUNCATE TABLE `{$t}`" );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$deleted = $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $t ) );
 			return true === $deleted || 0 === $deleted ? 1 : 0;
 		}
 
@@ -288,9 +300,9 @@ class WPEPP_DB_Cleaner {
 		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
 		$col    = $map[ $key ]['time_col'];
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$deleted = $wpdb->query(
-			$wpdb->prepare( "DELETE FROM `{$t}` WHERE `{$col}` < %s", $cutoff )
+			$wpdb->prepare( 'DELETE FROM %i WHERE %i < %s', $t, $col, $cutoff )
 		);
 
 		return max( 0, (int) $deleted );

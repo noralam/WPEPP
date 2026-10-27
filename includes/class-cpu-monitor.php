@@ -99,11 +99,11 @@ class WPEPP_CPU_Monitor {
 			'permission_callback' => $pro_perm,
 		] );
 
-		// Plugin stats (Free).
+		// Plugin stats (Pro).
 		register_rest_route( self::REST_NS, '/cpu/plugin-stats', [
 			'methods'             => 'GET',
 			'callback'            => [ $this, 'get_plugin_stats' ],
-			'permission_callback' => $admin_perm,
+			'permission_callback' => $pro_perm,
 		] );
 
 		// Plugin deactivate (Pro).

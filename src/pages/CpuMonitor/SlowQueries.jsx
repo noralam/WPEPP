@@ -6,10 +6,11 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { Button, Spinner, Notice, ToggleControl } from '@wordpress/components';
+import { Button, Notice, ToggleControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../../components/ProBadge';
 import Pagination from '../../components/Pagination';
+import { TableSkeleton } from '../../components/Skeleton';
 
 const SlowQueries = () => {
 	const [ queries, setQueries ] = useState( [] );
@@ -60,7 +61,7 @@ const SlowQueries = () => {
 	};
 
 	if ( loading ) {
-		return <Spinner />;
+		return <TableSkeleton rows={ 5 } columns={ 4 } />;
 	}
 
 	const paginatedQueries = queries.slice( ( page - 1 ) * pageSize, page * pageSize );

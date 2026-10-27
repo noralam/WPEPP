@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { CardSkeleton } from '../components/Skeleton';
 
 const AdminOnly    = lazy( () => import( './SiteAccess/AdminOnly' ) );
 const SitePassword = lazy( () => import( './SiteAccess/SitePassword' ) );
@@ -25,7 +25,7 @@ const SiteAccess = () => {
 				</NavLink>
 			</nav>
 
-			<Suspense fallback={ <Spinner /> }>
+			<Suspense fallback={ <CardSkeleton rows={ 4 } /> }>
 				<Routes>
 					<Route index element={ <Navigate to="/site-access/admin-only" replace /> } />
 					<Route path="admin-only" element={ <AdminOnly /> } />

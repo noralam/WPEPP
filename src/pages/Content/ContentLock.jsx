@@ -3,9 +3,10 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useState, useEffect, useMemo } from '@wordpress/element';
-import { Button, Spinner, ToggleControl } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import Pagination from '../../components/Pagination';
+import Loading from '../../components/Loading';
 
 const ContentLock = () => {
 	const [ posts, setPosts ] = useState( [] );
@@ -48,7 +49,7 @@ const ContentLock = () => {
 	};
 
 	if ( loading ) {
-		return <Spinner />;
+		return <Loading variant="table" count={ 5 } />;
 	}
 
 	return (

@@ -9,7 +9,8 @@ import LoginForm from './FormStyle/LoginForm';
 import ProLock from '../components/ProLock';
 
 import { lazy, Suspense } from '@wordpress/element';
-import { Spinner, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
+import Loading from '../components/Loading';
 
 const RegisterForm     = lazy( () => import( /* webpackPrefetch: true */ './FormStyle/RegisterForm' ) );
 const LostPasswordForm = lazy( () => import( /* webpackPrefetch: true */ './FormStyle/LostPasswordForm' ) );
@@ -37,7 +38,7 @@ const FormStyle = () => {
 				</NavLink>
 			</nav>
 
-			<Suspense fallback={ <Spinner /> }>
+			<Suspense fallback={ <Loading variant="form" count={ 5 } /> }>
 				<Routes>
 					<Route index element={ <Navigate to="/form-style/login" replace /> } />
 					<Route path="login" element={ <LoginForm key="login" /> } />

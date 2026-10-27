@@ -3,11 +3,15 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { Modal, Button, Spinner, Notice } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { Modal, Button, Notice } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import ScoreRing from './ScoreRing';
+import Loading from './Loading';
+import ProBadge from './ProBadge';
 
 const AuditReportModal = ( { onClose } ) => {
+	const isPro = useSelect( ( select ) => select( 'wpepp/settings' ).isPro() );
 	const [ report, setReport ] = useState( null );
 	const [ loading, setLoading ] = useState( true );
 	const [ error, setError ] = useState( '' );
@@ -45,11 +49,8 @@ const AuditReportModal = ( { onClose } ) => {
 			style={ { maxWidth: '820px', width: '95%' } }
 		>
 			{ loading && (
-				<div style={ { padding: '40px 0', textAlign: 'center' } }>
-					<Spinner />
-					<p style={ { marginTop: 12, color: '#64748b' } }>
-						{ __( 'Compiling site health, firewall, scanner, and hardening status…', 'wp-edit-password-protected' ) }
-					</p>
+				<div style={ { padding: '20px 0' } }>
+					<Loading variant="cards" count={ 2 } text={ __( 'Compiling site health, firewall, scanner, and hardening status…', 'wp-edit-password-protected' ) } />
 				</div>
 			) }
 
@@ -273,12 +274,39 @@ const AuditReportModal = ( { onClose } ) => {
 					borderTop: '1px solid #e2e8f0',
 				} }
 			>
-				<Button variant="secondary" onClick={ handleExportJson } disabled={ ! report }>
-					📥 { __( 'Export JSON', 'wp-edit-password-protected' ) }
-				</Button>
-				<Button variant="secondary" onClick={ handlePrint } disabled={ ! report }>
-					🖨️ { __( 'Print / Save as PDF', 'wp-edit-password-protected' ) }
-				</Button>
+				{ isPro ? (
+					<>
+						<Button variant="secondary" onClick={ handleExportJson } disabled={ ! report }>
+							📥 { __( 'Export JSON', 'wp-edit-password-protected' ) }
+						</Button>
+						<Button variant="secondary" onClick={ handlePrint } disabled={ ! report }>
+							🖨️ { __( 'Print / Save as PDF', 'wp-edit-password-protected' ) }
+						</Button>
+					</>
+				) : (
+					<>
+						<Button
+							variant="secondary"
+							href={ window.wpeppData?.proUrl || '#' }
+							target="_blank"
+							rel="noopener noreferrer"
+							style={ { display: 'inline-flex', alignItems: 'center', gap: 6 } }
+						>
+							📥 { __( 'Export JSON', 'wp-edit-password-protected' ) }
+							<ProBadge />
+						</Button>
+						<Button
+							variant="secondary"
+							href={ window.wpeppData?.proUrl || '#' }
+							target="_blank"
+							rel="noopener noreferrer"
+							style={ { display: 'inline-flex', alignItems: 'center', gap: 6 } }
+						>
+							🖨️ { __( 'Print / Save as PDF', 'wp-edit-password-protected' ) }
+							<ProBadge />
+						</Button>
+					</>
+				) }
 				<Button variant="primary" onClick={ onClose }>
 					{ __( 'Close', 'wp-edit-password-protected' ) }
 				</Button>

@@ -9,13 +9,13 @@ import {
 	TextareaControl,
 	RangeControl,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
 import { useMemo, useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 import { SITE_ACCESS_DEFAULTS } from '../../utils/defaults';
+import Loading from '../../components/Loading';
 
 const SitePassword = () => {
 	const { settings, isLoading, isSaving } = useSelect( ( select ) => {
@@ -46,7 +46,7 @@ const SitePassword = () => {
 	useSaveBar( handleSave, handleReset );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 3 } />;
 	}
 
 	return (
@@ -65,7 +65,7 @@ const SitePassword = () => {
 
 				{ !! s.site_password_enabled && (
 					<div className="wpepp-form-grid" style={ { marginTop: 16 } }>
-						{ ! s.site_password && (
+						{ ! s.site_password && ! s.has_site_password && (
 							<div className="wpepp-form-grid__full">
 								<Notice status="warning" isDismissible={ false }>
 									{ __( 'Site password protection will not activate until you set a password.', 'wp-edit-password-protected' ) }
@@ -81,7 +81,7 @@ const SitePassword = () => {
 								onChange={ ( v ) => update( 'site_password', v ) }
 								type="text"
 								autoComplete="off"
-								placeholder={ s.site_password_enabled ? __( '(saved — type to replace)', 'wp-edit-password-protected' ) : '' }
+								placeholder={ ( s.has_site_password || s.site_password_enabled ) ? __( '(saved — type to replace)', 'wp-edit-password-protected' ) : '' }
 							/>
 						</div>
 

@@ -92,8 +92,8 @@ class WPEPP_Security {
 			}
 		}
 
-		/* â”€â”€â”€ Custom Login URL (Pro) â”€â”€â”€ */
-		if ( wpepp_has_pro_check() && ! empty( $settings['custom_login_url'] ) ) {
+		/* ─── Custom Login URL (Free) ─── */
+		if ( ! empty( $settings['custom_login_url'] ) ) {
 			add_action( 'init', [ __CLASS__, 'handle_custom_login_url' ] );
 			add_filter( 'site_url', [ __CLASS__, 'filter_login_url' ], 10, 4 );
 			add_filter( 'wp_redirect', [ __CLASS__, 'filter_login_redirect' ], 10, 2 );
@@ -112,8 +112,8 @@ class WPEPP_Security {
 			add_action( 'init', [ __CLASS__, 'handle_hide_login_page' ], 1 );
 		}
 
-		// After login redirect (free).
-		if ( ! empty( $settings['after_login_redirect'] ) ) {
+		// After login redirect (Pro).
+		if ( wpepp_has_pro_check() && ! empty( $settings['after_login_redirect'] ) ) {
 			add_filter( 'login_redirect', [ __CLASS__, 'filter_after_login_redirect' ], 99, 3 );
 			add_filter( 'allowed_redirect_hosts', [ __CLASS__, 'allow_after_login_redirect_host' ] );
 		}
@@ -1295,14 +1295,31 @@ class WPEPP_Security {
 			update_option( 'wpepp_auto_login_links', $links, false );
 		}
 
-		$found = null;
+		$token_hash  = hash( 'sha256', $token );
+		$found       = null;
 		$found_index = null;
+		$needs_save  = false;
+
 		foreach ( $links as $index => $link ) {
-			if ( hash_equals( $link['token'], $token ) ) {
+			if ( ! empty( $link['token_hash'] ) && hash_equals( $link['token_hash'], $token_hash ) ) {
 				$found       = $link;
 				$found_index = $index;
 				break;
 			}
+			if ( ! empty( $link['token'] ) && hash_equals( $link['token'], $token ) ) {
+				$found       = $link;
+				$found_index = $index;
+				// Migrate legacy plaintext token to hash + encrypted.
+				$links[ $index ]['token_hash']      = $token_hash;
+				$links[ $index ]['token_encrypted'] = self::encrypt_token( $token );
+				unset( $links[ $index ]['token'] );
+				$needs_save = true;
+				break;
+			}
+		}
+
+		if ( $needs_save ) {
+			update_option( 'wpepp_auto_login_links', $links, false );
 		}
 
 		if ( ! $found ) {
@@ -1359,12 +1376,71 @@ class WPEPP_Security {
 		// Log the user in.
 		wp_set_current_user( $user->ID );
 		wp_set_auth_cookie( $user->ID, true );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Trigger core WordPress login hook.
 		do_action( 'wp_login', $user->user_login, $user );
 
 		// Redirect.
 		$redirect = ! empty( $found['redirect_url'] ) ? esc_url_raw( $found['redirect_url'] ) : home_url();
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Get the secret 256-bit encryption key derived from WordPress salt.
+	 *
+	 * @return string Binary 32-byte key.
+	 */
+	private static function get_encryption_key() {
+		$salt = function_exists( 'wp_salt' )
+			? wp_salt( 'auth' )
+			: ( defined( 'AUTH_SALT' ) ? AUTH_SALT : 'wpepp_default_token_encryption_salt' );
+		return hash( 'sha256', (string) $salt, true );
+	}
+
+	/**
+	 * Encrypt a sensitive token using the WordPress auth salt.
+	 *
+	 * @param string $token Plaintext token.
+	 * @return string Encrypted token string.
+	 */
+	public static function encrypt_token( $token ) {
+		if ( empty( $token ) ) {
+			return '';
+		}
+		if ( ! function_exists( 'openssl_encrypt' ) ) {
+			return 'b64:' . base64_encode( $token );
+		}
+		$key = self::get_encryption_key();
+		$iv  = openssl_random_pseudo_bytes( 16 );
+		$enc = openssl_encrypt( $token, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv );
+		return 'enc:' . base64_encode( $iv . $enc );
+	}
+
+	/**
+	 * Decrypt an encrypted token.
+	 *
+	 * @param string $ciphertext Encrypted string.
+	 * @return string Decrypted plaintext token.
+	 */
+	public static function decrypt_token( $ciphertext ) {
+		if ( empty( $ciphertext ) || ! is_string( $ciphertext ) ) {
+			return '';
+		}
+		if ( 0 === strpos( $ciphertext, 'b64:' ) ) {
+			return (string) base64_decode( substr( $ciphertext, 4 ), true );
+		}
+		if ( 0 === strpos( $ciphertext, 'enc:' ) ) {
+			$raw = base64_decode( substr( $ciphertext, 4 ), true );
+			if ( ! $raw || strlen( $raw ) < 17 || ! function_exists( 'openssl_decrypt' ) ) {
+				return '';
+			}
+			$iv  = substr( $raw, 0, 16 );
+			$enc = substr( $raw, 16 );
+			$key = self::get_encryption_key();
+			$dec = openssl_decrypt( $enc, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv );
+			return false !== $dec ? $dec : '';
+		}
+		return $ciphertext; // Legacy raw token fallback.
 	}
 
 	/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -1721,14 +1797,37 @@ class WPEPP_Security {
 			return $user;
 		}
 
-		// If the user hasn't set up 2FA yet, allow login but they should set it up.
+		// If the user hasn't set up 2FA yet, check enforcement rules.
 		if ( ! WPEPP_TOTP::is_user_enabled( $user->ID ) ) {
+			$enforce_strict = ! empty( $settings['two_factor_strict'] );
+			$grace_days     = isset( $settings['two_factor_grace_days'] ) ? absint( $settings['two_factor_grace_days'] ) : 0;
+
+			if ( $enforce_strict || $grace_days > 0 ) {
+				$registered = strtotime( $user->user_registered );
+				$deadline   = $registered + ( $grace_days * DAY_IN_SECONDS );
+				if ( $enforce_strict || time() > $deadline ) {
+					return new \WP_Error(
+						'wpepp_2fa_setup_required',
+						__( '<strong>Error:</strong> Two-Factor Authentication is required for your role. Please contact an administrator to complete setup.', 'wp-edit-password-protected' )
+					);
+				}
+			}
 			return $user;
 		}
 
 		// Trusted device cookie — skip the code challenge entirely.
 		if ( WPEPP_TOTP::has_valid_remember( $user->ID ) ) {
 			return $user;
+		}
+
+		// Throttle TOTP guesses per account (max 5 failed attempts per 15 min).
+		$rl_key   = 'wpepp_totp_fail_' . $user->ID;
+		$attempts = (int) get_transient( $rl_key );
+		if ( $attempts >= 5 ) {
+			return new \WP_Error(
+				'wpepp_2fa_locked',
+				__( '<strong>Error:</strong> Too many failed two-factor authentication attempts. Please try again in 15 minutes.', 'wp-edit-password-protected' )
+			);
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Login form uses WP's own nonce.
@@ -1748,15 +1847,20 @@ class WPEPP_Security {
 
 		// Try TOTP code first.
 		if ( WPEPP_TOTP::verify_code( $secret, $code ) ) {
+			delete_transient( $rl_key );
 			WPEPP_TOTP::issue_remember_token( $user->ID );
 			return $user;
 		}
 
 		// Try recovery code.
 		if ( WPEPP_TOTP::verify_recovery_code( $user->ID, $code ) ) {
+			delete_transient( $rl_key );
 			WPEPP_TOTP::issue_remember_token( $user->ID );
 			return $user;
 		}
+
+		// Failed attempt — record hit.
+		set_transient( $rl_key, $attempts + 1, 15 * MINUTE_IN_SECONDS );
 
 		return new \WP_Error(
 			'wpepp_2fa_invalid',
@@ -1853,7 +1957,6 @@ class WPEPP_Security {
 		// Disable 2FA.
 		if ( ! empty( $_POST['wpepp_disable_2fa'] ) ) {
 			WPEPP_TOTP::disable_for_user( $user_id );
-			// phpcs:enable WordPress.Security.NonceVerification.Missing
 			return;
 		}
 
@@ -1883,8 +1986,8 @@ class WPEPP_Security {
 	 * Also checks allowlist â€” if IP is on allowlist, skip all security checks.
 	 */
 	public static function check_ip_blocklist() {
-		// Don't block admin-ajax, REST, or cron requests.
-		if ( wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		// Don't block background WP-Cron or CLI tasks.
+		if ( wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 			return;
 		}
 
@@ -1984,6 +2087,10 @@ class WPEPP_Security {
 	 * @return bool
 	 */
 	private static function ip_in_cidr( $ip, $cidr ) {
+		if ( class_exists( 'WPEPP_Core_Ip' ) ) {
+			return WPEPP_Core_Ip::ip_in_cidr( $ip, $cidr );
+		}
+
 		list( $range_ip, $prefix ) = array_pad( explode( '/', $cidr, 2 ), 2, '32' );
 
 		$ip_long    = ip2long( $ip );

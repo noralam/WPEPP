@@ -3,9 +3,10 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { Button, Spinner } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
+import Loading from '../../components/Loading';
 
 const CustomCss = () => {
 	const { css, generalSettings, isLoading, isSaving } = useSelect( ( select ) => {
@@ -36,7 +37,7 @@ const CustomCss = () => {
 	useSaveBar( handleSave, handleReset );
 
 	if ( isLoading ) {
-		return <Spinner />;
+		return <Loading variant="form" count={ 2 } />;
 	}
 
 	const handleCssChange = ( e ) => {

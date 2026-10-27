@@ -3,6 +3,7 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import {
 	ToggleControl,
 	Button,
@@ -10,13 +11,16 @@ import {
 	SelectControl,
 	TextareaControl,
 	Notice,
-	Spinner,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import Card from '../../components/Card';
 import ToggleCard from '../../components/ToggleCard';
+import Loading from '../../components/Loading';
+import ProBadge from '../../components/ProBadge';
+import ProLock from '../../components/ProLock';
 
 const Firewall = () => {
+	const isPro = useSelect( ( select ) => select( 'wpepp/settings' ).isPro() );
 	const [ status, setStatus ] = useState( null );
 	const [ busy, setBusy ] = useState( '' );
 	const [ error, setError ] = useState( '' );
@@ -82,7 +86,7 @@ const Firewall = () => {
 	}, [ testUrl, testMethod, testUa, testBody ] );
 
 	if ( status === null && ! error ) {
-		return <Spinner />;
+		return <Loading variant="cards" count={ 3 } />;
 	}
 
 	return (
@@ -110,17 +114,20 @@ const Firewall = () => {
 					/>
 					<ToggleCard
 						title={ __( 'Extended protection (early boot)', 'wp-edit-password-protected' ) }
+						badge={ ! isPro ? <ProBadge /> : null }
+						help={ ! isPro ? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' ) : null }
 						description={
 							status?.extended_enabled
 								? __( 'Active — requests are filtered before WordPress loads. If the bootstrap ever fails it disables itself automatically.', 'wp-edit-password-protected' )
 								: __( 'Runs the firewall before WordPress loads via a generated drop-in. Recommended. Requires writable .user.ini or .htaccess.', 'wp-edit-password-protected' )
 						}
-						checked={ !! status?.extended_enabled }
-						disabled={ busy === 'extended_enabled' }
+						checked={ isPro && !! status?.extended_enabled }
+						disabled={ ! isPro || busy === 'extended_enabled' }
 						onChange={ ( v ) => toggle( 'extended_enabled', v ) }
 					/>
 					<ToggleCard
 						title={ __( 'Learning mode', 'wp-edit-password-protected' ) }
+						help={ ! status?.basic_enabled ? __( 'Disabled — enable basic protection above first.', 'wp-edit-password-protected' ) : null }
 						description={ __( 'Matches are logged, nothing is blocked. Use for the first days to spot false positives.', 'wp-edit-password-protected' ) }
 						checked={ !! status?.learning_mode }
 						disabled={ busy === 'learning_mode' || ! status?.basic_enabled }
@@ -154,66 +161,68 @@ const Firewall = () => {
 				)}
 			</Card>
 
-			<Card title={ __( 'Rule tester', 'wp-edit-password-protected' ) }>
-				<div className="wpepp-form-grid wpepp-form-grid--tester">
-					<div className="wpepp-form-grid__url">
-						<TextControl
-							label={ __( 'URL to test', 'wp-edit-password-protected' ) }
-							value={ testUrl }
-							onChange={ setTestUrl }
-						/>
+			<ProLock isPro={ isPro } featureName={ __( 'Firewall Rule Tester', 'wp-edit-password-protected' ) }>
+				<Card title={ __( 'Rule tester', 'wp-edit-password-protected' ) }>
+					<div className="wpepp-form-grid wpepp-form-grid--tester">
+						<div className="wpepp-form-grid__url">
+							<TextControl
+								label={ __( 'URL to test', 'wp-edit-password-protected' ) }
+								value={ testUrl }
+								onChange={ setTestUrl }
+							/>
+						</div>
+						<div className="wpepp-form-grid__method">
+							<SelectControl
+								label={ __( 'Method', 'wp-edit-password-protected' ) }
+								value={ testMethod }
+								onChange={ setTestMethod }
+								options={ [ 'GET', 'POST' ].map( ( m ) => ( { value: m, label: m } ) ) }
+							/>
+						</div>
+						<div className="wpepp-form-grid__full">
+							<TextControl
+								label={ __( 'User-Agent (optional)', 'wp-edit-password-protected' ) }
+								value={ testUa }
+								onChange={ setTestUa }
+								placeholder="sqlmap/1.5"
+							/>
+						</div>
+						<div className="wpepp-form-grid__full">
+							<TextareaControl
+								label={ __( 'POST body — one field per line (name=value)', 'wp-edit-password-protected' ) }
+								value={ testBody }
+								onChange={ setTestBody }
+								rows={ 3 }
+								placeholder={ 'cmd=eval(base64_decode($x))' }
+							/>
+						</div>
+						<div className="wpepp-form-grid__full wpepp-form-actions">
+							<Button variant="secondary" onClick={ runTest }>
+								{ __( 'Test request', 'wp-edit-password-protected' ) }
+							</Button>
+						</div>
 					</div>
-					<div className="wpepp-form-grid__method">
-						<SelectControl
-							label={ __( 'Method', 'wp-edit-password-protected' ) }
-							value={ testMethod }
-							onChange={ setTestMethod }
-							options={ [ 'GET', 'POST' ].map( ( m ) => ( { value: m, label: m } ) ) }
-						/>
-					</div>
-					<div className="wpepp-form-grid__full">
-						<TextControl
-							label={ __( 'User-Agent (optional)', 'wp-edit-password-protected' ) }
-							value={ testUa }
-							onChange={ setTestUa }
-							placeholder="sqlmap/1.5"
-						/>
-					</div>
-					<div className="wpepp-form-grid__full">
-						<TextareaControl
-							label={ __( 'POST body — one field per line (name=value)', 'wp-edit-password-protected' ) }
-							value={ testBody }
-							onChange={ setTestBody }
-							rows={ 3 }
-							placeholder={ 'cmd=eval(base64_decode($x))' }
-						/>
-					</div>
-					<div className="wpepp-form-grid__full wpepp-form-actions">
-						<Button variant="secondary" onClick={ runTest }>
-							{ __( 'Test request', 'wp-edit-password-protected' ) }
-						</Button>
-					</div>
-				</div>
 
-				{ testResult !== null && (
-					testResult ? (
-						<Notice status="warning" isDismissible={ false } style={ { marginTop: 12 } }>
-							{
-								sprintf(
-									/* translators: 1: rule name, 2: rule id */
-									__( 'Would be BLOCKED by rule "%1$s" (%2$s).', 'wp-edit-password-protected' ),
-									testResult.name,
-									testResult.id
-								)
-							}
-						</Notice>
-					) : (
-						<Notice status="success" isDismissible={ false } style={ { marginTop: 12 } }>
-							{ __( 'No rule matches this request.', 'wp-edit-password-protected' ) }
-						</Notice>
-					)
-				) }
-			</Card>
+					{ testResult !== null && (
+						testResult ? (
+							<Notice status="warning" isDismissible={ false } style={ { marginTop: 12 } }>
+								{
+									sprintf(
+										/* translators: 1: rule name, 2: rule id */
+										__( 'Would be BLOCKED by rule "%1$s" (%2$s).', 'wp-edit-password-protected' ),
+										testResult.name,
+										testResult.id
+									)
+								}
+							</Notice>
+						) : (
+							<Notice status="success" isDismissible={ false } style={ { marginTop: 12 } }>
+								{ __( 'No rule matches this request.', 'wp-edit-password-protected' ) }
+							</Notice>
+						)
+					) }
+				</Card>
+			</ProLock>
 		</div>
 	);
 };

@@ -239,7 +239,6 @@ body.toplevel_page_wpepp-settings {
 
 	// Text / Number / URL / Email inputs
 	.components-text-control__input,
-	.components-select-control__input,
 	.components-textarea-control__input,
 	input[type="text"],
 	input[type="number"],
@@ -247,11 +246,12 @@ body.toplevel_page_wpepp-settings {
 	input[type="email"],
 	input[type="password"],
 	textarea,
-	select {
+	select,
+	select.components-select-control__input {
 		background: var(--wpepp-input, $bg-input) !important;
 		border: 1px solid var(--wpepp-border-strong, $border-color) !important;
 		color: var(--wpepp-text, $text-primary) !important;
-		border-radius: $radius-sm !important;
+		border-radius: 8px !important;
 		padding: 8px 12px !important;
 		width: 100% !important;
 
@@ -259,9 +259,10 @@ body.toplevel_page_wpepp-settings {
 			color: var(--wpepp-text-3, $text-muted) !important;
 		}
 
-		&:focus {
+		&:focus,
+		&:focus-visible {
 			border-color: var(--wpepp-accent, $primary) !important;
-			box-shadow: 0 0 0 1px var(--wpepp-accent, $primary) !important;
+			box-shadow: 0 0 0 1px var(--wpepp-accent, $primary), 0 0 0 3px rgba(var(--wpepp-accent-rgb, 99, 102, 241), 0.15) !important;
 			outline: none !important;
 		}
 	}
@@ -349,20 +350,51 @@ body.toplevel_page_wpepp-settings {
 
 	// Select controls
 	.components-select-control {
+		.components-input-control__container,
+		div.components-select-control__input,
+		.components-input-control__backdrop {
+			background: transparent !important;
+			background-color: transparent !important;
+			border: none !important;
+			box-shadow: none !important;
+			outline: none !important;
+			padding: 0 !important;
+		}
+
+		.components-input-control__backdrop,
+		.components-input-control__suffix {
+			display: none !important;
+		}
+
 		select {
-			background: $bg-input !important;
-			border-color: $border-color !important;
-			color: $text-primary !important;
-			padding: 4px 28px 4px 8px !important;
+			background: var(--wpepp-input, $bg-input) !important;
+			border: 1px solid var(--wpepp-border-strong, $border-color) !important;
+			border-radius: 8px !important;
+			color: var(--wpepp-text, $text-primary) !important;
+			padding: 0 36px 0 14px !important;
 			min-width: 150px !important;
-			min-height: 36px !important;
+			height: 40px !important;
+			min-height: 40px !important;
+			line-height: 38px !important;
+			font-size: 13.5px !important;
+			font-weight: 500 !important;
 			-webkit-appearance: none !important;
 			-moz-appearance: none !important;
 			appearance: none !important;
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0aec0' d='M3 5l3 3 3-3'/%3E%3C/svg%3E") !important;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E") !important;
 			background-repeat: no-repeat !important;
-			background-position: right 8px center !important;
-			background-size: 12px !important;
+			background-position: right 14px center !important;
+			background-size: 14px !important;
+			outline: none !important;
+			box-shadow: none !important;
+			transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+
+			&:focus,
+			&:focus-visible {
+				border-color: var(--wpepp-accent, $primary) !important;
+				box-shadow: 0 0 0 1px var(--wpepp-accent, $primary), 0 0 0 3px rgba(var(--wpepp-accent-rgb, 99, 102, 241), 0.15) !important;
+				outline: none !important;
+			}
 		}
 	}
 
@@ -681,12 +713,33 @@ body.toplevel_page_wpepp-settings {
 			border-color: var(--wpepp-border, $border-color) !important;
 		}
 
-		tbody tr:hover td {
-			background: var(--wpepp-card-hover, rgba(255, 255, 255, 0.02)) !important;
+		tbody tr {
+			background: var(--wpepp-card, $bg-card) !important;
+
+			&:nth-child(even) {
+				background: var(--wpepp-surface, $bg-surface) !important;
+			}
+
+			&:hover td {
+				background: var(--wpepp-card-hover, rgba(255, 255, 255, 0.02)) !important;
+			}
 		}
 
-		&.striped tbody tr:nth-child(odd) td {
-			background: var(--wpepp-hover-soft, rgba(255, 255, 255, 0.01)) !important;
+		&.striped tbody tr,
+		&.striped tbody tr:nth-child(odd),
+		&.striped tbody tr:nth-child(even) {
+			background: var(--wpepp-card, $bg-card) !important;
+		}
+
+		&.striped tbody tr:nth-child(even) {
+			background: var(--wpepp-surface, $bg-surface) !important;
+		}
+
+		&.striped tbody tr td,
+		&.striped tbody tr:nth-child(odd) td,
+		&.striped tbody tr:nth-child(even) td {
+			background: transparent !important;
+			color: var(--wpepp-text, $text-primary) !important;
 		}
 	}
 }
@@ -2256,5 +2309,6 @@ body.toplevel_page_wpepp-settings {
 	}
 }
 
+@import './skeleton.scss';
 @import './sentinel.scss';
 

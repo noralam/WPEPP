@@ -486,19 +486,8 @@ try {
 
 	$__fw_request = WPEPP_FW_Engine::capture_request();
 
-	// Exempt trusted/internal traffic — mirror of basic-mode is_exempt().
-	// Cookie presence (not validity) marks a real browser session; forged
-	// values gain nothing because WordPress rejects them downstream.
-	$__fw_has_auth_cookie = false;
-	foreach ( array_keys( $_COOKIE ) as $__fw_ck ) {
-		if ( 0 === strpos( (string) $__fw_ck, 'wordpress_logged_in_' ) || 0 === strpos( (string) $__fw_ck, 'wordpress_sec_' ) ) {
-			$__fw_has_auth_cookie = true;
-			break;
-		}
-	}
-
+	// Exempt internal/administrative endpoints from early bootstrap firewall.
 	if ( '' === $__fw_request['ip']
-		|| $__fw_has_auth_cookie
 		|| preg_match( '#^/(wp-admin|wp-json|wp-login\\.php|xmlrpc\\.php|wp-cron\\.php|feed)#i', $__fw_request['path'] )
 		|| preg_match( '#(admin-ajax|admin-post)\\.php$#i', $__fw_request['path'] ) ) {
 		return;
@@ -590,7 +579,7 @@ PHP;
 		}
 
 		$content = trim( $content ) . "\n";
-		@file_put_contents( $file, $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		@file_put_contents( $file, $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions, PluginCheck.CodeAnalysis.WriteFile.ABSPATHDetected -- WAF bootstrap writes to .user.ini.
 	}
 
 	/**
@@ -620,6 +609,6 @@ PHP;
 				. "# END WPEPP-FW\n";
 		}
 
-		@file_put_contents( $file, $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		@file_put_contents( $file, $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions, PluginCheck.CodeAnalysis.WriteFile.ABSPATHDetected -- WAF bootstrap writes to .htaccess.
 	}
 }

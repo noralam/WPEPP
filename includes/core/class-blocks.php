@@ -87,7 +87,7 @@ class WPEPP_Blocks {
 		$exists  = wp_cache_get( 'wpepp_blocks_exists', 'wpepp' );
 
 		if ( false === $exists ) {
-			$exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
 			);
 			wp_cache_set( 'wpepp_blocks_exists', $exists ? $table : 'no', 'wpepp', HOUR_IN_SECONDS );
@@ -160,12 +160,14 @@ class WPEPP_Blocks {
 		$rem         = $prefix % 8;
 
 		for ( $i = $full; $i < $total_bytes; $i++ ) {
-			$end[ $i ] = chr( 0xFF );
+			$end[ $i ]   = chr( 0xFF );
+			$start[ $i ] = chr( 0x00 );
 		}
 
 		if ( $rem > 0 ) {
-			$mask      = 0xFF << ( 8 - $rem ) & 0xFF;
-			$end[ $full ] = chr( ord( $start[ $full ] ) | ( ~$mask & 0xFF ) );
+			$mask            = ( 0xFF << ( 8 - $rem ) ) & 0xFF;
+			$start[ $full ]  = chr( ord( $bin[ $full ] ) & $mask );
+			$end[ $full ]    = chr( ord( $bin[ $full ] ) | ( ~$mask & 0xFF ) );
 		}
 
 		return [
@@ -200,7 +202,7 @@ class WPEPP_Blocks {
 
 		self::table_exists( true );
 
-		$ok = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$ok = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			self::table_name(),
 			[
 				'ip_start'   => $parsed['start'],
@@ -242,7 +244,7 @@ class WPEPP_Blocks {
 			return false;
 		}
 
-		return (bool) $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		return (bool) $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			self::table_name(),
 			[ 'id' => absint( $id ) ],
 			[ '%d' ]
@@ -359,7 +361,8 @@ class WPEPP_Blocks {
 			$params[] = $args['type'];
 		}
 
-		if ( empty( $args['include_expired'] ) ) {
+		$include_expired = rest_sanitize_boolean( $args['include_expired'] ?? false );
+		if ( ! $include_expired ) {
 			$where   .= empty( $where ) ? ' WHERE' : ' AND';
 			$where   .= ' ( expires IS NULL OR expires > %s )';
 			$params[] = current_time( 'mysql', true );
@@ -371,17 +374,19 @@ class WPEPP_Blocks {
 			  FROM {$table}{$where} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d";
 		array_push( $params, $per_page, $offset );
 
-		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->prepare( $sql, ...$params ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders bound via prepare(); table from $wpdb->prefix.
 			ARRAY_A
 		);
 
-		foreach ( (array) $rows as &$row ) {
+		$rows = is_array( $rows ) ? $rows : [];
+		foreach ( $rows as &$row ) {
 			$row['cidr'] = self::format_cidr( $row );
 			unset( $row['ip_start'], $row['ip_end'], $row['cidr_prefix'] );
 		}
+		unset( $row );
 
-		return (array) $rows;
+		return $rows;
 	}
 
 	/**

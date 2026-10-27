@@ -9,6 +9,7 @@ import { NavLink, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import apiFetch from '@wordpress/api-fetch';
 import ProBadge from '../components/ProBadge';
 import ProLock from '../components/ProLock';
+import Loading from '../components/Loading';
 
 /** Map tab key → section key sent to REST API. */
 const TAB_SECTION_MAP = {
@@ -347,7 +348,7 @@ const TemplateGrid = ( { tabKey } ) => {
 	};
 
 	if ( isLoading || templates === null ) {
-		return <Spinner />;
+		return <Loading variant="cards" count={ 6 } />;
 	}
 
 	return (

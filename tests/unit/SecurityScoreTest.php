@@ -164,6 +164,7 @@ class SecurityScoreTest extends TestCase {
  * @param string $field Field key.
  * @return array
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 function wp_list_pluck_stub( $list, $field ) {
 	$out = [];
 	foreach ( $list as $item ) {

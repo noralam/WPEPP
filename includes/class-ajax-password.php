@@ -100,7 +100,16 @@ class WPEPP_Ajax_Password {
 
 		$post = get_post( $post_id );
 
-		if ( ! $post || empty( $post->post_password ) ) {
+		if ( ! $post || 'publish' !== $post->post_status ) {
+			wp_send_json_error( [ 'message' => 'invalid_post' ] );
+		}
+
+		$post_type_obj = get_post_type_object( $post->post_type );
+		if ( ! $post_type_obj || ! $post_type_obj->public ) {
+			wp_send_json_error( [ 'message' => 'invalid_post' ] );
+		}
+
+		if ( empty( $post->post_password ) ) {
 			// Post has no password — let the form submit through.
 			wp_send_json_success();
 		}

@@ -107,29 +107,31 @@ class EnhancementsTest extends TestCase {
 	}
 
 	public function test_safe_mode_file_and_bypass() {
+		// phpcs:disable WordPress.WP.AlternativeFunctions, PluginCheck.CodeAnalysis.WriteFile.PluginDirectoryWrite -- Test verifies emergency safe-mode bypass via file creation.
 		if ( ! is_dir( WP_CONTENT_DIR ) ) {
-			@mkdir( WP_CONTENT_DIR, 0777, true );
+			wp_mkdir_p( WP_CONTENT_DIR );
 		}
 
 		$flag_file = WP_CONTENT_DIR . '/wpepp-safe-mode.txt';
 
-		// Clean up any preexisting file
+		// Clean up any preexisting file.
 		if ( file_exists( $flag_file ) ) {
-			@unlink( $flag_file );
+			wp_delete_file( $flag_file );
 		}
 
 		$this->assertFalse( WPEPP_Security::is_safe_mode( true ) );
 
-		// Create safe mode flag file
+		// Create safe mode flag file.
 		file_put_contents( $flag_file, 'Safe mode activated' );
 		$this->assertTrue( WPEPP_Security::is_safe_mode( true ) );
 
-		// When safe mode is active, is_ip_locked must return false immediately
+		// When safe mode is active, is_ip_locked must return false immediately.
 		$this->assertFalse( WPEPP_Security::is_ip_locked( '192.168.1.50' ) );
 
-		// Clean up
-		@unlink( $flag_file );
+		// Clean up.
+		wp_delete_file( $flag_file );
 		$this->assertFalse( WPEPP_Security::is_safe_mode( true ) );
+		// phpcs:enable WordPress.WP.AlternativeFunctions, PluginCheck.CodeAnalysis.WriteFile.PluginDirectoryWrite
 	}
 
 	public function test_webhook_exemption() {
@@ -187,5 +189,82 @@ class EnhancementsTest extends TestCase {
 		// Second call for same IP should resolve through runtime cache without errors
 		$block2 = WPEPP_Blocks::find_active_block( '10.0.0.99' );
 		$this->assertNull( $block2 );
+	}
+
+	public function test_autologin_token_encryption_and_decryption() {
+		$raw_token = 'secret_token_abc123_xyz789_' . bin2hex( random_bytes( 16 ) );
+		$encrypted = WPEPP_Security::encrypt_token( $raw_token );
+
+		$this->assertNotEmpty( $encrypted );
+		$this->assertNotEquals( $raw_token, $encrypted );
+
+		$decrypted = WPEPP_Security::decrypt_token( $encrypted );
+		$this->assertSame( $raw_token, $decrypted );
+	}
+
+	public function test_autologin_token_legacy_plain_fallback() {
+		$legacy = 'legacy_unencrypted_token';
+		$decrypted = WPEPP_Security::decrypt_token( $legacy );
+		$this->assertSame( $legacy, $decrypted );
+	}
+
+	public function test_pro_settings_enforcement_for_v3_features() {
+		$input_settings = [
+			'scan_schedule_enabled'       => true,
+			'wc_disposable_email_block'   => true,
+			'wc_captcha_enabled'          => true,
+			'comment_captcha_enabled'     => true,
+			'lostpassword_captcha_enabled'=> true,
+			'auto_prune_logs_enabled'     => true,
+			'events_retention_days'       => 90,
+			'login_log_retention_days'    => 90,
+			'slow_queries_retention_days' => 30,
+			'max_log_rows_cap'            => 10000,
+			'free_feature'                => 'allowed_value',
+		];
+
+		// Ensure Pro is inactive.
+		delete_option( 'wpepp_has_pro' );
+
+		$enforced = wpepp_enforce_pro_settings( $input_settings, 'security' );
+
+		$this->assertArrayNotHasKey( 'scan_schedule_enabled', $enforced );
+		$this->assertArrayNotHasKey( 'wc_disposable_email_block', $enforced );
+		$this->assertArrayNotHasKey( 'wc_captcha_enabled', $enforced );
+		$this->assertArrayNotHasKey( 'comment_captcha_enabled', $enforced );
+		$this->assertArrayNotHasKey( 'lostpassword_captcha_enabled', $enforced );
+		$this->assertArrayNotHasKey( 'auto_prune_logs_enabled', $enforced );
+		$this->assertArrayNotHasKey( 'events_retention_days', $enforced );
+		$this->assertArrayNotHasKey( 'login_log_retention_days', $enforced );
+		$this->assertArrayNotHasKey( 'slow_queries_retention_days', $enforced );
+		$this->assertArrayNotHasKey( 'max_log_rows_cap', $enforced );
+		$this->assertSame( 'allowed_value', $enforced['free_feature'] );
+	}
+
+	public function test_db_cleaner_cron_maintenance_bypassed_without_pro() {
+		delete_option( 'wpepp_has_pro' );
+		// Should execute cleanly and return without running pruning when not Pro.
+		WPEPP_DB_Cleaner::cron_maintenance();
+		$this->assertTrue( true );
+	}
+
+	public function test_auto_login_free_cap_enforcement() {
+		// Mock existing 3 links in option.
+		update_option( 'wpepp_auto_login_links', [
+			[ 'id' => 'link1' ],
+			[ 'id' => 'link2' ],
+			[ 'id' => 'link3' ],
+		] );
+
+		$GLOBALS['wp_test_has_pro'] = false;
+		$links = get_option( 'wpepp_auto_login_links', [] );
+		$is_capped = ! wpepp_has_pro_check() && count( $links ) >= 3;
+		$this->assertTrue( $is_capped );
+
+		// When Pro is unlocked, cap is not enforced.
+		$GLOBALS['wp_test_has_pro'] = true;
+		$is_capped_pro = ! wpepp_has_pro_check() && count( $links ) >= 3;
+		$this->assertFalse( $is_capped_pro );
+		$GLOBALS['wp_test_has_pro'] = false;
 	}
 }

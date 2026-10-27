@@ -50,6 +50,10 @@ $wpepp_options = [
 	'wpepp_pro_notice_dismiss_count',
 	'wpepp_review_dismissed',
 	'wpepp_new_badge_dismissed',
+
+	// Pro license options.
+	'WpEditPasswordProtectedPro_lic_email',
+	'WpEditPasswordProtectedPro_lic_Key',
 ];
 
 foreach ( $wpepp_options as $wpepp_option ) {
@@ -117,6 +121,7 @@ $wpepp_user_meta_keys = [
 	'_wpepp_2fa_pending_secret',
 	'_wpepp_pending_approval',
 	'_wpepp_pending_since',
+	'_wpepp_passkey_credentials',
 ];
 
 foreach ( $wpepp_user_meta_keys as $wpepp_user_key ) {
@@ -129,7 +134,7 @@ $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wpepp_login_log" ); // phpcs:
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wpepp_slow_queries" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wpepp_cpu_slow_queries" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wpepp_blocks" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wpepp_scan_issues" );
+$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wpepp_scan_issues" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wpepp_events" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 /* ─── Transients & object cache ────────────────────────────────────── */
