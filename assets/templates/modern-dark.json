@@ -20,6 +20,10 @@
                                   "text":  "Welcome Back",
                                   "color":  "#e0e0e0"
                               },
+                  "labels":  {
+                                 "color":  "#e0e0e0",
+                                 "font_size":  14
+                             },
                   "fields":  {
                                  "border_color":  "#2a2a4a",
                                  "border_radius":  6
@@ -55,6 +59,10 @@
                                      "text":  "Welcome Back",
                                      "color":  "#e0e0e0"
                                  },
+                     "labels":  {
+                                    "color":  "#e0e0e0",
+                                    "font_size":  14
+                                },
                      "fields":  {
                                     "border_color":  "#2a2a4a",
                                     "border_radius":  6
@@ -90,6 +98,10 @@
                                          "text":  "Welcome Back",
                                          "color":  "#e0e0e0"
                                      },
+                         "labels":  {
+                                        "color":  "#e0e0e0",
+                                        "font_size":  14
+                                    },
                          "fields":  {
                                         "border_color":  "#2a2a4a",
                                         "border_radius":  6

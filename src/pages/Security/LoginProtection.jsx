@@ -86,6 +86,17 @@ const LoginProtection = () => {
 				) }
 			</Card>
 
+			<Card title={ __( 'Login Session & Remember Me', 'wp-edit-password-protected' ) }>
+				<div className="wpepp-toggle-grid">
+					<ToggleCard
+						title={ __( 'Auto-Check "Remember Me"', 'wp-edit-password-protected' ) }
+						description={ __( 'Automatically pre-selects the "Remember Me" checkbox on the WordPress login screen so users stay logged in for 14 days and are not logged out when closing the browser or restarting the computer.', 'wp-edit-password-protected' ) }
+						checked={ s.remember_me_auto_check !== false }
+						onChange={ ( v ) => update( 'remember_me_auto_check', v ) }
+					/>
+				</div>
+			</Card>
+
 			<Card title={ __( 'Honeypot', 'wp-edit-password-protected' ) }>
 				<div className="wpepp-toggle-grid">
 					<ToggleCard

@@ -194,6 +194,7 @@ export const SECURITY_DEFAULTS = {
 	login_limit_enabled: true,
 	max_attempts: 5,
 	lockout_duration: 15,
+	remember_me_auto_check: true,
 	honeypot_enabled: true,
 	disable_xmlrpc: true,
 	hide_wp_version: true,

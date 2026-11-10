@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 require_once WPEPP_PATH . 'includes/class-cpu-system-info.php';
 require_once WPEPP_PATH . 'includes/class-plugin.php';
+require_once WPEPP_PATH . 'includes/class-security.php';
 
 class SettingsAndCpuTest extends TestCase {
 
@@ -68,5 +69,14 @@ class SettingsAndCpuTest extends TestCase {
 	public function test_cpu_system_info_core_detection_positive(): void {
 		$cores = WPEPP_CPU_System_Info::get_cpu_cores();
 		$this->assertGreaterThanOrEqual( 1, $cores );
+	}
+
+	public function test_auto_check_remember_me_outputs_script(): void {
+		ob_start();
+		WPEPP_Security::auto_check_remember_me();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'rememberme', $output );
+		$this->assertStringContainsString( 'rm.checked = true', $output );
 	}
 }

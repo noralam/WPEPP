@@ -54,6 +54,13 @@ class WPEPP_Security {
 			add_filter( 'authenticate', [ __CLASS__, 'check_honeypot' ], 25, 1 );
 		}
 
+		// Auto-check Remember Me (free) — pre-selects "Remember Me" to persist logins for 14 days across browser close.
+		$auto_remember = ! array_key_exists( 'remember_me_auto_check', $settings ) || ! empty( $settings['remember_me_auto_check'] );
+		if ( $auto_remember ) {
+			add_action( 'login_form', [ __CLASS__, 'auto_check_remember_me' ] );
+			add_action( 'login_footer', [ __CLASS__, 'auto_check_remember_me' ] );
+		}
+
 		// Disable XML-RPC (free).
 		if ( ! empty( $settings['disable_xmlrpc'] ) ) {
 			add_filter( 'xmlrpc_enabled', '__return_false' );
@@ -715,6 +722,39 @@ class WPEPP_Security {
 	 */
 	public static function get_client_ip() {
 		return WPEPP_Core_Ip::get_client_ip();
+	}
+
+	/* ─── Login Session & Remember Me ─── */
+
+	/**
+	 * Pre-select "Remember Me" on the WordPress login screen.
+	 *
+	 * Extends auth session persistence to 14 days and prevents accidental logouts
+	 * when closing the browser or restarting the computer.
+	 */
+	public static function auto_check_remember_me() {
+		static $rendered = false;
+		if ( $rendered ) {
+			return;
+		}
+		$rendered = true;
+		?>
+		<script>
+		(function(){
+			function checkRM() {
+				var rm = document.getElementById('rememberme');
+				if (rm && !rm.checked) {
+					rm.checked = true;
+				}
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', checkRM);
+			} else {
+				checkRM();
+			}
+		})();
+		</script>
+		<?php
 	}
 
 	/* â”€â”€â”€ Honeypot â”€â”€â”€ */

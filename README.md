@@ -93,6 +93,7 @@ Lock down your WordPress administration doors against brute-force attacks and cr
 - **Username Discovery Shielding:** Blocks REST API author enumeration, `?author=N` URL queries, oEmbed author exposure, and author sitemaps.
 - **Custom Login URL:** Conceal your `/wp-login.php` behind a secret custom slug with optional 404 or home redirect.
 - **Two-Factor Authentication (2FA / TOTP):** Secure login with standard authenticator apps (Google Authenticator, Microsoft Authenticator, Authy, 1Password) with local QR code generation, recovery codes, and trusted-device cookies.
+- **Auto-Check "Remember Me":** Pre-selects the "Remember Me" checkbox so users stay logged in for 14 days and are not accidentally logged out when closing the browser or restarting their computer.
 - **Passkeys (WebAuthn / FIDO2) [Pro]:** Experience biometric passwordless authentication using Apple Touch ID, Face ID, or Windows Hello.
 - **Password Strength & Breached Password Check [Pro]:** Enforces strong password requirements and audits passwords against billions of breached credentials via Have I Been Pwned (using privacy-preserving k-anonymity).
 - **Auto Login & Magic Links:** Generate secure, encrypted single-use login links for fast client access.
