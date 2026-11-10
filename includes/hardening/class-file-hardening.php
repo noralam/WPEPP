@@ -312,7 +312,14 @@ class WPEPP_File_Hardening {
 			$status  = 'ok';
 			$message = __( 'Secured', 'wp-edit-password-protected' );
 
-			if ( ! $spec['is_dir'] ) {
+			$is_windows = ( defined( 'PHP_OS_FAMILY' ) && 'Windows' === PHP_OS_FAMILY ) || ( '\\' === DIRECTORY_SEPARATOR );
+
+			if ( $is_windows ) {
+				$status  = $writable ? 'info' : 'ok';
+				$message = $writable
+					? __( 'Windows/NTFS environment: PHP emulates writable files as 0666. POSIX chmod does not apply; access is governed by Windows NTFS ACLs.', 'wp-edit-password-protected' )
+					: __( 'Windows/NTFS: Read-only file (protected).', 'wp-edit-password-protected' );
+			} elseif ( ! $spec['is_dir'] ) {
 				if ( false !== $perms ) {
 					$world = (int) substr( $octal, -1 );
 					if ( ( $world & 2 ) !== 0 ) {

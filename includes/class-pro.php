@@ -134,6 +134,15 @@ if ( ! function_exists( 'wpepp_get_available_conditions' ) ) {
 if ( ! function_exists( 'wpepp_enforce_pro_settings' ) ) {
 	function wpepp_enforce_pro_settings( $settings, $section ) {
 	if ( wpepp_has_pro_check() ) {
+		if ( 'security' === $section ) {
+			$provider = $settings['captcha_provider'] ?? '';
+			$has_turnstile = ! empty( $settings['turnstile_site_key'] ) && ! empty( $settings['turnstile_secret_key'] );
+			$has_recaptcha = ! empty( $settings['recaptcha_site_key'] ) && ! empty( $settings['recaptcha_secret_key'] );
+			$has_captcha_keys = ( 'turnstile' === $provider && $has_turnstile ) || ( ( 'recaptcha_v2' === $provider || 'recaptcha_v3' === $provider ) && $has_recaptcha );
+			if ( ! $has_captcha_keys ) {
+				unset( $settings['wc_captcha_enabled'], $settings['comment_captcha_enabled'], $settings['lostpassword_captcha_enabled'] );
+			}
+		}
 		return $settings;
 	}
 
@@ -223,6 +232,15 @@ if ( ! function_exists( 'wpepp_enforce_pro_settings' ) ) {
 			// Breached-password check is Pro; the rest of the policy is free.
 			if ( isset( $settings['pw_breach_check'] ) ) {
 				unset( $settings['pw_breach_check'] );
+			}
+
+			// CAPTCHA toggles require configured provider keys (server-side mirror of UI guard).
+			$has_turnstile = ! empty( $settings['turnstile_site_key'] ) && ! empty( $settings['turnstile_secret_key'] );
+			$has_recaptcha = ! empty( $settings['recaptcha_site_key'] ) && ! empty( $settings['recaptcha_secret_key'] );
+			$provider      = $settings['captcha_provider'] ?? '';
+			$has_captcha_keys = ( 'turnstile' === $provider && $has_turnstile ) || ( ( 'recaptcha_v2' === $provider || 'recaptcha_v3' === $provider ) && $has_recaptcha );
+			if ( ! $has_captcha_keys ) {
+				unset( $settings['wc_captcha_enabled'], $settings['comment_captcha_enabled'], $settings['lostpassword_captcha_enabled'] );
 			}
 
 			// IP lists: free tier allows single IPs only — strip CIDR ranges.

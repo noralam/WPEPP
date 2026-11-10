@@ -73,8 +73,11 @@ const getFixRecommendation = ( issue ) => {
 	if ( issue.kind === 'core_unknown' ) {
 		return __( 'Unrecognized PHP file inside core directory — Delete this file if not intentionally added.', 'wp-edit-password-protected' );
 	}
-	if ( issue.kind === 'plugins_unverified' || issue.kind === 'themes_unverified' ) {
+	if ( issue.kind === 'plugin_unverified' || issue.kind === 'plugins_unverified' || issue.kind === 'theme_unverified' || issue.kind === 'themes_unverified' ) {
 		return __( 'Custom or premium extension not in WordPress.org directory — Click "Ignore" to whitelist your legitimate theme/plugin.', 'wp-edit-password-protected' );
+	}
+	if ( issue.kind === 'core_unverified' ) {
+		return __( 'Official checksum service unreachable — Check server connectivity or retry the scan.', 'wp-edit-password-protected' );
 	}
 	if ( issue.kind === 'missing_file' ) {
 		return __( 'Missing WordPress file — Reinstall WordPress from Dashboard > Updates to restore it.', 'wp-edit-password-protected' );
@@ -92,7 +95,7 @@ const Scanner = () => {
 	const isPro = useSelect( ( select ) => select( 'wpepp/settings' ).isPro() );
 	const [ status, setStatus ] = useState( null );
 	const [ issues, setIssues ] = useState( null );
-	const [ filter, setFilter ] = useState( '' );
+	const [ filter, setFilter ] = useState( 'new' );
 	const [ page, setPage ] = useState( 1 );
 	const [ schedule, setSchedule ] = useState( false );
 	const [ error, setError ] = useState( '' );
@@ -176,7 +179,7 @@ const Scanner = () => {
 				}
 				if ( res ) {
 					setStatus( res );
-					if ( ! res.running ) {
+					if ( ! res.running || res.stage === 'stopped' ) {
 						setScanResult( {
 							scanned: res.scanned,
 							flagged: res.flagged,
@@ -245,10 +248,14 @@ const Scanner = () => {
 
 	const stopScan = useCallback( async () => {
 		setScanResult( null );
-		await apiFetch( { path: '/wpepp/v1/scan/stop', method: 'POST' } ).catch( () => {} );
-		const res = await loadStatus();
-		if ( res ) {
-			setStatus( res );
+		setStatus( ( s ) => ( s ? { ...s, running: false, stage: 'stopped' } : s ) );
+		try {
+			const res = await apiFetch( { path: '/wpepp/v1/scan/stop', method: 'POST' } );
+			if ( res ) {
+				setStatus( res );
+			}
+		} catch {
+			loadStatus();
 		}
 	}, [ loadStatus ] );
 
@@ -573,8 +580,8 @@ const Scanner = () => {
 								setPage( 1 );
 							} }
 							options={ [
+								{ value: 'new', label: __( 'Open issues', 'wp-edit-password-protected' ) },
 								{ value: '', label: __( 'All issues', 'wp-edit-password-protected' ) },
-								{ value: 'new', label: __( 'Open', 'wp-edit-password-protected' ) },
 								{ value: 'ignored', label: __( 'Ignored', 'wp-edit-password-protected' ) },
 								{ value: 'fixed', label: __( 'Resolved', 'wp-edit-password-protected' ) },
 							] }
@@ -631,14 +638,26 @@ const Scanner = () => {
 						{ issues.slice( ( page - 1 ) * PAGE_SIZE, page * PAGE_SIZE ).map( ( issue ) => (
 							<tr key={ issue.id }>
 								<td>
-									<span className={ `wpepp-sev ${ SEVERITY[ issue.severity ]?.cls || '' }` }>
-										{ SEVERITY[ issue.severity ]?.label || issue.severity }
-									</span>
+									{ issue.status === 'fixed' ? (
+										<span className="wpepp-sev is-success">
+											✓ { __( 'Resolved', 'wp-edit-password-protected' ) }
+										</span>
+									) : issue.status === 'ignored' ? (
+										<span className="wpepp-sev" style={ { opacity: 0.6 } }>
+											{ __( 'Ignored', 'wp-edit-password-protected' ) }
+										</span>
+									) : (
+										<span className={ `wpepp-sev ${ SEVERITY[ issue.severity ]?.cls || '' }` }>
+											{ SEVERITY[ issue.severity ]?.label || issue.severity }
+										</span>
+									) }
 								</td>
 								<td>{ KIND_LABELS[ issue.kind ] || issue.kind }</td>
 								<td className="wpepp-scanner__path">
 									<div style={ { fontWeight: 600, marginBottom: 4 } }>
-										<code>{ issue.object_path }</code>
+										<code style={ issue.status === 'fixed' ? { textDecoration: 'line-through', opacity: 0.65 } : {} }>
+											{ issue.object_path }
+										</code>
 									</div>
 									{ issue.detail?.name && (
 										<div style={ { fontSize: '12px', color: 'var(--wpepp-text-2)', marginBottom: 2 } }>
@@ -696,7 +715,9 @@ const Scanner = () => {
 											</Button>
 										</div>
 									) : (
-										<em className="wpepp-scanner__status-badge">{ issue.status }</em>
+										<span className="wpepp-scanner__status-badge" style={ { color: 'var(--wpepp-accent)', fontWeight: 600 } }>
+											✓ { __( 'Fixed', 'wp-edit-password-protected' ) }
+										</span>
 									) }
 								</td>
 							</tr>

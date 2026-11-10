@@ -24,6 +24,8 @@ class WPEPP_Migration {
 			self::migrate_member_template();
 		}
 
+		self::migrate_general_settings();
+
 		if ( version_compare( $version, WPEPP_VERSION, '<' ) ) {
 			update_option( 'wpepp_version', WPEPP_VERSION );
 		}
@@ -104,5 +106,28 @@ class WPEPP_Migration {
 		];
 
 		update_option( 'wpepp_member_template', wp_json_encode( $settings ) );
+	}
+
+	/**
+	 * Migrate legacy cleanup_on_uninstall to delete_data_on_uninstall.
+	 */
+	private static function migrate_general_settings() {
+		$raw = get_option( 'wpepp_general_settings' );
+		if ( empty( $raw ) ) {
+			return;
+		}
+		$general = json_decode( (string) $raw, true );
+		if ( ! is_array( $general ) || ! isset( $general['cleanup_on_uninstall'] ) ) {
+			return;
+		}
+		if ( ! isset( $general['delete_data_on_uninstall'] ) ) {
+			$general['delete_data_on_uninstall'] = (bool) $general['cleanup_on_uninstall'];
+			update_option( 'wpepp_general_settings', wp_json_encode( $general ) );
+			return;
+		}
+		if ( ! empty( $general['cleanup_on_uninstall'] ) && empty( $general['delete_data_on_uninstall'] ) ) {
+			$general['delete_data_on_uninstall'] = true;
+			update_option( 'wpepp_general_settings', wp_json_encode( $general ) );
+		}
 	}
 }

@@ -81,6 +81,7 @@ class WPEPP_Scan_Engine {
 			return new \WP_Error( 'wpepp_scan_no_table', __( 'Could not create the issues table.', 'wp-edit-password-protected' ), [ 'status' => 500 ] );
 		}
 
+		delete_transient( 'wpepp_scan_aborted' );
 		self::release_lock();
 
 		self::save_state(
@@ -107,6 +108,7 @@ class WPEPP_Scan_Engine {
 	 */
 	public static function stop() {
 		self::release_lock();
+		set_transient( 'wpepp_scan_aborted', 1, 60 );
 		$state            = self::state();
 		$state['running'] = false;
 		$state['stage']   = 'stopped';
@@ -152,9 +154,13 @@ class WPEPP_Scan_Engine {
 	 * @return bool True when more work remains.
 	 */
 	public static function tick( $force = false ) {
+		if ( get_transient( 'wpepp_scan_aborted' ) ) {
+			return false;
+		}
+
 		$state = self::state();
 
-		if ( empty( $state['running'] ) ) {
+		if ( empty( $state['running'] ) || 'stopped' === ( $state['stage'] ?? '' ) ) {
 			return false;
 		}
 
@@ -233,6 +239,15 @@ class WPEPP_Scan_Engine {
 	 * @param string $next  Next stage key.
 	 */
 	public static function advance( array $state, $next ) {
+		if ( get_transient( 'wpepp_scan_aborted' ) ) {
+			return;
+		}
+
+		$current = self::state();
+		if ( empty( $current['running'] ) || 'stopped' === ( $current['stage'] ?? '' ) ) {
+			return;
+		}
+
 		$state['stage']  = $next;
 		$state['cursor'] = '';
 		self::save_state( $state );
@@ -244,6 +259,15 @@ class WPEPP_Scan_Engine {
 	 * @param array $state State.
 	 */
 	public static function persist( array $state ) {
+		if ( get_transient( 'wpepp_scan_aborted' ) ) {
+			return;
+		}
+
+		$current = self::state();
+		if ( empty( $current['running'] ) || 'stopped' === ( $current['stage'] ?? '' ) ) {
+			return;
+		}
+
 		$state['tick_at'] = time();
 		self::save_state( $state );
 	}

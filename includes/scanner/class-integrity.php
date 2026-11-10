@@ -72,6 +72,9 @@ class WPEPP_Integrity {
 		}
 
 		while ( microtime( true ) - $start < WPEPP_Scan_Engine::SLICE_BUDGET - 0.5 ) {
+			if ( get_transient( 'wpepp_scan_aborted' ) ) {
+				return false;
+			}
 
 			$index = (int) ( $state['integrity_index'] ?? 0 );
 

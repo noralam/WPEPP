@@ -185,7 +185,9 @@ class WPEPP_Site_Access {
 
 		// 2. Admin Only Mode.
 		if ( ! empty( $this->settings['admin_only_enabled'] ) ) {
-			if ( ! is_user_logged_in() ) {
+			$target     = $this->settings['admin_only_target'] ?? 'logged_in';
+			$has_access = ( 'admins_only' === $target ) ? current_user_can( 'manage_options' ) : is_user_logged_in();
+			if ( ! $has_access ) {
 				return [
 					'type'    => 'admin_only',
 					'code'    => 'wpepp_admin_only_restricted',
@@ -422,7 +424,9 @@ class WPEPP_Site_Access {
 			return;
 		}
 
-		if ( is_user_logged_in() ) {
+		$target     = $this->settings['admin_only_target'] ?? 'logged_in';
+		$has_access = ( 'admins_only' === $target ) ? current_user_can( 'manage_options' ) : is_user_logged_in();
+		if ( $has_access ) {
 			return;
 		}
 
@@ -466,9 +470,16 @@ class WPEPP_Site_Access {
 	 * Enforce Admin Only mode — require login.
 	 */
 	private function enforce_admin_only() {
-		// Logged-in users pass.
-		if ( is_user_logged_in() ) {
+		$target     = $this->settings['admin_only_target'] ?? 'logged_in';
+		$has_access = ( 'admins_only' === $target ) ? current_user_can( 'manage_options' ) : is_user_logged_in();
+		if ( $has_access ) {
 			return;
+		}
+
+		// Logged-in non-admins under admins_only must not be bounced to login (loop).
+		if ( 'admins_only' === $target && is_user_logged_in() ) {
+			$this->render_access_denied_page();
+			exit;
 		}
 
 		$action = $this->settings['admin_only_action'] ?? 'redirect';
@@ -485,6 +496,33 @@ class WPEPP_Site_Access {
 		$current_url = home_url( add_query_arg( [] ) );
 		wp_safe_redirect( wp_login_url( $current_url ) );
 		exit;
+	}
+
+	/**
+	 * Access denied page for authenticated users outside the admin_only scope.
+	 */
+	private function render_access_denied_page() {
+		status_header( 403 );
+		nocache_headers();
+		$message = $this->settings['admin_only_message'] ?? __( 'This area is restricted to administrators.', 'wp-edit-password-protected' );
+		?><!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title><?php echo esc_html( get_bloginfo( 'name' ) ); ?> &mdash; <?php esc_html_e( 'Access Restricted', 'wp-edit-password-protected' ); ?></title>
+	<?php wp_head(); ?>
+</head>
+<body class="wpepp-site-password-body">
+	<div class="wpepp-site-password-wrap">
+		<h1 class="wpepp-site-password-title"><?php esc_html_e( 'Access Restricted', 'wp-edit-password-protected' ); ?></h1>
+		<p class="wpepp-site-password-message"><?php echo wp_kses_post( $message ); ?></p>
+		<p><a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>"><?php esc_html_e( 'Log out', 'wp-edit-password-protected' ); ?></a></p>
+	</div>
+	<?php wp_footer(); ?>
+</body>
+</html>
+<?php
 	}
 
 	/**

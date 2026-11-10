@@ -73,6 +73,7 @@ final class WPEPP_Plugin {
 
 		// Content filters.
 		add_filter( 'the_password_form', [ $this, 'custom_password_form' ] );
+		add_filter( 'post_password_expires', [ $this, 'filter_post_password_expires' ] );
 		add_filter( 'the_content', [ $this, 'maybe_lock_content' ], 99 );
 		add_filter( 'get_the_excerpt', [ $this, 'maybe_lock_excerpt' ], 99, 2 );
 
@@ -382,12 +383,13 @@ final class WPEPP_Plugin {
 		}
 
 		$asset = include $asset_file;
+		$build_ver = $asset['version'] . '.' . filemtime( WPEPP_PATH . 'build/index.js' );
 
 		wp_enqueue_script(
 			'wpepp-admin',
 			WPEPP_URL . '/build/index.js',
 			$asset['dependencies'],
-			$asset['version'],
+			$build_ver,
 			true
 		);
 
@@ -395,7 +397,7 @@ final class WPEPP_Plugin {
 			'wpepp-admin',
 			WPEPP_URL . '/build/index.css',
 			[ 'wp-components' ],
-			$asset['version']
+			$build_ver
 		);
 
 		wp_localize_script( 'wpepp-admin', 'wpeppData', [
@@ -1120,6 +1122,22 @@ final class WPEPP_Plugin {
 			wp_enqueue_style( 'wpepp-global-custom-css' );
 			wp_add_inline_style( 'wpepp-global-custom-css', $css );
 		}
+	}
+
+	/**
+	 * Filter the expiration time of the post password cookie based on Settings -> General.
+	 *
+	 * @param int $expires Current expiration timestamp.
+	 * @return int Updated expiration timestamp.
+	 */
+	public static function filter_post_password_expires( $expires ) {
+		$raw      = get_option( 'wpepp_general_settings', '{}' );
+		$settings = json_decode( (string) $raw, true );
+		$days     = isset( $settings['cookie_expiration'] ) ? (int) $settings['cookie_expiration'] : 10;
+		if ( $days < 1 ) {
+			$days = 10;
+		}
+		return time() + ( $days * DAY_IN_SECONDS );
 	}
 
 	/**
@@ -1980,9 +1998,9 @@ final class WPEPP_Plugin {
 			'max_attempts'         => 5,
 			'lockout_duration'     => 15,
 			'honeypot_enabled'     => true,
-			'disable_xmlrpc'       => false,
-			'hide_wp_version'      => false,
-			'disable_rest_users'   => false,
+			'disable_xmlrpc'       => true,
+			'hide_wp_version'      => true,
+			'disable_rest_users'   => true,
 			'recaptcha_enabled'    => false,
 			'recaptcha_site_key'   => '',
 			'recaptcha_secret_key' => '',
@@ -1990,9 +2008,9 @@ final class WPEPP_Plugin {
 			'login_log_enabled'    => true,
 			'hide_login_page'      => false,
 			'after_login_redirect' => '',
-			// AI Crawler Blocker.
-			'ai_crawler_blocker_enabled' => true,
-			'ai_crawler_block_ua'        => true,
+			// AI Crawler Blocker (Default: false to preserve AI SEO and recommendations).
+			'ai_crawler_blocker_enabled' => false,
+			'ai_crawler_block_ua'        => false,
 			'ai_crawler_bots'            => null,
 			'ai_crawler_custom_ua'       => '',
 		];

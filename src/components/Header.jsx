@@ -29,7 +29,7 @@ const Header = ( { theme, onThemeChange } ) => {
 	return (
 		<header className="wpepp-header">
 			<h1 className="wpepp-header__title">
-				{ __( 'WPEPP – Essential Security, Password Protect & Login Page Customizer', 'wp-edit-password-protected' ) }
+				{ __( 'WPEPP – All In One WordPress Security, Firewall, Malware Scanner & Login Protection', 'wp-edit-password-protected' ) }
 			</h1>
 			<div className="wpepp-header__actions">
 				{ isSaving && <Spinner /> }

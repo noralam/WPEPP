@@ -215,7 +215,7 @@
             "matchers": [
                 {
                     "type": "query_regex",
-                    "value": "#(?:<script\\b|javascript:|onerror\\s*=\\s*[\"']?\\w|)i"
+                    "value": "#(?:<script\\b|javascript:|onerror\\s*=\\s*[\"']?\\w)#i"
                 }
             ]
         },

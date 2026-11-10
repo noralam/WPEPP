@@ -16,7 +16,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 $wpepp_general = json_decode( (string) get_option( 'wpepp_general_settings', '{}' ), true );
-if ( empty( $wpepp_general['delete_data_on_uninstall'] ) ) {
+if ( empty( $wpepp_general['delete_data_on_uninstall'] ) && empty( $wpepp_general['cleanup_on_uninstall'] ) ) {
 	return;
 }
 
@@ -47,6 +47,7 @@ $wpepp_options = [
 
 	// Notice / review state.
 	'wpepp_pro_notice_dismissed',
+	'wpepp_v3_massive_update_dismissed',
 	'wpepp_pro_notice_dismiss_count',
 	'wpepp_review_dismissed',
 	'wpepp_new_badge_dismissed',
@@ -158,6 +159,7 @@ $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, Word
 /* ─── Cron events ──────────────────────────────────────────────────── */
 
 wp_clear_scheduled_hook( 'wpepp_prune_login_log' );
+wp_clear_scheduled_hook( 'wpepp_daily_db_maintenance' );
 wp_clear_scheduled_hook( 'wpepp_prune_blocks' );
 wp_clear_scheduled_hook( 'wpepp_prune_rl_buckets' );
 wp_clear_scheduled_hook( 'wpepp_scan_daily' );

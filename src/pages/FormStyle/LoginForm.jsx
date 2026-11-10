@@ -171,6 +171,27 @@ const LoginForm = () => {
 									onChange={ ( v ) => update( 'page.background_size', v ) }
 								/>
 							</PanelRow>
+							<PanelRow>
+								<ColorControl
+									label={ __( 'Background Overlay Color', 'wp-edit-password-protected' ) }
+									color={ s.page?.background_overlay || '' }
+									onChange={ ( v ) => update( 'page.background_overlay', v ) }
+								/>
+							</PanelRow>
+							{ !! s.page?.background_overlay && (
+								<PanelRow>
+									<RangeControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'Overlay Opacity', 'wp-edit-password-protected' ) }
+										value={ s.page?.background_overlay_opacity ?? 0.5 }
+										min={ 0.1 }
+										max={ 1 }
+										step={ 0.05 }
+										onChange={ ( v ) => update( 'page.background_overlay_opacity', v ) }
+									/>
+								</PanelRow>
+							) }
 						</>
 					) }
 
@@ -305,6 +326,15 @@ const LoginForm = () => {
 									label={ __( 'Text Color', 'wp-edit-password-protected' ) }
 									color={ s.logo?.text_color || '#333333' }
 									onChange={ ( v ) => update( 'logo.text_color', v ) }
+								/>
+							</PanelRow>
+							<PanelRow>
+								<TextControl
+									label={ __( 'Logo Font Family', 'wp-edit-password-protected' ) }
+									help={ __( 'Enter font name (e.g. Arial, Georgia, Roboto).', 'wp-edit-password-protected' ) }
+									value={ s.logo?.text_font_family || '' }
+									onChange={ ( v ) => update( 'logo.text_font_family', v ) }
+									placeholder="sans-serif"
 								/>
 							</PanelRow>
 						</>

@@ -366,6 +366,14 @@ body.wpepp-theme-light,
   align-items: flex-end !important;
 }
 
+.wpepp-form-grid--tester .wpepp-form-actions {
+  margin-bottom: 4px !important;
+}
+
+.wpepp-firewall__test-result {
+  margin-top: 20px !important;
+}
+
 @media (max-width: 680px) {
   .wpepp-form-grid--tester {
     grid-template-columns: 1fr !important;

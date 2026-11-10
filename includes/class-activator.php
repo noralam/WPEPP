@@ -31,13 +31,13 @@ class WPEPP_Activator {
 	 * fills missing defaults and re-runs the v1 migration guard.
 	 */
 	public static function maybe_upgrade() {
+		WPEPP_Migration::migrate();
 		if ( get_option( 'wpepp_version' ) === WPEPP_VERSION ) {
 			return;
 		}
 
 		self::create_tables();
 		self::set_defaults();
-		WPEPP_Migration::migrate();
 
 		// Migration only bumps the version from <2.0 — keep it current here.
 		update_option( 'wpepp_version', WPEPP_VERSION );

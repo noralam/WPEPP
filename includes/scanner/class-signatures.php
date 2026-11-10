@@ -415,6 +415,9 @@ class WPEPP_Signatures {
 
 		try {
 			while ( microtime( true ) - $start < WPEPP_Scan_Engine::SLICE_BUDGET - 0.25 ) {
+				if ( get_transient( 'wpepp_scan_aborted' ) ) {
+					return false;
+				}
 
 				// 1. If we have files queued from current directory, process them first.
 				if ( ! empty( $state['file_queue'] ) ) {

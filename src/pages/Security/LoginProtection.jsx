@@ -102,19 +102,19 @@ const LoginProtection = () => {
 					<ToggleCard
 						title={ __( 'Disable XML-RPC', 'wp-edit-password-protected' ) }
 						description={ __( 'XML-RPC is disabled. This blocks remote publishing via third-party apps and prevents XML-RPC brute force attacks.', 'wp-edit-password-protected' ) }
-						checked={ s.disable_xmlrpc !== false }
+						checked={ !! s.disable_xmlrpc }
 						onChange={ ( v ) => update( 'disable_xmlrpc', v ) }
 					/>
 					<ToggleCard
 						title={ __( 'Hide WordPress Version', 'wp-edit-password-protected' ) }
 						description={ __( 'The WordPress version number is removed from the page source, making it harder for attackers to identify known vulnerabilities.', 'wp-edit-password-protected' ) }
-						checked={ s.hide_wp_version !== false }
+						checked={ !! s.hide_wp_version }
 						onChange={ ( v ) => update( 'hide_wp_version', v ) }
 					/>
 					<ToggleCard
 						title={ __( 'Disable REST API User Enumeration', 'wp-edit-password-protected' ) }
 						description={ __( 'The /wp/v2/users REST endpoint is blocked for non-admin users, preventing attackers from discovering usernames.', 'wp-edit-password-protected' ) }
-						checked={ s.disable_rest_users !== false }
+						checked={ !! s.disable_rest_users }
 						onChange={ ( v ) => update( 'disable_rest_users', v ) }
 					/>
 				</div>

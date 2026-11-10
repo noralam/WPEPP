@@ -18,6 +18,7 @@ import Card from '../../components/Card';
 import { SECURITY_DEFAULTS } from '../../utils/defaults';
 import Loading from '../../components/Loading';
 import ProBadge from '../../components/ProBadge';
+import { useSaveBar } from '../../components/SaveBar';
 
 const DatabaseMaintenance = () => {
 	const { settings, isPro } = useSelect( ( select ) => {
@@ -28,9 +29,19 @@ const DatabaseMaintenance = () => {
 		};
 	} );
 
-	const { updateSetting } = useDispatch( 'wpepp/settings' );
+	const { updateSetting, saveSettings, resetSettings } = useDispatch( 'wpepp/settings' );
 
 	const s = useMemo( () => ( { ...SECURITY_DEFAULTS, ...( settings || {} ) } ), [ settings ] );
+
+	const handleSave = useCallback( () => {
+		saveSettings( 'security', s );
+	}, [ saveSettings, s ] );
+
+	const handleReset = useCallback( () => {
+		resetSettings( 'security' );
+	}, [ resetSettings ] );
+
+	useSaveBar( handleSave, handleReset );
 
 	const [ stats, setStats ] = useState( null );
 	const [ loading, setLoading ] = useState( true );

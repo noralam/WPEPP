@@ -78,8 +78,8 @@ const SitePassword = () => {
 								label={ __( 'Site Password', 'wp-edit-password-protected' ) }
 								help={ __( 'Enter the password visitors must provide to access the site.', 'wp-edit-password-protected' ) }
 								value={ s.site_password || '' }
-								onChange={ ( v ) => update( 'site_password', v ) }
-								type="text"
+							onChange={ ( v ) => update( 'site_password', v ) }
+							type="password"
 								autoComplete="off"
 								placeholder={ ( s.has_site_password || s.site_password_enabled ) ? __( '(saved — type to replace)', 'wp-edit-password-protected' ) : '' }
 							/>

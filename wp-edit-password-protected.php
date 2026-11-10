@@ -6,9 +6,9 @@
  * @since   2.0.0
  *
  * @wordpress-plugin
- * Plugin Name:       WPEPP – Essential Security, Password Protect & Login Page Customizer
+ * Plugin Name:       WPEPP – All In One WordPress Security, Firewall, Malware Scanner & Login Protection
  * Plugin URI:        http://wpthemespace.com
- * Description:       Limit login attempts, block AI crawlers, hide login page, password protect content & login page customizer with live preview.
+ * Description:       The complete All-In-One WordPress security suite: Web Application Firewall (WAF), malware scanner, login protection, 2FA, passkeys, bot shield & password protect.
  * Version:           3.0.0
  * Requires PHP:      7.4
  * Requires at least: 6.2

@@ -46,13 +46,7 @@ class WPEPP_Security {
 			add_action( 'wp_login', [ __CLASS__, 'record_successful_login' ], 10, 2 );
 		}
 
-		// Login log retention cron (B18) â€” runs whenever logging is active.
-		if ( ! empty( $settings['login_limit_enabled'] ) || ! empty( $settings['login_log_enabled'] ) ) {
-			if ( ! wp_next_scheduled( 'wpepp_prune_login_log' ) ) {
-				wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'wpepp_prune_login_log' );
-			}
-			add_action( 'wpepp_prune_login_log', [ __CLASS__, 'prune_login_log' ] );
-		}
+		// Login log retention cron removed — WPEPP_DB_Cleaner::cron_maintenance() owns all pruning (Pro + auto-prune gated).
 
 		// Honeypot field (free).
 		if ( ! empty( $settings['honeypot_enabled'] ) ) {
@@ -474,6 +468,10 @@ class WPEPP_Security {
 	 * Daily cron: prune old rows from the login log table (B18).
 	 */
 	public static function prune_login_log() {
+		if ( class_exists( 'WPEPP_DB_Cleaner' ) ) {
+			WPEPP_DB_Cleaner::purge_all_old_logs();
+			return;
+		}
 		global $wpdb;
 
 		$raw      = get_option( 'wpepp_security_settings', '{}' );

@@ -1,5 +1,5 @@
 /**
- * Site Access → Admin Only — require login to view the site.
+ * Site Access Gate — restrict frontend by login status or admin role.
  */
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -52,13 +52,13 @@ const AdminOnly = () => {
 
 	return (
 		<div className="wpepp-admin-only-settings">
-			<h3>{ __( 'Admin Only Mode', 'wp-edit-password-protected' ) }</h3>
+			<h3>{ __( 'Site Access Gate', 'wp-edit-password-protected' ) }</h3>
 
-			<Card title={ __( 'Admin Only Site', 'wp-edit-password-protected' ) }>
+			<Card title={ __( 'Site Access Gate', 'wp-edit-password-protected' ) }>
 				<div className="wpepp-toggle-grid">
 					<ToggleCard
-						title={ __( 'Enable Admin Only Mode', 'wp-edit-password-protected' ) }
-						description={ __( 'When enabled, only logged-in users can view the site. All other visitors will be required to log in.', 'wp-edit-password-protected' ) }
+						title={ __( 'Enable Site Access Gate', 'wp-edit-password-protected' ) }
+						description={ __( 'When enabled, only users matching the Access Permission Scope below can view the frontend. Others are redirected or blocked.', 'wp-edit-password-protected' ) }
 						checked={ !! s.admin_only_enabled }
 						onChange={ ( v ) => update( 'admin_only_enabled', v ) }
 					/>
@@ -68,8 +68,22 @@ const AdminOnly = () => {
 					<div className="wpepp-form-grid" style={ { marginTop: 16 } }>
 						<div className="wpepp-form-grid__full">
 							<Notice status="info" isDismissible={ false }>
-								{ __( 'Your entire site will be hidden from non-logged-in visitors. They will either be redirected to the login page or shown a login popup depending on your selection below.', 'wp-edit-password-protected' ) }
+								{ __( 'Restrict front-end access based on user role and authentication status.', 'wp-edit-password-protected' ) }
 							</Notice>
+						</div>
+
+						<div className="wpepp-form-grid__full">
+							<SelectControl
+								__next40pxDefaultSize
+								label={ __( 'Access Permission Scope', 'wp-edit-password-protected' ) }
+								help={ __( 'Choose whether any authenticated logged-in user can view the frontend, or only administrators.', 'wp-edit-password-protected' ) }
+								value={ s.admin_only_target || 'logged_in' }
+								options={ [
+									{ label: __( 'All Logged-in Users (Members Only)', 'wp-edit-password-protected' ), value: 'logged_in' },
+									{ label: __( 'Administrators Only (Requires manage_options)', 'wp-edit-password-protected' ), value: 'admins_only' },
+								] }
+								onChange={ ( v ) => update( 'admin_only_target', v ) }
+							/>
 						</div>
 
 						<div className="wpepp-form-grid__full">
@@ -129,7 +143,9 @@ const AdminOnly = () => {
 						{ s.admin_only_action === 'redirect' && (
 							<div className="wpepp-form-grid__full">
 								<Notice status="info" isDismissible={ false }>
-									{ __( 'Visitors will be redirected to the WordPress login page. After logging in, they will be sent back to the page they originally tried to visit.', 'wp-edit-password-protected' ) }
+									{ s.admin_only_target === 'admins_only'
+										? __( 'Logged-out visitors go to the login page. Logged-in non-administrators see an "Access Restricted" page instead of a redirect loop.', 'wp-edit-password-protected' )
+										: __( 'Visitors will be redirected to the WordPress login page. After logging in, they will be sent back to the page they originally tried to visit.', 'wp-edit-password-protected' ) }
 								</Notice>
 							</div>
 						) }

@@ -65,8 +65,8 @@ const Dashboard = () => {
 		},
 		{
 			key: 'admin-only',
-			label: __( 'Admin Only Mode', 'wp-edit-password-protected' ),
-			desc: __( 'Restrict front-end access to admins only.', 'wp-edit-password-protected' ),
+			label: __( 'Site Access Gate', 'wp-edit-password-protected' ),
+			desc: __( 'Restrict front-end access by login status or admin role.', 'wp-edit-password-protected' ),
 			icon: '🛡️',
 			active: !! siteAccess.admin_only_enabled,
 			route: '/site-access',

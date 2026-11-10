@@ -95,7 +95,7 @@ const LoginLog = () => {
 						</span>
 					}
 					help={ ! isPro ? __( 'Requires WPEPP Pro to view and retain detailed login history.', 'wp-edit-password-protected' ) : null }
-					checked={ isPro ? s.login_log_enabled !== false : true }
+					checked={ isPro ? s.login_log_enabled !== false : false }
 					onChange={ ( v ) => updateSetting( 'security', 'login_log_enabled', v ) }
 					disabled={ ! isPro }
 				/>

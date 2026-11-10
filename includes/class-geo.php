@@ -107,6 +107,10 @@ class WPEPP_Geo {
 			return '0' === $cached ? '' : $cached;
 		}
 
+		if ( ! function_exists( 'wp_remote_get' ) ) {
+			return '';
+		}
+
 		$response = wp_remote_get(
 			'https://ipapi.co/' . rawurlencode( $ip ) . '/country/',
 			[

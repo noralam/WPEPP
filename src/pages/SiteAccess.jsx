@@ -1,5 +1,5 @@
 /**
- * Site Access page — inner tabs for Admin Only and Site Password.
+ * Site Access page — inner tabs for Site Access Gate and Site Password.
  */
 import { __ } from '@wordpress/i18n';
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
@@ -15,7 +15,7 @@ const SiteAccess = () => {
 		<div className="wpepp-site-access-page">
 			<nav className="wpepp-inner-tabs">
 				<NavLink to="/site-access/admin-only" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
-					{ __( 'Admin Only', 'wp-edit-password-protected' ) }
+					{ __( 'Site Access Gate', 'wp-edit-password-protected' ) }
 				</NavLink>
 				<NavLink to="/site-access/site-password" className={ ( { isActive } ) => isActive ? 'is-active' : '' }>
 					{ __( 'Site Password', 'wp-edit-password-protected' ) }

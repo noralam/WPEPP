@@ -187,4 +187,39 @@ class FirewallEngineTest extends TestCase {
 		$this->assertSame( 'secret', $req['body']['pwd'] );
 		$this->assertSame( '198.51.100.9', $req['ip'] );
 	}
+	public function test_all_starter_rules_have_valid_regexes() {
+		$file = dirname( __DIR__, 2 ) . '/assets/firewall/starter-rules.json';
+		$this->assertFileExists( $file );
+		$data = json_decode( (string) file_get_contents( $file ), true );
+		$this->assertIsArray( $data );
+		$this->assertNotEmpty( $data['rules'] );
+
+		foreach ( $data['rules'] as $rule ) {
+			$id = $rule['id'] ?? 'unknown';
+			foreach ( $rule['matchers'] ?? [] as $m ) {
+				$type = $m['type'] ?? '';
+				$val  = $m['value'] ?? '';
+				if ( false !== strpos( $type, '_regex' ) ) {
+					$test = @preg_match( $val, 'test-sample' );
+					$this->assertNotFalse( $test, "Rule {$id} matcher {$type} has invalid regex: {$val}" );
+				}
+			}
+		}
+	}
+
+	public function test_starter_rules_xss_script_tag_matches() {
+		$file = dirname( __DIR__, 2 ) . '/assets/firewall/starter-rules.json';
+		$data = json_decode( (string) file_get_contents( $file ), true );
+		$matched = WPEPP_FW_Engine::inspect(
+			$data['rules'],
+			$this->req( [
+				'query_string' => 's=%3Cscript%3Ealert(1)%3C/script%3E',
+				'query'        => [ 's' => '<script>alert(1)</script>' ],
+			] )
+		);
+
+		$this->assertNotNull( $matched );
+		$this->assertSame( 'xss_script_tag', $matched['id'] );
+	}
+
 }

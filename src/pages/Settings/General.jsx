@@ -8,7 +8,6 @@ import {
 	TextControl,
 } from '@wordpress/components';
 import Card from '../../components/Card';
-import DatabaseMaintenance from './DatabaseMaintenance';
 import { useCallback } from '@wordpress/element';
 import { useSaveBar } from '../../components/SaveBar';
 import Loading from '../../components/Loading';
@@ -42,8 +41,6 @@ const General = () => {
 
 	return (
 		<div className="wpepp-general-settings" style={ { display: 'flex', flexDirection: 'column', gap: 16 } }>
-			<DatabaseMaintenance />
-
 			<Card title={ __( 'Plugin Data & Retention Options', 'wp-edit-password-protected' ) }>
 				<TextControl
 					label={ __( 'Password Cookie Expiration (days)', 'wp-edit-password-protected' ) }
@@ -57,8 +54,8 @@ const General = () => {
 				<ToggleControl
 					__nextHasNoMarginBottom
 					label={ __( 'Delete Data on Uninstall', 'wp-edit-password-protected' ) }
-					help={ __( 'Remove all plugin options, log tables, and transients when uninstalled.', 'wp-edit-password-protected' ) }
-					checked={ !! settings?.delete_data_on_uninstall }
+					help={ __( 'Remove all plugin options, log tables, and transients when uninstalled. Legacy 2.x cleanup_on_uninstall=true is migrated automatically.', 'wp-edit-password-protected' ) }
+					checked={ !! settings?.delete_data_on_uninstall || !! settings?.cleanup_on_uninstall }
 					onChange={ ( v ) => set( 'delete_data_on_uninstall', v ) }
 				/>
 			</Card>

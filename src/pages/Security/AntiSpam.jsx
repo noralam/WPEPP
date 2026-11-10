@@ -50,11 +50,19 @@ const AntiSpam = () => {
 	const [ activeSubTab, setActiveSubTab ] = useState( 'all' );
 
 	const hasCaptchaProvider = !! s.captcha_provider;
+	const hasCaptchaKeys = Boolean(
+		( s.captcha_provider === 'turnstile' && s.turnstile_site_key && s.turnstile_secret_key ) ||
+		( ( s.captcha_provider === 'recaptcha_v2' || s.captcha_provider === 'recaptcha_v3' ) && s.recaptcha_site_key && s.recaptcha_secret_key )
+	);
+	const hasCaptchaConfigured = hasCaptchaProvider && hasCaptchaKeys;
+
 	const captchaHelpText = ! isPro
 		? __( 'Requires WPEPP Pro.', 'wp-edit-password-protected' )
 		: ( ! hasCaptchaProvider
 			? __( 'Disabled — select and configure a provider in CAPTCHA Engine first.', 'wp-edit-password-protected' )
-			: null );
+			: ( ! hasCaptchaKeys
+				? __( 'Disabled — enter both Site Key and Secret Key in CAPTCHA Engine first.', 'wp-edit-password-protected' )
+				: null ) );
 
 	if ( isLoading ) {
 		return <Loading variant="cards" count={ 3 } />;
@@ -135,6 +143,13 @@ const AntiSpam = () => {
 					</button>
 					<button
 						type="button"
+						className={ `components-button ${ activeSubTab === 'login' ? 'is-primary' : 'is-secondary' }` }
+						onClick={ () => setActiveSubTab( 'login' ) }
+					>
+						🔐 { __( 'Login & Forms', 'wp-edit-password-protected' ) }
+					</button>
+					<button
+						type="button"
 						className={ `components-button ${ activeSubTab === 'captcha' ? 'is-primary' : 'is-secondary' }` }
 						onClick={ () => setActiveSubTab( 'captcha' ) }
 					>
@@ -192,10 +207,10 @@ const AntiSpam = () => {
 								'Displays Cloudflare Turnstile or Google reCAPTCHA challenge directly on WooCommerce login and registration forms.',
 								'wp-edit-password-protected'
 							) }
-							checked={ isPro && hasCaptchaProvider && !! s.wc_captcha_enabled }
+							checked={ isPro && hasCaptchaConfigured && !! s.wc_captcha_enabled }
 							onChange={ ( v ) => update( 'wc_captcha_enabled', v ) }
 							badge={ ! isPro ? <ProBadge /> : null }
-							disabled={ ! isPro || ! hasCaptchaProvider }
+							disabled={ ! isPro || ! hasCaptchaConfigured }
 							help={ captchaHelpText }
 						/>
 					</div>
@@ -238,10 +253,10 @@ const AntiSpam = () => {
 								'Challenges visitors with Turnstile or reCAPTCHA before their comment is accepted. Admins and moderators are automatically exempt.',
 								'wp-edit-password-protected'
 							) }
-							checked={ isPro && hasCaptchaProvider && !! s.comment_captcha_enabled }
+							checked={ isPro && hasCaptchaConfigured && !! s.comment_captcha_enabled }
 							onChange={ ( v ) => update( 'comment_captcha_enabled', v ) }
 							badge={ ! isPro ? <ProBadge /> : null }
-							disabled={ ! isPro || ! hasCaptchaProvider }
+							disabled={ ! isPro || ! hasCaptchaConfigured }
 							help={ captchaHelpText }
 						/>
 					</div>
@@ -284,10 +299,10 @@ const AntiSpam = () => {
 								'Requires solving a CAPTCHA challenge before requesting a password reset email.',
 								'wp-edit-password-protected'
 							) }
-							checked={ isPro && hasCaptchaProvider && !! s.lostpassword_captcha_enabled }
+							checked={ isPro && hasCaptchaConfigured && !! s.lostpassword_captcha_enabled }
 							onChange={ ( v ) => update( 'lostpassword_captcha_enabled', v ) }
 							badge={ ! isPro ? <ProBadge /> : null }
-							disabled={ ! isPro || ! hasCaptchaProvider }
+							disabled={ ! isPro || ! hasCaptchaConfigured }
 							help={ captchaHelpText }
 						/>
 					</div>
@@ -313,6 +328,12 @@ const AntiSpam = () => {
 								options={ providerOptions }
 								onChange={ ( v ) => update( 'captcha_provider', v ) }
 							/>
+
+							{ s.captcha_provider && ! hasCaptchaKeys && (
+								<Notice status="warning" isDismissible={ false }>
+									{ __( 'Please configure your Site Key and Secret Key below before enabling CAPTCHA on forms.', 'wp-edit-password-protected' ) }
+								</Notice>
+							) }
 
 							{ s.captcha_provider === 'turnstile' && (
 								<div

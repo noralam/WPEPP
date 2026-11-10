@@ -100,7 +100,7 @@ const Sidebar = () => {
 				) ) }
 			</ul>
 			<div className="wpepp-sidebar__footer">
-				<span>{ `v${ window.wpeppData?.version || '2.0.0' }` }</span>
+				<span>{ `v${ window.wpeppData?.version || '3.0.0' }` }</span>
 			</div>
 		</nav>
 	);

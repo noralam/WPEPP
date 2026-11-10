@@ -205,7 +205,7 @@ const Firewall = () => {
 
 					{ testResult !== null && (
 						testResult ? (
-							<Notice status="warning" isDismissible={ false } style={ { marginTop: 12 } }>
+							<Notice status="warning" isDismissible={ false } className="wpepp-firewall__test-result" style={ { marginTop: 20 } }>
 								{
 									sprintf(
 										/* translators: 1: rule name, 2: rule id */
@@ -216,7 +216,7 @@ const Firewall = () => {
 								}
 							</Notice>
 						) : (
-							<Notice status="success" isDismissible={ false } style={ { marginTop: 12 } }>
+							<Notice status="success" isDismissible={ false } className="wpepp-firewall__test-result" style={ { marginTop: 20 } }>
 								{ __( 'No rule matches this request.', 'wp-edit-password-protected' ) }
 							</Notice>
 						)

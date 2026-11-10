@@ -1,314 +1,262 @@
-# WPEPP – Essential Security, Password Protect & Login Page Customizer
+# WPEPP – All In One WordPress Security, Firewall, Malware Scanner & Login Protection
 
-> The all-in-one WordPress security plugin. Login protection, AI crawler blocker, CPU monitor, content lock, and a beautiful login page customizer with real-time live preview — all from a single modern dashboard.
+> The complete, high-performance All-In-One WordPress cybersecurity suite. Built with a Zero-Impact architecture, Early-Boot Web Application Firewall (WAF), Deep Malware Scanner, Anti-Spam Bot Shield, Two-Factor Authentication (2FA), Biometric Passkeys (WebAuthn), Server Hardening, Block Center with IPv6 CIDR, Multi-Core CPU Monitor, Content Lock, and a Real-Time Login Page Customizer — all in a lightning-fast React dashboard.
 
-[![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress)](https://wordpress.org)
+[![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-blue?logo=wordpress)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple?logo=php)](https://php.net)
 [![License](https://img.shields.io/badge/License-GPLv2-green)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Version](https://img.shields.io/badge/Version-2.0.1-orange)](https://wpthemespace.com/wpepp/)
+[![Version](https://img.shields.io/badge/Version-3.0.0-orange)](https://wpthemespace.com)
+[![Tests](https://img.shields.io/badge/Tests-100%25%20Passing-brightgreen)](https://wpthemespace.com)
+[![Zero Legacy](https://img.shields.io/badge/React%2018-Zero%20jQuery-blueviolet)](https://wpthemespace.com)
 
-**[🌐 View Details](https://wpthemespace.com/wpepp/)** &nbsp;|&nbsp; **[💰 View Pricing](https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing)** &nbsp;|&nbsp; **[🎥 Watch Video Tutorial](https://www.youtube.com/watch?v=QiMpOBgbhSY)**
-
----
-
-## 📺 Video Overview
-
-[![WPEPP Video Tutorial](https://img.youtube.com/vi/QiMpOBgbhSY/maxresdefault.jpg)](https://www.youtube.com/watch?v=QiMpOBgbhSY)
+**[🌐 Official Website](https://wpthemespace.com)** &nbsp;|&nbsp; **[💰 View Pro Pricing](https://wpthemespace.com/product/wpepp-essential-security-password-protect-login-page-customizer/#pricing)** &nbsp;|&nbsp; **[📖 Documentation](https://wpthemespace.com/wpepp/)** &nbsp;|&nbsp; **[🎥 Watch Video Tutorial](https://www.youtube.com/watch?v=QiMpOBgbhSY)**
 
 ---
 
-## ✨ Why WPEPP?
+## ⚡ Zero-Impact Philosophy: Why WPEPP Stands Out
 
-Stop installing 5 separate plugins. WPEPP replaces your:
+Traditional security plugins often slow down WordPress with unindexed log tables, heavy front-end scripts on every page visit, and aggressive CPU-draining background tasks. 
 
-| What you were using | → | WPEPP replaces it |
-|---|---|---|
-| Login Limiter plugin | → | ✅ Built-in Login Limiter |
-| Login page customizer | → | ✅ Built-in Live Preview Customizer |
-| Password form styler | → | ✅ 4 Styles + Templates |
-| Content restriction plugin | → | ✅ Content Lock + Conditional Display |
-| AI crawler blocker | → | ✅ One-click AI Blocker |
-| Server monitoring plugin | → | ✅ Built-in CPU Monitor & Site Health |
+**WPEPP** was engineered from scratch to provide uncompromising, enterprise-grade protection with **zero negative impact on page speed or server resources**:
 
-**Zero external scripts on the front end. No impact on page speed.**
+- **Blazing Fast Frontend:** Anonymous visits trigger zero database writes. Rate limit counters and lockout states operate on high-speed transient caches.
+- **Early-Boot Extended Firewall:** Drops malicious payloads *before WordPress or your database loads*, saving server RAM and keeping your site responsive under heavy DDoS or bot probes.
+- **Auto-Failsafe Architecture:** Any bootstrap error or environment conflict safely detaches the early-boot filter automatically, preventing white-screens or locked sites.
+- **Modern React Dashboard:** An intuitive, single-page application built on WordPress React components with zero legacy jQuery.
+- **100% Privacy & Data Control:** All visitor logs, security events, and IP blocklists stay inside your WordPress database. No tracking, no external telemetry.
 
 ---
 
-## 🚀 Features
+## 🔄 Stop Installing 10 Separate Plugins
 
-### 🔐 Login Security & Brute Force Protection
+WPEPP replaces an entire stack of disjointed plugins with one unified, cohesive solution:
 
-- **Login Attempt Limiter** — block IPs after repeated failed login attempts
-- **Configurable Lockout** — set max attempts and lockout duration in minutes
-- **Login Honeypot** — invisible bot trap catches brute force attacks instantly
-- **Registration Honeypot** — hidden spam trap blocks fake signups
-- **Registration Rate Limiter** — prevent mass registration spam per IP
-- **IP-based Tracking** — every failed login tracked by IP for accurate blocking
-
-### 🛡️ Hide Login Page & Custom Login URL *(Pro)*
-
-- **Custom Login URL** — change `wp-login.php` to any URL you choose
-- **Hide Default Login** — original `wp-login.php` returns 404
-- **After-Login Redirect** — send users to a specific page after login
-- **Auto-Login Links** — generate secure one-time login tokens
-
-### 🔑 Two-Factor Authentication – 2FA *(Pro)*
-
-- Works with **Google Authenticator, Authy, Microsoft Authenticator**, and any TOTP app
-- **QR Code Setup** — users scan a QR code to set up 2FA in seconds
-- **Recovery Codes** — 8 one-time backup codes per user
-- **Role-Based Enforcement** — enable 2FA for specific user roles
-- **RFC 6238 Compliant** — industry-standard TOTP implementation
-
-### 🤖 Google reCAPTCHA Integration *(Pro)*
-
-- reCAPTCHA on login and registration forms
-- Stops bots before they even attempt a login
-
-### 📊 Login Activity Log *(Pro)*
-
-- Records every successful, failed, and locked-out login attempt
-- IP address, user-agent, status, and timestamp per event
-
-### 🛑 Block AI Crawlers & Bots
-
-- **One-Click AI Blocker** — toggle GPTBot, CCBot, Google-Extended, and more
-- **robots.txt Rules** — auto-injects bot-blocking rules
-- **User-Agent Blocking** — returns 403 Forbidden at the server level
-- **Rule Preview** — see generated rules before saving
-
-### 🔒 Site Access Control
-
-- **Admin-Only Mode** — restrict the entire front end to logged-in users
-- **Site Password** — single shared password for all visitors
-- **Configurable Cookie Duration** — set how long access cookie lasts
-- **Login Popup Option** — blurred overlay instead of redirect *(Pro)*
-- **Page Whitelist** — keep selected pages publicly accessible
-
-### 🔐 Content Lock *(Pro)*
-
-- **Per-Post Toggle** — lock from Gutenberg sidebar or Classic Editor meta box
-- **Multiple Lock Actions** — login link, inline password form, popup blur, or redirect
-- **Role-Based Locking** — restrict to specific user roles
-- **Auto-Expiry Unlock** — automatically unlock at a scheduled date/time
-- **REST API Compatible** — hidden content stripped from API responses
-
-### 📋 Conditional Content Display
-
-Show or hide any post or page based on smart conditions — no shortcodes.
-
-| Condition | Free | Pro |
-|-----------|:----:|:---:|
-| User logged in / logged out | ✅ | ✅ |
-| User role | | ✅ |
-| Device type (desktop/tablet/mobile) | | ✅ |
-| Time range | | ✅ |
-| Date range | | ✅ |
-| Day of week | | ✅ |
-| Recurring schedule | | ✅ |
-| Browser type | | ✅ |
-| URL parameters | | ✅ |
-| Referrer source | | ✅ |
-
-**12 conditions total.**
-
-### 🎨 Login Page Customizer with Live Preview
-
-- **Background** — solid color, gradient, image, or video with overlay
-- **Custom Logo** — image or text-based logo with custom font
-- **Form, Field, Button, Link & Error styling** — full control
-- **Live Preview** — every change visible in real time before saving
-- **Register & Lost Password Pages** *(Pro)*
-
-### 🎯 Password-Protected Form Styling
-
-- **4 Unique Form Styles** — 2 free, 2 Pro
-- **10+ One-Click Templates** — Minimal, Modern Dark, Corporate, Nature, Gradient Wave, and more
-- **Custom Text, Labels, Social Media Icons**
-
-### 🛡️ Security Hardening
-
-- Disable XML-RPC
-- Hide WordPress Version
-- Disable REST API User Enumeration
-- IP Blocklist & Allowlist *(Pro)*
-- Disposable Email Blocker *(Pro)*
-- Email Domain Whitelist/Blacklist *(Pro)*
-- Admin Approval for Registrations *(Pro)*
-
-### 👥 Member-Only Pages
-
-- Assign **"Member Only"** page template to any page
-- Logged-out visitors see a login form; authenticated users see the content
-- Zero configuration — works out of the box
-
-### 📈 CPU Monitor & Site Health Dashboard
-
-- **Real-Time CPU Usage** — CPU percentage, core count, and 1/5/15-minute load averages
-- **Memory Overview** — PHP memory usage, peak usage, and configured limits
-- **System Health Score** — green/yellow/red health badge based on CPU, memory, and cron status
-- **Slow Query Logger** — log database queries exceeding a configurable time threshold
-- **SAVEQUERIES Toggle** — enable/disable WordPress query logging from the dashboard
-- **Cron Jobs Manager** — view, run, and delete scheduled cron events with overdue detection
-- **Plugin Performance** — see plugin resource impact and deactivate sluggish plugins
-- **Options Bloat Analyzer** — inspect database options size, autoloaded data, and top options
-- **Transient Cleanup** — clean expired transients with one click
-- **Error Log Viewer** — parse and display PHP/WordPress error log entries *(Pro)*
-- **WP Config Manager** — toggle WP_DEBUG, WP_DEBUG_LOG, SAVEQUERIES without editing files
+| What you were using | → | WPEPP replaces it with |
+|---|:---:|---|
+| Heavy WAF / Firewall plugin | → | ✅ **30+ Core Rules & Early-Boot Drop-in Firewall** |
+| Malware scanner plugin | → | ✅ **WordPress.org Checksums & 19 Heuristic Signatures** |
+| WooCommerce & comment spam plugins | → | ✅ **Invisible Honeypots, Time-Gate & Disposable Email Blocker** |
+| Captcha & Bot Shield plugin | → | ✅ **Cloudflare Turnstile & Google reCAPTCHA v2 / v3** |
+| Limit Login Attempts plugin | → | ✅ **Brute Force Limiter, Lockouts & Self-Service Unlock Email** |
+| Two-Factor Auth (2FA) plugin | → | ✅ **Free TOTP 2FA (Google Authenticator, Authy, etc.)** |
+| Biometric Passkey plugin | → | ✅ **WebAuthn Passkeys (Apple Touch ID, Face ID, Windows Hello) [Pro]** |
+| Custom Login URL / Hide wp-login | → | ✅ **Secret Custom Login URL & Masked 404s** |
+| Content restriction / Private site | → | ✅ **Site-Wide Password, Admin-Only Mode & Content Lock** |
+| AI Scraper / Crawler Blocker | → | ✅ **1-Click AI Crawler Blocker & robots.txt Engine** |
+| Server CPU & Query Monitor | → | ✅ **Accurate Multi-Core CPU Monitor, Slow Queries & Cron Manager** |
+| Login page customizer | → | ✅ **Real-Time Live Preview Customizer & Pre-designed Templates** |
 
 ---
 
-## ✅ Free vs Pro
+## 🛡️ Core Feature Suite
 
-| Feature | Free | Pro |
-|---------|:----:|:---:|
-| Login Limiter & IP Lockout | ✅ | ✅ |
-| Login & Registration Honeypot | ✅ | ✅ |
-| Disable XML-RPC | ✅ | ✅ |
-| Hide WordPress Version | ✅ | ✅ |
-| AI Crawler & Bot Blocker | ✅ | ✅ |
-| Site-Wide Password & Admin-Only Mode | ✅ | ✅ |
-| Login Page Styling (Basic) | ✅ | ✅ |
-| Password Form Styles 1 & 2 | ✅ | ✅ |
-| Conditional Display (login status) | ✅ | ✅ |
-| Member-Only Page Template | ✅ | ✅ |
-| Real-Time Live Preview | ✅ | ✅ |
-| Hide Login Page / Custom Login URL | | ✅ |
-| Two-Factor Authentication (2FA) | | ✅ |
-| Google reCAPTCHA | | ✅ |
-| Login Activity Log | | ✅ |
-| IP Blocklist / Allowlist | | ✅ |
-| Content Lock (Per-Post) | | ✅ |
-| Conditional Display (12 conditions) | | ✅ |
-| Register & Lost Password Page Styling | | ✅ |
-| Password Form Styles 3 & 4 | | ✅ |
-| Tablet & Mobile Responsive Preview | | ✅ |
-| Login Popup (Blur Overlay) | | ✅ |
-| Disposable Email Blocker | | ✅ |
-| Admin Registration Approval | | ✅ |
-| **CPU Monitor & Site Health** | | |
-| CPU Usage & Memory Stats | ✅ | ✅ |
-| Slow Query Logger | ✅ | ✅ |
-| Cron Jobs Manager | ✅ | ✅ |
-| Plugin Performance Monitor | ✅ | ✅ |
-| Options Bloat Analyzer | ✅ | ✅ |
-| Transient Cleanup | ✅ | ✅ |
-| Error Log Viewer | | ✅ |
-| WP Config Manager | ✅ | ✅ |
+### 1. 🛡️ Web Application Firewall (WAF)
+Protect your WordPress website in real time from malicious requests and exploit probes.
+- **30+ Curated Core Rules:** Blocks SQL Injection (SQLi), Cross-Site Scripting (XSS), Remote Code Execution (RCE), Local File Inclusion (LFI), Path Traversal, PHP Object Injection, and known hacker scanner tools.
+- **Early-Boot Extended Mode:** Automatically generates a lightweight drop-in filter that intercepts requests before WordPress loads. Includes an auto-failsafe mechanism.
+- **Learning Mode:** Monitor incoming traffic without blocking to safely review rule matches and prevent false positives before going live.
+- **Cloudflare & Reverse Proxy Integration:** Automatically identifies verified Cloudflare IP ranges and reverse proxy headers (`CF-Connecting-IP`, `X-Forwarded-For`).
+
+### 2. 🔍 Deep Malware & Vulnerability Scanner
+Detect infections, unauthorized backdoors, and suspicious code before damage is done.
+- **Official WordPress.org Checksum Engine:** Compares core files, themes, and plugins directly with official WordPress.org repository hashes to detect altered files.
+- **Rogue & Unknown File Detection:** Instantly flags unexpected or rogue files inside critical folders like `/wp-admin/` and `/wp-includes/`.
+- **19 High-Precision Heuristic Signatures:** Scans for dangerous PHP webshells (c99, r57, WSO), obfuscated code (`base64_decode`, `eval`, `gzinflate`), and hidden backdoors.
+- **Resumable Chunked Background Scans:** Operates in small, manageable batches to prevent timeouts on shared hosting and strict server execution limits.
+- **Remote Threat Signature Sync:** Automatically syncs the latest threat definitions daily from a secure live signature repository.
+
+### 3. 🤖 Anti-Spam & Bot Shield
+Eliminate automated spambots and fake customer accounts without annoying legitimate visitors.
+- **WooCommerce Bot & Fake Account Shield:**
+  - Invisible registration honeypot trap field.
+  - Disposable & temporary email blocker (blocks 100+ throwaway email providers like Mailinator, TempMail, Yopmail).
+  - Registration rate limiting to prevent botnets from flooding customer accounts.
+  - One-click CAPTCHA enforcement on WooCommerce login, registration, and checkout.
+- **WordPress Comment Spam Guard:**
+  - Invisible honeypot trap stops automated spambots cold.
+  - Submission Time-Gate (Speed Check) blocks automated bots submitting forms in under 3 seconds.
+- **Integrated CAPTCHA Engine:** Seamlessly supports **Cloudflare Turnstile** (frictionless human verification) and **Google reCAPTCHA v2 / v3**.
+
+### 4. 🚫 Block Center & Advanced IP Defense
+Take absolute control over who accesses your server.
+- **IPv4 & IPv6 CIDR Support:** Block individual IPs or entire subnets using standard CIDR notation (e.g., `192.168.1.0/24`, `2001:db8::/32`).
+- **404-Flood Auto-Defense:** Automatically detects and blocks bots aggressively crawling for vulnerable paths (e.g., `wp-config.php.bak`, `phpmyadmin`, `.env`).
+- **Intelligent Rate Limiting:** Enforces per-minute request thresholds per IP, keeping aggressive crawlers and scrapers from exhausting server bandwidth.
+- **Permanent & Temporary Bans:** Set auto-expiring bans or permanent blacklists with customizable admin reasons.
+
+### 5. 🔐 Login Security, 2FA & Password Defense
+Lock down your WordPress administration doors against brute-force attacks and credential stuffing.
+- **Login Attempt Limiter & Lockout:** Limits failed password attempts with customizable retry limits and lockout durations.
+- **Invisible Login Honeypot:** Traps automated login scripts while remaining completely invisible to genuine human users.
+- **Masked Login Errors:** Replaces generic WordPress error messages with unified feedback, preventing attackers from discovering valid usernames.
+- **Self-Service Unlock Email:** Site administrators can safely email themselves a one-time unlock link to regain instant access.
+- **Username Discovery Shielding:** Blocks REST API author enumeration, `?author=N` URL queries, oEmbed author exposure, and author sitemaps.
+- **Custom Login URL:** Conceal your `/wp-login.php` behind a secret custom slug with optional 404 or home redirect.
+- **Two-Factor Authentication (2FA / TOTP):** Secure login with standard authenticator apps (Google Authenticator, Microsoft Authenticator, Authy, 1Password) with local QR code generation, recovery codes, and trusted-device cookies.
+- **Passkeys (WebAuthn / FIDO2) [Pro]:** Experience biometric passwordless authentication using Apple Touch ID, Face ID, or Windows Hello.
+- **Password Strength & Breached Password Check [Pro]:** Enforces strong password requirements and audits passwords against billions of breached credentials via Have I Been Pwned (using privacy-preserving k-anonymity).
+- **Auto Login & Magic Links:** Generate secure, encrypted single-use login links for fast client access.
+
+### 6. 🛑 Site Access Gate & Content Protection
+Control access to your entire website or specific private sections.
+- **Site-Wide Password Protection:** Put the entire site behind a master password gate with customizable cookie expiration.
+- **Admin-Only Mode:** Temporarily restrict access exclusively to logged-in administrators while performing maintenance.
+- **Country-Based Access Restrictions:** Whitelist or blacklist access by country code using GeoIP lookups.
+- **Complete REST API Enforcement:** Site-wide security gates are fully enforced on all public WordPress REST API endpoints, completely sanitizing post content, excerpts, and comments (fixes CVE-2025-8945).
+- **Content Lock:** Protect individual posts and pages with custom passwords, user role restrictions, custom redirect URLs, and excerpt previews.
+- **Conditional Content Display:** Show or hide content based on 12 conditions: user roles, logged-in status, device types, dates, or day/time schedules.
+
+### 7. ⚡ WordPress Hardening & Server Rules
+Harden your server configuration with 1-click controls:
+- **Block PHP Execution in Uploads:** Prevents executed PHP webshells inside `/wp-content/uploads/` via `.htaccess`.
+- **Disable Directory Listing:** Appends `Options -Indexes` to prevent visitors from viewing folder file trees.
+- **Disable File Editor:** Injects `DISALLOW_FILE_EDIT` into `wp-config.php` to prevent attackers from editing plugin/theme files from the admin.
+- **Security Headers Management:** Enforces modern browser headers including `X-Frame-Options` (anti-clickjacking), `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Strict-Transport-Security` (HSTS), and `Permissions-Policy`.
+- **Critical Files Permission Inspector:** Real-time diagnostics of `wp-config.php`, `.htaccess`, and root folder permissions.
+- **AI Crawler & Scraper Blocker:** Blocks unauthorized AI training scrapers (OpenAI GPTBot, Anthropic ClaudeBot, CCBot, Google-Extended, ByteDance, etc.) via dynamic robots.txt rules.
+
+### 8. 📊 CPU Monitor, Performance & System Diagnostics
+Never wonder what is happening on your server.
+- **Accurate CPU & Resource Monitor:** High-precision CPU utilization meter with multi-core container/shared host support (`/sys/devices/system/cpu/online`, `procfs`, `nproc`) and realistic rolling averages that match your cPanel dashboard.
+- **PHP Memory & Health Status:** Real-time visibility into current vs. peak PHP memory consumption and WP memory limits.
+- **Slow Database Query Monitor:** Captures queries exceeding execution thresholds along with execution time and full call stack.
+- **Background Cron Job Health:** Pinpoints overdue or stalled WP-Cron schedules with 1-click execution.
+- **Options & Transient Bloat Cleaner:** Clean expired transients and autoloaded bloat in seconds.
+- **Activity Audit Log:** Comprehensive event stream capturing logins, lockouts, blocks, malware scans, and settings updates with filtering and pagination.
+- **Email Delivery Alerts:** Proactively detects active SMTP plugins and dispatches security alerts for critical findings, lockouts, and weekly digests.
+
+### 9. 🎨 Login Page & Form Customizer with Live Preview
+Transform your login, registration, and password-protected screens into beautiful, branded experiences.
+- **Live Interactive Preview:** Customize layouts, logos, background images, video backgrounds, color palettes, and typography in real time.
+- **Pre-Designed Templates:** Choose from sleek modern login templates or craft your own design.
+- **Custom CSS Editor:** Global CSS editor with syntax verification and automated frontend inline injection.
 
 ---
 
-## 🏗️ Installation
+## 🚀 Free vs. Pro Feature Comparison
 
-### From WordPress Dashboard (Recommended)
+| Feature | Free Version | Pro Version |
+|---|:---:|:---:|
+| Web Application Firewall (WAF) | ✅ 30+ Core Rules | ✅ Extended Early-Boot WAF |
+| Deep Malware Scanner | ✅ Checksums & Rogue Files | ✅ Full Heuristics & Auto-Remediation |
+| Threat Signature Daily Sync | ✅ Included | ✅ Included |
+| Login Attempt Limiter & Lockout | ✅ Included | ✅ Included |
+| Two-Factor Authentication (2FA / TOTP) | ✅ Free for All Roles | ✅ Remember-Device & Enforced Roles |
+| Passkeys (WebAuthn / Touch ID / Face ID) | — | ✅ Full Passkey Support |
+| Breached Password Check (HIBP) | — | ✅ Automated k-Anonymity Check |
+| Password Strength Policy Enforcer | — | ✅ Role-based Complexity Enforcer |
+| Anti-Spam (WooCommerce & Comments) | ✅ Honeypot & Time-Gate | ✅ Disposable Email & Rate Limits |
+| CAPTCHA (Turnstile & reCAPTCHA) | ✅ Included | ✅ Included |
+| Block Center (IP / CIDR Blacklist & Whitelist) | ✅ Included | ✅ 404 Auto-Defense & Flood Guard |
+| Site Access Gate (Password & Admin Mode) | ✅ Included | ✅ GeoIP Country Restrictions |
+| Server Hardening Tools & Security Headers | ✅ Included | ✅ Included |
+| AI Crawler Blocker | ✅ Included | ✅ Included |
+| CPU Monitor & Server Diagnostics | ✅ Core Diagnostics | ✅ Slow Query Traces & Cron Manager |
+| Activity Audit Log & Email Alerts | ✅ Standard Logging | ✅ Weekly Digest & Bursts Alerts |
+| Login & Password Page Customizer | ✅ Live Customizer | ✅ Pro Templates & Video Backgrounds |
 
-1. Go to **Plugins → Add New**
-2. Search for **WPEPP** or **limit login attempts customizer**
-3. Click **Install Now**, then **Activate**
-4. Click **WPEPP** in the admin sidebar
+---
 
-### Manual via FTP
+## 🏗️ Installation & Quick Setup
 
-1. Download the plugin `.zip` and extract it
-2. Upload `wp-edit-password-protected/` to `/wp-content/plugins/`
-3. Activate via **Plugins** in your WordPress dashboard
+### From WordPress Dashboard
+1. Go to **Plugins → Add New**.
+2. Search for **WPEPP** or **WPEPP Security**.
+3. Click **Install Now**, then **Activate**.
+4. Navigate to **WPEPP Security** in your admin sidebar.
+5. Launch the **Setup Wizard** to configure recommended security settings in just five clicks!
 
-### After Activation
+### Manual via FTP or Git
+1. Download or clone this repository into `/wp-content/plugins/wp-edit-password-protected/`.
+2. Activate the plugin through the **Plugins** screen in WordPress.
 
-1. **Security** — Enable login limiter, honeypots, and hardening
-2. **Site Access** — Configure site-wide restriction if needed
-3. **Form Style** — Customize your login page with live preview
-4. **Content** — Set up conditional display and member-only pages
+---
+
+## 🔒 Third-Party Services & Privacy Disclosures
+
+To provide specific security features, WPEPP can optionally connect to the following external APIs:
+
+1. **WordPress.org Checksum API** (`api.wordpress.org`)
+   - **Purpose:** Verifies official WordPress core, plugin, and theme files against authentic hashes.
+   - **Data Transmitted:** WordPress version, plugin slugs, and versions.
+2. **Have I Been Pwned API** (`api.pwnedpasswords.com`)
+   - **Purpose:** Checks passwords against billions of leaked credentials using the mathematical **k-Anonymity model**.
+   - **Data Transmitted:** Only a 5-character prefix of the SHA-1 hash. Plaintext passwords and remaining hash fragments are NEVER transmitted or saved.
+3. **IP Geolocation Service** (`ipapi.co`)
+   - **Purpose:** Resolves visitor country codes for geo-blocking.
+   - **Data Transmitted:** Visitor IP address.
+4. **Threat Intelligence Feed** (GitHub Raw / WPEPP Security)
+   - **Purpose:** Daily sync for updated malware heuristic signatures, webshell patterns, and exploit rules.
+   - **Data Transmitted:** Standard HTTP GET request. No visitor or site data is transmitted.
 
 ---
 
 ## ❓ FAQ
 
 <details>
-<summary><strong>How do I limit login attempts in WordPress?</strong></summary>
+<summary><strong>Will WPEPP slow down my website?</strong></summary>
 
-Go to **WPEPP → Security** and enable **Login Limiter**. Set the maximum failed attempts and lockout duration. IPs that exceed the limit are automatically blocked.
+No! WPEPP was designed specifically to address the performance overhead common in legacy security plugins. Anonymous visitor page views do not write to the database. Rate limit counters and login lockouts utilize fast transient caches. If you enable the Extended Firewall mode, malicious requests are blocked before WordPress even loads database connections or plugins.
 </details>
 
 <details>
-<summary><strong>How do I hide the WordPress login page?</strong></summary>
+<summary><strong>What makes WPEPP different from Wordfence or All In One WP Security?</strong></summary>
 
-With WPEPP Pro, go to **WPEPP → Security → Custom Login URL**. Enter your preferred slug. The default `wp-login.php` returns 404 to attackers.
+WPEPP combines enterprise-grade security (WAF, malware scanner, 2FA, passkeys, bot defense) with essential front-end utility (content locking, custom login page designer, site access gating) inside a single, feather-light React 18 dashboard. It does not clutter your database with perpetual tables or slow down your server with background pollers.
 </details>
 
 <details>
-<summary><strong>How do I block AI crawlers like ChatGPT and Google AI?</strong></summary>
+<summary><strong>Why does the CPU Monitor match my hosting cPanel better than other tools?</strong></summary>
 
-Go to **WPEPP → AI Crawler Blocker**. Toggle GPTBot, CCBot, Google-Extended, and others. Rules are automatically added to your `robots.txt`.
+Many plugins calculate CPU usage by dividing the entire shared server's load average by 1 core, creating alarming false readings of 90–100% Critical. WPEPP accurately reads `/sys/devices/system/cpu/online`, container limits, and procfs snapshots over rolling intervals, giving you a true, realistic reading that aligns with your hosting control panel.
 </details>
 
 <details>
-<summary><strong>Does WPEPP slow down my website?</strong></summary>
+<summary><strong>I locked myself out — how do I get back in?</strong></summary>
 
-No. WPEPP loads zero external scripts on the front end. Assets load only on pages that need them.
-</details>
-
-<details>
-<summary><strong>Is WPEPP compatible with WooCommerce?</strong></summary>
-
-Yes. You can use conditional display on product pages, restrict shop access, and style the WooCommerce login form.
-</details>
-
-<details>
-<summary><strong>Does WPEPP support multisite?</strong></summary>
-
-Yes. Each sub-site has independent settings. Network-wide activation is supported.
+1. If enabled, click the **"Email me an unlock link"** button on the WordPress login screen to receive an instant bypass link at your administrator email.
+2. If you have WP-CLI access, run `wp wpepp block remove <your-ip>`.
+3. You can also temporarily rename the plugin directory via FTP/cPanel File Manager to regain access.
 </details>
 
 ---
 
 ## 📝 Changelog
 
+### 3.0.0
+- **New Name:** WPEPP – All In One WordPress Security, Firewall, Malware Scanner & Login Protection.
+- **Enterprise Web Application Firewall (WAF):** Added 30+ core inspection rules (SQLi, XSS, RCE, LFI, Traversal, Scanner agents) with Early-Boot Drop-in and Learning Mode.
+- **Deep Malware Scanner:** Added official WordPress.org core & plugin checksum verification, rogue file detection in `/wp-admin/` and `/wp-includes/`, and 19 heuristic PHP webshell signatures.
+- **Anti-Spam & Bot Shield:** WooCommerce registration & checkout bot protection, comment submission time-gate, invisible honeypots, disposable email blocker, and Cloudflare Turnstile / Google reCAPTCHA v2 & v3 integration.
+- **Block Center:** IPv4 & IPv6 CIDR subnet blocking, 404-flood auto-defense, per-minute request rate limiting, and GeoIP country blocking.
+- **Free Two-Factor Authentication:** TOTP 2FA unlocked for all user roles with local QR code generation and recovery backup codes.
+- **Biometric Passkeys (WebAuthn / FIDO2) [Pro]:** Fingerprint and facial recognition login (Touch ID, Face ID, Windows Hello).
+- **Breached Password Audit [Pro]:** Automated Have I Been Pwned check via k-anonymity model.
+- **Accurate CPU Monitor:** Completely redesigned multi-core calculation engine reading `/sys/devices/system/cpu/online`, procfs, and container limits for realistic readings matching cPanel.
+- **Security Hardening:** Block PHP in uploads, disable directory listing, disable plugin/theme file editor, security headers management, and critical file permissions inspector.
+- **CVE-2025-8945 Full Fix:** Comprehensive REST API sanitization for password-protected and admin-only modes.
+- **Massive Update Admin Notice:** Clean 28-day dismissible update banner for site administrators.
+
 ### 2.0.1
-- Added CPU Monitor — real-time CPU usage, memory stats, load average, and system health overview
-- Added Slow Query Logger with configurable threshold and SAVEQUERIES toggle
-- Added Cron Jobs Manager — view, run, and delete cron events with overdue detection
-- Added Plugin Performance Monitor — view resource impact and deactivate plugins
-- Added Options Bloat Analyzer — inspect autoloaded options and clean expired transients
-- Added Error Log Viewer *(Pro)* — parse PHP/WordPress error log entries
-- Added WP Config Manager — toggle SAVEQUERIES, WP_DEBUG, WP_DEBUG_LOG from dashboard
-- Fixed login page customizer styles not applying in some themes
-- Fixed password-protected form styles not rendering on certain page builders
-- Fixed conditional display meta box default values not saving properly
-- Updated admin menu name to WPEPP Security
+- Added CPU Monitor — real-time CPU usage, memory stats, load average, and system health overview.
+- Added Slow Query Logger with configurable threshold and SAVEQUERIES toggle.
+- Added Cron Jobs Manager — view, run, and delete cron events with overdue detection.
+- Added Plugin Performance Monitor — view resource impact and deactivate plugins.
+- Added Options Bloat Analyzer — inspect autoloaded options and clean expired transients.
+- Added Error Log Viewer *(Pro)* — parse PHP/WordPress error log entries.
+- Added WP Config Manager — toggle SAVEQUERIES, WP_DEBUG, WP_DEBUG_LOG from dashboard.
 
 ### 2.0.0
-- Complete rebuild with React-powered admin dashboard
-- Added real-time live preview for all form and login page styling
-- Added login limiter, honeypot, registration honeypot, rate limiter
-- Added custom login URL — hide `wp-login.php` *(Pro)*
-- Added Two-Factor Authentication (2FA) with TOTP *(Pro)*
-- Added Google reCAPTCHA for login and registration *(Pro)*
-- Added login activity log *(Pro)*
-- Added IP blocklist and allowlist *(Pro)*
-- Added disposable email blocker *(Pro)*
-- Added admin approval for user registrations *(Pro)*
-- Added disable XML-RPC, hide WP version, disable REST user enumeration
-- Added AI crawler blocker (GPTBot, CCBot, Google-Extended, etc.)
-- Added content lock — per-post, role-based, auto-expiry *(Pro)*
-- Added conditional content display with 12 condition types
-- Added site access control — admin-only, login-required, site-wide password
-- Added member-only page template
-- Added templates gallery with 10+ designs
-- Added after-login redirect and auto-login token generator
-- Migrated from Customizer (Kirki) to REST API settings
-- Full backward compatibility with v1.x settings
-
-### 1.3.5
-- Conditional meta now supported in REST API responses
-- Replaced `wp_redirect` with `wp_safe_redirect` for security
-
-### 1.2.0
-- Added login form display options
-- Added 5 new styles for the password-protected form
-
-### 1.0.0
-- Initial release
+- Complete rebuild with React-powered admin dashboard.
+- Added real-time live preview for all form and login page styling.
+- Added login limiter, honeypot, registration honeypot, rate limiter.
+- Added custom login URL — hide `wp-login.php`.
+- Added AI crawler blocker (GPTBot, CCBot, Google-Extended, etc.).
+- Added content lock — per-post, role-based, auto-expiry.
+- Added conditional content display with 12 condition types.
+- Added site access control — admin-only, login-required, site-wide password.
+- Added member-only page template.
+- Added templates gallery with 10+ designs.
 
 ---
 
@@ -318,10 +266,4 @@ Licensed under the [GPLv2 or later](https://www.gnu.org/licenses/gpl-2.0.html).
 
 ---
 
-## 🙌 Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-*Built by [WPThemeSpace](https://wpthemespace.com)*
+*Built with ❤️ by [WPThemeSpace](https://wpthemespace.com)*
