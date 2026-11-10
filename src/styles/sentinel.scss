@@ -932,77 +932,459 @@ body.wpepp-theme-light select.components-select-control__input,
   }
 }
 
-/* 3. Wizard Quick Actions on Finish */
-.wpepp-wizard__done {
-  padding: 8px 4px 6px;
+/* ==========================================================================
+   Security Setup Wizard Modal & Dialog Styling (Dark & Light Theme)
+   ========================================================================== */
 
-  h3 {
-    font-size: 19px;
-    margin: 0 0 4px;
-    color: var(--wpepp-text);
-  }
+/* Universal Modal Overlay on Settings Pages */
+body.toplevel_page_wpepp-settings .components-modal__screen-overlay {
+  background-color: var(--wpepp-overlay, rgba(6, 8, 12, 0.76)) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  z-index: 100000 !important;
+}
 
-  .wpepp-wizard__done-stat {
-    font-size: 13px;
-    color: var(--wpepp-text-2);
-    margin: 4px 0 16px;
-    font-weight: 500;
-  }
+body.toplevel_page_wpepp-settings.wpepp-theme-light .components-modal__screen-overlay,
+body.wpepp-theme-light .components-modal__screen-overlay {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+}
 
-  .wpepp-wizard__done-links {
-    width: 100%;
-    background: var(--wpepp-surface);
-    border: 1px solid var(--wpepp-border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 18px;
-    box-sizing: border-box;
+/* Modal Frame: Security Setup Wizard */
+.components-modal__frame.wpepp-wizard {
+  background: var(--wpepp-card, #141824) !important;
+  background-color: var(--wpepp-card, #141824) !important;
+  color: var(--wpepp-text, #f2f5f9) !important;
+  border: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.09)) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px var(--wpepp-border, rgba(255, 255, 255, 0.05)) !important;
+  max-width: 500px !important;
+  width: 92% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 
-    &-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--wpepp-text-3);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 0 0 10px;
-      text-align: left;
+  /* Header */
+  .components-modal__header {
+    background: transparent !important;
+    border-bottom: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08)) !important;
+    padding: 18px 24px 16px !important;
+    margin: 0 !important;
+    height: auto !important;
+
+    .components-modal__header-heading {
+      color: var(--wpepp-text, #f2f5f9) !important;
+      font-size: 16px !important;
+      font-weight: 650 !important;
+      letter-spacing: -0.01em !important;
+      line-height: 1.4 !important;
+      margin: 0 !important;
     }
-  }
 
-  .wpepp-wizard__done-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    .components-modal__close-button {
+      color: var(--wpepp-text-3, rgba(226, 232, 244, 0.6)) !important;
+      border-radius: 8px !important;
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
 
-    .components-button {
-      flex: 1 1 calc(33.333% - 6px);
-      min-width: 105px;
-      justify-content: center;
-      font-size: 12.5px;
-      padding: 7px 10px;
-      height: auto;
-      border-color: var(--wpepp-border-strong);
-      color: var(--wpepp-text);
+      svg {
+        fill: currentColor !important;
+      }
 
       &:hover {
-        background: var(--wpepp-hover);
-        border-color: var(--wpepp-accent);
-        color: var(--wpepp-accent);
+        color: var(--wpepp-text, #f2f5f9) !important;
+        background: var(--wpepp-hover, rgba(255, 255, 255, 0.08)) !important;
+      }
+
+      &:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 2px var(--wpepp-accent, #2ee6a8) !important;
       }
     }
   }
 
-  .wpepp-wizard__done-footer {
-    width: 100%;
-    display: flex;
-    justify-content: center;
+  /* Content Container */
+  .components-modal__content {
+    background: transparent !important;
+    color: var(--wpepp-text, #f2f5f9) !important;
+    padding: 22px 24px 24px !important;
+    margin: 0 !important;
+  }
 
-    .components-button.is-primary {
-      min-width: 130px;
-      justify-content: center;
-      height: 38px;
-      font-weight: 600;
+  /* Top Progress Indicator */
+  .wpepp-wizard__progress {
+    display: flex !important;
+    gap: 8px !important;
+    margin-bottom: 22px !important;
+  }
+
+  .wpepp-wizard__dot {
+    background: var(--wpepp-track, rgba(255, 255, 255, 0.12)) !important;
+    border-radius: 999px !important;
+    flex: 1 !important;
+    height: 5px !important;
+    transition: all 0.25s ease !important;
+
+    &.is-current {
+      background: var(--wpepp-accent, #2ee6a8) !important;
+      box-shadow: 0 0 10px rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.55) !important;
+    }
+
+    &.is-done {
+      background: var(--wpepp-accent, #2ee6a8) !important;
+    }
+  }
+
+  /* Step Header & Feature Icon */
+  .wpepp-wizard__step-head {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    margin-bottom: 12px !important;
+
+    h3 {
+      color: var(--wpepp-text, #f2f5f9) !important;
+      font-size: 18px !important;
+      font-weight: 650 !important;
+      line-height: 1.35 !important;
+      margin: 0 !important;
+    }
+  }
+
+  .wpepp-wizard__icon {
+    background: rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.14) !important;
+    border: 1px solid rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.3) !important;
+    border-radius: 12px !important;
+    font-size: 22px !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    display: grid !important;
+    place-items: center !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Description & Details */
+  .wpepp-wizard__desc {
+    color: var(--wpepp-text-2, rgba(226, 232, 244, 0.78)) !important;
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+    margin: 0 0 16px !important;
+    min-height: 48px !important;
+    max-width: 100% !important;
+  }
+
+  /* Step Counter */
+  .wpepp-wizard__counter {
+    color: var(--wpepp-text-3, rgba(226, 232, 244, 0.5)) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    margin: 0 0 18px !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
+  }
+
+  /* Bottom Actions Bar */
+  .wpepp-wizard__actions {
+    border-top: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08)) !important;
+    display: flex !important;
+    gap: 10px !important;
+    justify-content: flex-end !important;
+    padding-top: 16px !important;
+    margin-top: 4px !important;
+
+    .components-button {
+      border-radius: 8px !important;
+      font-size: 13px !important;
+      height: 38px !important;
+      cursor: pointer !important;
+      box-shadow: none !important;
+      transition: all 0.15s ease !important;
+
+      &.is-secondary {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid var(--wpepp-border-strong, rgba(255, 255, 255, 0.15)) !important;
+        color: var(--wpepp-text-2, rgba(226, 232, 244, 0.85)) !important;
+        font-weight: 550 !important;
+        padding: 0 18px !important;
+
+        &:hover {
+          background: var(--wpepp-hover, rgba(255, 255, 255, 0.09)) !important;
+          color: var(--wpepp-text, #ffffff) !important;
+          border-color: var(--wpepp-accent, #2ee6a8) !important;
+        }
+
+        &:focus {
+          outline: none !important;
+          box-shadow: 0 0 0 2px var(--wpepp-accent, #2ee6a8) !important;
+        }
+      }
+
+      &.is-primary {
+        background: var(--wpepp-accent, #2ee6a8) !important;
+        color: var(--wpepp-accent-contrast, #06231a) !important;
+        border: 0 !important;
+        font-weight: 650 !important;
+        padding: 0 20px !important;
+        box-shadow: 0 2px 10px rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.35) !important;
+
+        &:hover:not(:disabled) {
+          background: var(--wpepp-accent-strong, #5bf0c0) !important;
+          color: var(--wpepp-accent-contrast, #06231a) !important;
+          box-shadow: 0 4px 14px rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.45) !important;
+        }
+
+        &:focus:not(:disabled) {
+          outline: none !important;
+          box-shadow: 0 0 0 2px var(--wpepp-card, #141824), 0 0 0 4px var(--wpepp-accent, #2ee6a8) !important;
+        }
+      }
+    }
+  }
+
+  /* Completion / Finished State */
+  .wpepp-wizard__done {
+    padding: 8px 4px 6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+
+    h3 {
+      font-size: 19px !important;
+      font-weight: 650 !important;
+      margin: 0 0 6px !important;
+      color: var(--wpepp-text, #f2f5f9) !important;
+    }
+
+    .wpepp-wizard__done-stat {
+      font-size: 13px !important;
+      color: var(--wpepp-text-2, rgba(226, 232, 244, 0.75)) !important;
+      margin: 4px 0 16px !important;
+      font-weight: 500 !important;
+    }
+
+    .wpepp-wizard__done-links {
+      width: 100% !important;
+      background: var(--wpepp-surface, rgba(255, 255, 255, 0.03)) !important;
+      border: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08)) !important;
+      border-radius: 10px !important;
+      padding: 14px 16px !important;
+      margin-bottom: 18px !important;
+      box-sizing: border-box !important;
+
+      &-label {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        color: var(--wpepp-text-3, rgba(226, 232, 244, 0.5)) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        margin: 0 0 10px !important;
+        text-align: left !important;
+      }
+    }
+
+    .wpepp-wizard__done-buttons {
+      display: flex !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+
+      .components-button {
+        flex: 1 1 calc(33.333% - 6px) !important;
+        min-width: 105px !important;
+        justify-content: center !important;
+        font-size: 12.5px !important;
+        padding: 7px 10px !important;
+        height: auto !important;
+        background: transparent !important;
+        border: 1px solid var(--wpepp-border-strong, rgba(255, 255, 255, 0.12)) !important;
+        color: var(--wpepp-text, #f2f5f9) !important;
+        border-radius: 8px !important;
+
+        &:hover {
+          background: var(--wpepp-hover, rgba(255, 255, 255, 0.08)) !important;
+          border-color: var(--wpepp-accent, #2ee6a8) !important;
+          color: var(--wpepp-accent, #2ee6a8) !important;
+        }
+      }
+    }
+
+    .wpepp-wizard__done-footer {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
+
+      .components-button.is-primary {
+        min-width: 140px !important;
+        justify-content: center !important;
+        height: 38px !important;
+        font-weight: 650 !important;
+        background: var(--wpepp-accent, #2ee6a8) !important;
+        color: var(--wpepp-accent-contrast, #06231a) !important;
+        border-radius: 8px !important;
+      }
     }
   }
 }
+
+/* Explicit Light Mode Overrides for Wizard */
+body.wpepp-theme-light .components-modal__frame.wpepp-wizard,
+.wpepp-admin-wrap[data-theme="light"] ~ * .components-modal__frame.wpepp-wizard {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+
+  .components-modal__header {
+    border-bottom-color: #e2e8f0 !important;
+
+    .components-modal__header-heading {
+      color: #0f172a !important;
+    }
+
+    .components-modal__close-button {
+      color: #64748b !important;
+
+      &:hover {
+        color: #0f172a !important;
+        background: #f1f5f9 !important;
+      }
+    }
+  }
+
+  .components-modal__content {
+    color: #0f172a !important;
+  }
+
+  .wpepp-wizard__dot {
+    background: #e2e8f0 !important;
+
+    &.is-current {
+      background: #0fa97e !important;
+      box-shadow: 0 0 8px rgba(15, 169, 126, 0.4) !important;
+    }
+
+    &.is-done {
+      background: #0fa97e !important;
+    }
+  }
+
+  .wpepp-wizard__step-head h3 {
+    color: #0f172a !important;
+  }
+
+  .wpepp-wizard__icon {
+    background: rgba(15, 169, 126, 0.1) !important;
+    border-color: rgba(15, 169, 126, 0.25) !important;
+  }
+
+  .wpepp-wizard__desc {
+    color: #475569 !important;
+  }
+
+  .wpepp-wizard__counter {
+    color: #64748b !important;
+  }
+
+  .wpepp-wizard__actions {
+    border-top-color: #e2e8f0 !important;
+
+    .components-button.is-secondary {
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #334155 !important;
+
+      &:hover {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        border-color: #94a3b8 !important;
+      }
+    }
+
+    .components-button.is-primary {
+      background: #0fa97e !important;
+      color: #ffffff !important;
+
+      &:hover:not(:disabled) {
+        background: #0c8a67 !important;
+        color: #ffffff !important;
+      }
+    }
+  }
+
+  .wpepp-wizard__done {
+    h3 {
+      color: #0f172a !important;
+    }
+
+    .wpepp-wizard__done-stat {
+      color: #475569 !important;
+    }
+
+    .wpepp-wizard__done-links {
+      background: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+
+      &-label {
+        color: #64748b !important;
+      }
+    }
+
+    .wpepp-wizard__done-buttons .components-button {
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #334155 !important;
+
+      &:hover {
+        background: #f1f5f9 !important;
+        border-color: #0fa97e !important;
+        color: #0fa97e !important;
+      }
+    }
+
+    .wpepp-wizard__done-footer .components-button.is-primary {
+      background: #0fa97e !important;
+      color: #ffffff !important;
+    }
+  }
+}
+
+/* Dark Theme Support for Audit Report Modal */
+body:not(.wpepp-theme-light) .components-modal__frame.wpepp-audit-modal,
+body.wpepp-theme-dark .components-modal__frame.wpepp-audit-modal {
+  background: #141824 !important;
+  background-color: #141824 !important;
+  color: #f2f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75) !important;
+
+  .components-modal__header {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+
+    .components-modal__header-heading {
+      color: #f2f5f9 !important;
+    }
+
+    .components-modal__close-button {
+      color: rgba(226, 232, 244, 0.6) !important;
+
+      &:hover {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+      }
+    }
+  }
+
+  .components-modal__content {
+    background: transparent !important;
+    color: #f2f5f9 !important;
+  }
+}
+
 
