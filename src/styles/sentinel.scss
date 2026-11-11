@@ -933,458 +933,437 @@ body.wpepp-theme-light select.components-select-control__input,
 }
 
 /* ==========================================================================
-   Security Setup Wizard Modal & Dialog Styling (Dark & Light Theme)
+   Security Setup Wizard Modal — Preserves WP Modal Layout, Fixes Theme Colors
    ========================================================================== */
 
-/* Universal Modal Overlay on Settings Pages */
+/* Modal Screen Overlay */
 body.toplevel_page_wpepp-settings .components-modal__screen-overlay {
-  background-color: var(--wpepp-overlay, rgba(6, 8, 12, 0.76)) !important;
-  backdrop-filter: blur(6px) !important;
-  -webkit-backdrop-filter: blur(6px) !important;
-  z-index: 100000 !important;
+  background-color: var(--wpepp-overlay, rgba(6, 8, 12, 0.72));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 100000;
 }
 
 body.toplevel_page_wpepp-settings.wpepp-theme-light .components-modal__screen-overlay,
 body.wpepp-theme-light .components-modal__screen-overlay {
-  background-color: rgba(15, 23, 42, 0.45) !important;
+  background-color: rgba(15, 23, 42, 0.45);
 }
 
-/* Modal Frame: Security Setup Wizard */
+/* Modal Frame (Dark Theme Default) — Do NOT override WP header/content layout spacing */
 .components-modal__frame.wpepp-wizard {
-  background: var(--wpepp-card, #141824) !important;
-  background-color: var(--wpepp-card, #141824) !important;
-  color: var(--wpepp-text, #f2f5f9) !important;
-  border: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.09)) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px var(--wpepp-border, rgba(255, 255, 255, 0.05)) !important;
-  max-width: 500px !important;
-  width: 92% !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
+  background: var(--wpepp-card, #141824);
+  color: var(--wpepp-text, #f2f5f9);
+  border: 1px solid var(--wpepp-border, hsla(0, 0%, 100%, 0.1));
+  border-radius: 12px;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.6);
+  max-width: 480px;
 
-  /* Header */
+  /* Map Gutenberg component tokens cleanly to Midnight Sentinel dark palette */
+  --wp-components-color-foreground: #f2f5f9;
+  --wp-components-color-accent: #2ee6a8;
+  --wp-components-color-accent-darker-10: #5bf0c0;
+  --wp-components-color-accent-darker-20: #1ec990;
+  --wp-components-color-accent-inverted: #06231a;
+  --wp-components-color-background: #141824;
+  --wp-admin-theme-color: #2ee6a8;
+  --wpds-color-stroke-focus: #2ee6a8;
+
+  @media (min-width: 600px) {
+    width: min(480px, calc(100vw - 32px));
+  }
+
+  /* Header colors only — leave WP core absolute positioning & 72px height intact */
   .components-modal__header {
-    background: transparent !important;
-    border-bottom: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08)) !important;
-    padding: 18px 24px 16px !important;
-    margin: 0 !important;
-    height: auto !important;
+    background: transparent;
 
+    h1,
     .components-modal__header-heading {
-      color: var(--wpepp-text, #f2f5f9) !important;
-      font-size: 16px !important;
-      font-weight: 650 !important;
-      letter-spacing: -0.01em !important;
-      line-height: 1.4 !important;
-      margin: 0 !important;
+      color: var(--wpepp-text, #f2f5f9);
     }
 
-    .components-modal__close-button {
-      color: var(--wpepp-text-3, rgba(226, 232, 244, 0.6)) !important;
-      border-radius: 8px !important;
-      width: 32px !important;
-      height: 32px !important;
-      min-width: 32px !important;
-      cursor: pointer !important;
-      transition: all 0.15s ease !important;
+    /* WordPress Close (X) Button uses .components-button.is-compact.has-icon */
+    .components-button,
+    .components-button.has-icon {
+      color: var(--wpepp-text-2, rgba(226, 232, 244, 0.78));
+      background: transparent;
+      border-radius: 6px;
+      transition: background-color 0.15s ease, color 0.15s ease;
 
       svg {
-        fill: currentColor !important;
+        fill: currentColor;
       }
 
-      &:hover {
-        color: var(--wpepp-text, #f2f5f9) !important;
-        background: var(--wpepp-hover, rgba(255, 255, 255, 0.08)) !important;
+      &:hover:not(:disabled, [aria-disabled="true"]) {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.09);
       }
 
-      &:focus {
-        outline: none !important;
-        box-shadow: 0 0 0 2px var(--wpepp-accent, #2ee6a8) !important;
+      &:focus-visible {
+        outline: 2px solid var(--wpepp-accent, #2ee6a8);
+        outline-offset: 2px;
       }
     }
   }
 
-  /* Content Container */
+  /* Content color only — preserve WP core margin-top: 72px & padding */
   .components-modal__content {
-    background: transparent !important;
-    color: var(--wpepp-text, #f2f5f9) !important;
-    padding: 22px 24px 24px !important;
-    margin: 0 !important;
+    background: transparent;
+    color: var(--wpepp-text, #f2f5f9);
   }
 
-  /* Top Progress Indicator */
-  .wpepp-wizard__progress {
-    display: flex !important;
-    gap: 8px !important;
-    margin-bottom: 22px !important;
+  .components-modal__content.has-scrolled-content:not(.hide-header) .components-modal__header {
+    background: var(--wpepp-card, #141824);
+    border-bottom-color: var(--wpepp-border, hsla(0, 0%, 100%, 0.08));
   }
 
+  /* Loading Text State */
+  .wpepp-wizard__loading {
+    color: var(--wpepp-text-2, rgba(226, 232, 244, 0.78));
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 4px 0 8px;
+  }
+
+  /* Progress Dots */
   .wpepp-wizard__dot {
-    background: var(--wpepp-track, rgba(255, 255, 255, 0.12)) !important;
-    border-radius: 999px !important;
-    flex: 1 !important;
-    height: 5px !important;
-    transition: all 0.25s ease !important;
+    background: rgba(255, 255, 255, 0.14);
 
-    &.is-current {
-      background: var(--wpepp-accent, #2ee6a8) !important;
-      box-shadow: 0 0 10px rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.55) !important;
-    }
-
+    &.is-current,
     &.is-done {
-      background: var(--wpepp-accent, #2ee6a8) !important;
+      background: var(--wpepp-accent, #2ee6a8);
     }
   }
 
-  /* Step Header & Feature Icon */
-  .wpepp-wizard__step-head {
-    display: flex !important;
-    align-items: center !important;
-    gap: 14px !important;
-    margin-bottom: 12px !important;
-
-    h3 {
-      color: var(--wpepp-text, #f2f5f9) !important;
-      font-size: 18px !important;
-      font-weight: 650 !important;
-      line-height: 1.35 !important;
-      margin: 0 !important;
-    }
+  /* Step Title & Description & Counter */
+  .wpepp-wizard__step-head h3 {
+    color: var(--wpepp-text, #f2f5f9);
   }
 
   .wpepp-wizard__icon {
-    background: rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.14) !important;
-    border: 1px solid rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.3) !important;
-    border-radius: 12px !important;
-    font-size: 22px !important;
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    display: grid !important;
-    place-items: center !important;
-    line-height: 1 !important;
-    flex-shrink: 0 !important;
+    background: rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.16);
   }
 
-  /* Description & Details */
   .wpepp-wizard__desc {
-    color: var(--wpepp-text-2, rgba(226, 232, 244, 0.78)) !important;
-    font-size: 13.5px !important;
-    line-height: 1.6 !important;
-    margin: 0 0 16px !important;
-    min-height: 48px !important;
-    max-width: 100% !important;
+    color: var(--wpepp-text-2, rgba(226, 232, 244, 0.78));
   }
 
-  /* Step Counter */
   .wpepp-wizard__counter {
-    color: var(--wpepp-text-3, rgba(226, 232, 244, 0.5)) !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.08em !important;
-    text-transform: uppercase !important;
-    margin: 0 0 18px !important;
-    font-variant-numeric: tabular-nums lining-nums !important;
+    color: var(--wpepp-text-3, rgba(226, 232, 244, 0.52));
   }
 
-  /* Bottom Actions Bar */
+  .components-notice {
+    margin: 0 0 14px;
+
+    &.is-error {
+      background: rgba(251, 75, 107, 0.14);
+      border-left-color: #fb4b6b;
+      color: #fecdd3;
+    }
+  }
+
+  /* Footer Action Buttons */
   .wpepp-wizard__actions {
-    border-top: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08)) !important;
-    display: flex !important;
-    gap: 10px !important;
-    justify-content: flex-end !important;
-    padding-top: 16px !important;
-    margin-top: 4px !important;
+    border-top-color: var(--wpepp-border, hsla(0, 0%, 100%, 0.08));
 
     .components-button {
-      border-radius: 8px !important;
-      font-size: 13px !important;
-      height: 38px !important;
-      cursor: pointer !important;
-      box-shadow: none !important;
-      transition: all 0.15s ease !important;
+      border-radius: 6px;
+      box-shadow: none;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
       &.is-secondary {
-        background: rgba(255, 255, 255, 0.04) !important;
-        border: 1px solid var(--wpepp-border-strong, rgba(255, 255, 255, 0.15)) !important;
-        color: var(--wpepp-text-2, rgba(226, 232, 244, 0.85)) !important;
-        font-weight: 550 !important;
-        padding: 0 18px !important;
+        background: transparent;
+        border-color: hsla(0, 0%, 100%, 0.18);
+        color: var(--wpepp-text-2, rgba(226, 232, 244, 0.85));
 
-        &:hover {
-          background: var(--wpepp-hover, rgba(255, 255, 255, 0.09)) !important;
-          color: var(--wpepp-text, #ffffff) !important;
-          border-color: var(--wpepp-accent, #2ee6a8) !important;
-        }
-
-        &:focus {
-          outline: none !important;
-          box-shadow: 0 0 0 2px var(--wpepp-accent, #2ee6a8) !important;
+        &:hover:not(:disabled, [aria-disabled="true"], .is-pressed) {
+          background: rgba(255, 255, 255, 0.07);
+          border-color: var(--wpepp-accent, #2ee6a8);
+          color: #ffffff;
         }
       }
 
       &.is-primary {
-        background: var(--wpepp-accent, #2ee6a8) !important;
-        color: var(--wpepp-accent-contrast, #06231a) !important;
-        border: 0 !important;
-        font-weight: 650 !important;
-        padding: 0 20px !important;
-        box-shadow: 0 2px 10px rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.35) !important;
+        background-color: var(--wpepp-accent, #2ee6a8);
+        border-color: var(--wpepp-accent, #2ee6a8);
+        color: var(--wpepp-accent-contrast, #06231a);
+        font-weight: 600;
 
-        &:hover:not(:disabled) {
-          background: var(--wpepp-accent-strong, #5bf0c0) !important;
-          color: var(--wpepp-accent-contrast, #06231a) !important;
-          box-shadow: 0 4px 14px rgba(var(--wpepp-accent-rgb, 46, 230, 168), 0.45) !important;
+        &:hover:not(:disabled, [aria-disabled="true"]) {
+          background-color: var(--wpepp-accent-strong, #5bf0c0);
+          border-color: var(--wpepp-accent-strong, #5bf0c0);
+          color: var(--wpepp-accent-contrast, #06231a);
         }
 
-        &:focus:not(:disabled) {
-          outline: none !important;
-          box-shadow: 0 0 0 2px var(--wpepp-card, #141824), 0 0 0 4px var(--wpepp-accent, #2ee6a8) !important;
+        &.is-busy {
+          color: var(--wpepp-accent-contrast, #06231a);
         }
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--wpepp-accent, #2ee6a8);
+        outline-offset: 2px;
       }
     }
   }
 
-  /* Completion / Finished State */
+  /* 3. Wizard Quick Actions on Finish */
   .wpepp-wizard__done {
-    padding: 8px 4px 6px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
+    padding: 8px 4px 6px;
 
     h3 {
-      font-size: 19px !important;
-      font-weight: 650 !important;
-      margin: 0 0 6px !important;
-      color: var(--wpepp-text, #f2f5f9) !important;
+      font-size: 19px;
+      margin: 0 0 4px;
+      color: var(--wpepp-text, #f2f5f9);
     }
 
     .wpepp-wizard__done-stat {
-      font-size: 13px !important;
-      color: var(--wpepp-text-2, rgba(226, 232, 244, 0.75)) !important;
-      margin: 4px 0 16px !important;
-      font-weight: 500 !important;
+      font-size: 13px;
+      color: var(--wpepp-text-2, rgba(226, 232, 244, 0.78));
+      margin: 4px 0 16px;
+      font-weight: 500;
     }
 
     .wpepp-wizard__done-links {
-      width: 100% !important;
-      background: var(--wpepp-surface, rgba(255, 255, 255, 0.03)) !important;
-      border: 1px solid var(--wpepp-border, rgba(255, 255, 255, 0.08)) !important;
-      border-radius: 10px !important;
-      padding: 14px 16px !important;
-      margin-bottom: 18px !important;
-      box-sizing: border-box !important;
+      width: 100%;
+      background: var(--wpepp-surface, #12151d);
+      border: 1px solid var(--wpepp-border, hsla(0, 0%, 100%, 0.08));
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      box-sizing: border-box;
 
       &-label {
-        font-size: 11px !important;
-        font-weight: 700 !important;
-        color: var(--wpepp-text-3, rgba(226, 232, 244, 0.5)) !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.08em !important;
-        margin: 0 0 10px !important;
-        text-align: left !important;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--wpepp-text-3, rgba(226, 232, 244, 0.52));
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0 0 10px;
+        text-align: left;
       }
     }
 
     .wpepp-wizard__done-buttons {
-      display: flex !important;
-      gap: 8px !important;
-      flex-wrap: wrap !important;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
 
       .components-button {
-        flex: 1 1 calc(33.333% - 6px) !important;
-        min-width: 105px !important;
-        justify-content: center !important;
-        font-size: 12.5px !important;
-        padding: 7px 10px !important;
-        height: auto !important;
-        background: transparent !important;
-        border: 1px solid var(--wpepp-border-strong, rgba(255, 255, 255, 0.12)) !important;
-        color: var(--wpepp-text, #f2f5f9) !important;
-        border-radius: 8px !important;
+        flex: 1 1 calc(33.333% - 6px);
+        min-width: 105px;
+        justify-content: center;
+        font-size: 12.5px;
+        padding: 7px 10px;
+        height: auto;
+        background: transparent;
+        border: 1px solid hsla(0, 0%, 100%, 0.16);
+        border-radius: 6px;
+        color: var(--wpepp-text, #f2f5f9);
 
-        &:hover {
-          background: var(--wpepp-hover, rgba(255, 255, 255, 0.08)) !important;
-          border-color: var(--wpepp-accent, #2ee6a8) !important;
-          color: var(--wpepp-accent, #2ee6a8) !important;
+        &:hover:not(:disabled, [aria-disabled="true"]) {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: var(--wpepp-accent, #2ee6a8);
+          color: var(--wpepp-accent, #2ee6a8);
         }
       }
     }
 
     .wpepp-wizard__done-footer {
-      width: 100% !important;
-      display: flex !important;
-      justify-content: center !important;
+      width: 100%;
+      display: flex;
+      justify-content: center;
 
       .components-button.is-primary {
-        min-width: 140px !important;
-        justify-content: center !important;
-        height: 38px !important;
-        font-weight: 650 !important;
-        background: var(--wpepp-accent, #2ee6a8) !important;
-        color: var(--wpepp-accent-contrast, #06231a) !important;
-        border-radius: 8px !important;
+        min-width: 130px;
+        justify-content: center;
+        height: 38px;
+        font-weight: 600;
+        background-color: var(--wpepp-accent, #2ee6a8);
+        border-color: var(--wpepp-accent, #2ee6a8);
+        color: var(--wpepp-accent-contrast, #06231a);
+        border-radius: 6px;
+
+        &:hover:not(:disabled, [aria-disabled="true"]) {
+          background-color: var(--wpepp-accent-strong, #5bf0c0);
+          border-color: var(--wpepp-accent-strong, #5bf0c0);
+          color: var(--wpepp-accent-contrast, #06231a);
+        }
       }
     }
   }
 }
 
-/* Explicit Light Mode Overrides for Wizard */
-body.wpepp-theme-light .components-modal__frame.wpepp-wizard,
-.wpepp-admin-wrap[data-theme="light"] ~ * .components-modal__frame.wpepp-wizard {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+/* Explicit Light Theme Overrides for Security Setup Wizard */
+body.wpepp-theme-light .components-modal__frame.wpepp-wizard {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  --wp-components-color-foreground: #0f172a;
+  --wp-components-color-accent: #0fa97e;
+  --wp-components-color-accent-darker-10: #0c8a67;
+  --wp-components-color-accent-darker-20: #096d51;
+  --wp-components-color-accent-inverted: #ffffff;
+  --wp-components-color-background: #ffffff;
+  --wp-admin-theme-color: #0fa97e;
+  --wpds-color-stroke-focus: #0fa97e;
 
   .components-modal__header {
-    border-bottom-color: #e2e8f0 !important;
-
+    h1,
     .components-modal__header-heading {
-      color: #0f172a !important;
+      color: #0f172a;
     }
 
-    .components-modal__close-button {
-      color: #64748b !important;
+    .components-button,
+    .components-button.has-icon {
+      color: #475569;
 
-      &:hover {
-        color: #0f172a !important;
-        background: #f1f5f9 !important;
+      &:hover:not(:disabled, [aria-disabled="true"]) {
+        color: #0f172a;
+        background: #f1f5f9;
+      }
+
+      &:focus-visible {
+        outline-color: #0fa97e;
       }
     }
   }
 
   .components-modal__content {
-    color: #0f172a !important;
+    color: #0f172a;
+  }
+
+  .components-modal__content.has-scrolled-content:not(.hide-header) .components-modal__header {
+    background: #ffffff;
+    border-bottom-color: #e2e8f0;
+  }
+
+  .wpepp-wizard__loading {
+    color: #475569;
   }
 
   .wpepp-wizard__dot {
-    background: #e2e8f0 !important;
+    background: #cbd5e1;
 
-    &.is-current {
-      background: #0fa97e !important;
-      box-shadow: 0 0 8px rgba(15, 169, 126, 0.4) !important;
-    }
-
+    &.is-current,
     &.is-done {
-      background: #0fa97e !important;
+      background: #0fa97e;
     }
   }
 
   .wpepp-wizard__step-head h3 {
-    color: #0f172a !important;
+    color: #0f172a;
   }
 
   .wpepp-wizard__icon {
-    background: rgba(15, 169, 126, 0.1) !important;
-    border-color: rgba(15, 169, 126, 0.25) !important;
+    background: rgba(15, 169, 126, 0.12);
   }
 
   .wpepp-wizard__desc {
-    color: #475569 !important;
+    color: #475569;
   }
 
   .wpepp-wizard__counter {
-    color: #64748b !important;
+    color: #64748b;
+  }
+
+  .components-notice.is-error {
+    background: #fef2f2;
+    border-left-color: #e11d48;
+    color: #991b1b;
   }
 
   .wpepp-wizard__actions {
-    border-top-color: #e2e8f0 !important;
+    border-top-color: #e2e8f0;
 
-    .components-button.is-secondary {
-      background: #ffffff !important;
-      border-color: #cbd5e1 !important;
-      color: #334155 !important;
+    .components-button {
+      &.is-secondary {
+        background: #ffffff;
+        border-color: #cbd5e1;
+        color: #334155;
 
-      &:hover {
-        background: #f8fafc !important;
-        color: #0f172a !important;
-        border-color: #94a3b8 !important;
+        &:hover:not(:disabled, [aria-disabled="true"], .is-pressed) {
+          background: #f8fafc;
+          border-color: #0fa97e;
+          color: #0f172a;
+        }
       }
-    }
 
-    .components-button.is-primary {
-      background: #0fa97e !important;
-      color: #ffffff !important;
+      &.is-primary {
+        background-color: #0fa97e;
+        border-color: #0fa97e;
+        color: #ffffff;
 
-      &:hover:not(:disabled) {
-        background: #0c8a67 !important;
-        color: #ffffff !important;
+        &:hover:not(:disabled, [aria-disabled="true"]) {
+          background-color: #0c8a67;
+          border-color: #0c8a67;
+          color: #ffffff;
+        }
+
+        &.is-busy {
+          color: #ffffff;
+        }
+      }
+
+      &:focus-visible {
+        outline-color: #0fa97e;
       }
     }
   }
 
   .wpepp-wizard__done {
     h3 {
-      color: #0f172a !important;
+      color: #0f172a;
     }
 
     .wpepp-wizard__done-stat {
-      color: #475569 !important;
+      color: #475569;
     }
 
     .wpepp-wizard__done-links {
-      background: #f8fafc !important;
-      border-color: #e2e8f0 !important;
+      background: #f8fafc;
+      border-color: #e2e8f0;
 
       &-label {
-        color: #64748b !important;
+        color: #64748b;
       }
     }
 
     .wpepp-wizard__done-buttons .components-button {
-      background: #ffffff !important;
-      border-color: #cbd5e1 !important;
-      color: #334155 !important;
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #334155;
 
-      &:hover {
-        background: #f1f5f9 !important;
-        border-color: #0fa97e !important;
-        color: #0fa97e !important;
+      &:hover:not(:disabled, [aria-disabled="true"]) {
+        background: #f1f5f9;
+        border-color: #0fa97e;
+        color: #0fa97e;
       }
     }
 
     .wpepp-wizard__done-footer .components-button.is-primary {
-      background: #0fa97e !important;
-      color: #ffffff !important;
-    }
-  }
-}
+      background-color: #0fa97e;
+      border-color: #0fa97e;
+      color: #ffffff;
 
-/* Dark Theme Support for Audit Report Modal */
-body:not(.wpepp-theme-light) .components-modal__frame.wpepp-audit-modal,
-body.wpepp-theme-dark .components-modal__frame.wpepp-audit-modal {
-  background: #141824 !important;
-  background-color: #141824 !important;
-  color: #f2f5f9 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75) !important;
-
-  .components-modal__header {
-    background: transparent !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-
-    .components-modal__header-heading {
-      color: #f2f5f9 !important;
-    }
-
-    .components-modal__close-button {
-      color: rgba(226, 232, 244, 0.6) !important;
-
-      &:hover {
-        color: #ffffff !important;
-        background: rgba(255, 255, 255, 0.08) !important;
+      &:hover:not(:disabled, [aria-disabled="true"]) {
+        background-color: #0c8a67;
+        border-color: #0c8a67;
+        color: #ffffff;
       }
     }
   }
-
-  .components-modal__content {
-    background: transparent !important;
-    color: #f2f5f9 !important;
-  }
 }
+
+/* Keep Audit Report Modal consistently legible against its light report cards */
+.components-modal__frame.wpepp-audit-modal {
+  --wpepp-text: #0f172a;
+  --wpepp-text-2: #475569;
+  --wpepp-text-3: #64748b;
+  --wpepp-ring-track: rgba(15, 23, 42, 0.08);
+}
+
 
 

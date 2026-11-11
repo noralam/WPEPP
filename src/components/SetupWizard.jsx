@@ -84,7 +84,7 @@ const SetupWizard = ( { onClose, onComplete } ) => {
 			className="wpepp-wizard"
 		>
 			{ steps.length === 0 ? (
-				<p>{ __( 'Loading…', 'wp-edit-password-protected' ) }</p>
+				<p className="wpepp-wizard__loading">{ __( 'Loading…', 'wp-edit-password-protected' ) }</p>
 			) : (
 				<>
 					<div className="wpepp-wizard__progress" aria-hidden="true">
